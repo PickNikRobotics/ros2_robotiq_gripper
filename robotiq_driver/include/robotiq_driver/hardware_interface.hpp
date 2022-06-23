@@ -20,7 +20,7 @@
 
 #include "robotiq_driver/visibility_control.h"
 
-namespace ros2_robotiq_driver
+namespace robotiq_driver
 {
 class RobotiqGripperHardwareInterface : public hardware_interface::ActuatorInterface
 {
@@ -59,4 +59,4 @@ private:
   double hw_joint_state_;
 };
 
-}  // namespace ros2_robotiq_driver
+}  // namespace robotiq_driver

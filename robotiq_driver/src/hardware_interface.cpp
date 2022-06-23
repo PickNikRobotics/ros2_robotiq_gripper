@@ -16,7 +16,7 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-namespace ros2_robotiq_driver
+namespace robotiq_driver
 {
 CallbackReturn RobotiqGripperHardwareInterface::on_init(
   const hardware_interface::HardwareInfo & info)
@@ -177,4 +177,4 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 #include "pluginlib/class_list_macros.hpp"
 
 PLUGINLIB_EXPORT_CLASS(
-  ros2_robotiq_driver::RobotiqGripperHardwareInterface, hardware_interface::ActuatorInterface)
+  robotiq_driver::RobotiqGripperHardwareInterface, hardware_interface::ActuatorInterface)
