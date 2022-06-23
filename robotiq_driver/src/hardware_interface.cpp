@@ -29,12 +29,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   {
     return CallbackReturn::ERROR;
   }
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  hw_start_sec_ = stod(info_.hardware_parameters["example_param_hw_start_duration_sec"]);
-  hw_stop_sec_ = stod(info_.hardware_parameters["example_param_hw_stop_duration_sec"]);
-  hw_slowdown_ = stod(info_.hardware_parameters["example_param_hw_slowdown"]);
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
+  
   hw_joint_state_ = std::numeric_limits<double>::quiet_NaN();
   hw_joint_command_ = std::numeric_limits<double>::quiet_NaN();
 
@@ -53,7 +48,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   {
     RCLCPP_FATAL(
       kLogger,
-      "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
+      "Joint '%s' has %s command interfaces found. '%s' expected.", joint.name.c_str(),
       joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
   }
@@ -69,7 +64,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
   {
     RCLCPP_FATAL(
-      kLogger, "Joint '%s' have %s state interface. '%s' expected.",
+      kLogger, "Joint '%s' has %s state interface. '%s' expected.",
       joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
       hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
@@ -101,16 +96,6 @@ std::vector<hardware_interface::CommandInterface> RobotiqGripperHardwareInterfac
 CallbackReturn RobotiqGripperHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(kLogger, "Activating ...please wait...");
-
-  for (int i = 0; i < hw_start_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(kLogger, "%.1f seconds left...", hw_start_sec_ - i);
-  }
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   // set some default values for joints
   if (std::isnan(hw_joint_state_))
   {
@@ -126,18 +111,6 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(
 CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(kLogger, "Deactivating ...please wait...");
-
-  for (int i = 0; i < hw_stop_sec_; i++)
-  {
-    rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(kLogger, "%.1f seconds left...", hw_stop_sec_ - i);
-  }
-
-  RCLCPP_INFO(kLogger, "Successfully deactivated!");
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
-
   return CallbackReturn::SUCCESS;
 }
 
@@ -146,8 +119,6 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
   RCLCPP_INFO(kLogger, "Reading...");
 
-  // Simulate RRBot's movement
-  hw_joint_state_ = hw_joint_state_ + (hw_joint_command_ - hw_joint_state_) / hw_slowdown_;
   RCLCPP_INFO(
     kLogger, "Got state %.5f for joint '%s'!", hw_joint_state_,
     info_.joints[0].name.c_str());
@@ -167,6 +138,8 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write()
   RCLCPP_INFO(
     kLogger, "Got command %.5f for joint '%s'!", hw_joint_command_,
     info_.joints[0].name.c_str());
+
+  hw_joint_state_ = hw_joint_command_;
 
   RCLCPP_INFO(kLogger, "Joints successfully written!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
