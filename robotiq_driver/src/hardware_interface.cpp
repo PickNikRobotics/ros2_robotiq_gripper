@@ -16,6 +16,8 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
+
 namespace robotiq_driver
 {
 CallbackReturn RobotiqGripperHardwareInterface::on_init(
@@ -41,7 +43,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   if (joint.command_interfaces.size() != 1)
   {
     RCLCPP_FATAL(
-      rclcpp::get_logger("RobotiqGripperHardwareInterface"),
+      kLogger,
       "Joint '%s' has %zu command interfaces found. 1 expected.", joint.name.c_str(),
       joint.command_interfaces.size());
     return CallbackReturn::ERROR;
@@ -50,7 +52,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   if (joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
   {
     RCLCPP_FATAL(
-      rclcpp::get_logger("RobotiqGripperHardwareInterface"),
+      kLogger,
       "Joint '%s' have %s command interfaces found. '%s' expected.", joint.name.c_str(),
       joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
@@ -59,7 +61,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   if (joint.state_interfaces.size() != 1)
   {
     RCLCPP_FATAL(
-      rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Joint '%s' has %zu state interface. 1 expected.",
+      kLogger, "Joint '%s' has %zu state interface. 1 expected.",
       joint.name.c_str(), joint.state_interfaces.size());
     return CallbackReturn::ERROR;
   }
@@ -67,7 +69,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
   {
     RCLCPP_FATAL(
-      rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Joint '%s' have %s state interface. '%s' expected.",
+      kLogger, "Joint '%s' have %s state interface. '%s' expected.",
       joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
       hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
@@ -100,12 +102,12 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Activating ...please wait...");
+  RCLCPP_INFO(kLogger, "Activating ...please wait...");
 
   for (int i = 0; i < hw_start_sec_; i++)
   {
     rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "%.1f seconds left...", hw_start_sec_ - i);
+    RCLCPP_INFO(kLogger, "%.1f seconds left...", hw_start_sec_ - i);
   }
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
@@ -116,7 +118,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(
     hw_joint_command_ = 0;
   }
 
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Successfully activated!");
+  RCLCPP_INFO(kLogger, "Successfully activated!");
 
   return CallbackReturn::SUCCESS;
 }
@@ -125,15 +127,15 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Deactivating ...please wait...");
+  RCLCPP_INFO(kLogger, "Deactivating ...please wait...");
 
   for (int i = 0; i < hw_stop_sec_; i++)
   {
     rclcpp::sleep_for(std::chrono::seconds(1));
-    RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "%.1f seconds left...", hw_stop_sec_ - i);
+    RCLCPP_INFO(kLogger, "%.1f seconds left...", hw_stop_sec_ - i);
   }
 
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Successfully deactivated!");
+  RCLCPP_INFO(kLogger, "Successfully deactivated!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return CallbackReturn::SUCCESS;
@@ -142,15 +144,15 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(
 hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Reading...");
+  RCLCPP_INFO(kLogger, "Reading...");
 
   // Simulate RRBot's movement
   hw_joint_state_ = hw_joint_state_ + (hw_joint_command_ - hw_joint_state_) / hw_slowdown_;
   RCLCPP_INFO(
-    rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Got state %.5f for joint '%s'!", hw_joint_state_,
+    kLogger, "Got state %.5f for joint '%s'!", hw_joint_state_,
     info_.joints[0].name.c_str());
 
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Joints successfully read!");
+  RCLCPP_INFO(kLogger, "Joints successfully read!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
@@ -159,14 +161,14 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 {
   // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Writing...please wait...");
+  RCLCPP_INFO(kLogger, "Writing...please wait...");
 
   // Simulate sending commands to the hardware
   RCLCPP_INFO(
-    rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Got command %.5f for joint '%s'!", hw_joint_command_,
+    kLogger, "Got command %.5f for joint '%s'!", hw_joint_command_,
     info_.joints[0].name.c_str());
 
-  RCLCPP_INFO(rclcpp::get_logger("RobotiqGripperHardwareInterface"), "Joints successfully written!");
+  RCLCPP_INFO(kLogger, "Joints successfully written!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
