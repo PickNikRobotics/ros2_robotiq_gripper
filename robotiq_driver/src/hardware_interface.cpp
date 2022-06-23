@@ -30,11 +30,13 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
     return CallbackReturn::ERROR;
   }
   
-  hw_joint_state_ = std::numeric_limits<double>::quiet_NaN();
-  hw_joint_command_ = std::numeric_limits<double>::quiet_NaN();
+  gripper_position_ = std::numeric_limits<double>::quiet_NaN();
+  gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
+  gripper_position_command_ = std::numeric_limits<double>::quiet_NaN();
 
   const hardware_interface::ComponentInfo & joint = info_.joints[0];
-  // RobotiqGripperHardwareInterface has exactly one state and command interface on each joint
+
+  // There is one command interface: position.
   if (joint.command_interfaces.size() != 1)
   {
     RCLCPP_FATAL(
@@ -53,21 +55,26 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
     return CallbackReturn::ERROR;
   }
 
-  if (joint.state_interfaces.size() != 1)
+  // There are two state interfaces: position and velocity.
+  if (joint.state_interfaces.size() != 2)
   {
     RCLCPP_FATAL(
-      kLogger, "Joint '%s' has %zu state interface. 1 expected.",
+      kLogger, "Joint '%s' has %zu state interface. 2 expected.",
       joint.name.c_str(), joint.state_interfaces.size());
     return CallbackReturn::ERROR;
   }
 
-  if (joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION)
+  for (int i = 0; i < 2; ++i)
   {
-    RCLCPP_FATAL(
-      kLogger, "Joint '%s' has %s state interface. '%s' expected.",
-      joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
-      hardware_interface::HW_IF_POSITION);
-    return CallbackReturn::ERROR;
+    if (!(joint.state_interfaces[i].name == hardware_interface::HW_IF_POSITION ||
+          joint.state_interfaces[i].name == hardware_interface::HW_IF_VELOCITY))
+    {
+      RCLCPP_FATAL(
+        kLogger, "Joint '%s' has %s state interface. Expected %s or %s.",
+        joint.name.c_str(), joint.state_interfaces[i].name.c_str(),
+        hardware_interface::HW_IF_POSITION, hardware_interface::HW_IF_VELOCITY);
+      return CallbackReturn::ERROR;
+    }
   }
 
   return CallbackReturn::SUCCESS;
@@ -78,7 +85,9 @@ std::vector<hardware_interface::StateInterface> RobotiqGripperHardwareInterface:
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
   state_interfaces.emplace_back(hardware_interface::StateInterface(
-    info_.joints[0].name, hardware_interface::HW_IF_POSITION, &hw_joint_state_));
+    info_.joints[0].name, hardware_interface::HW_IF_POSITION, &gripper_position_));
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+    info_.joints[0].name, hardware_interface::HW_IF_VELOCITY, &gripper_velocity_));
 
   return state_interfaces;
 }
@@ -88,7 +97,7 @@ std::vector<hardware_interface::CommandInterface> RobotiqGripperHardwareInterfac
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-    info_.joints[0].name, hardware_interface::HW_IF_POSITION, &hw_joint_command_));
+    info_.joints[0].name, hardware_interface::HW_IF_POSITION, &gripper_position_command_));
 
   return command_interfaces;
 }
@@ -97,10 +106,11 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
   // set some default values for joints
-  if (std::isnan(hw_joint_state_))
+  if (std::isnan(gripper_position_))
   {
-    hw_joint_state_ = 0;
-    hw_joint_command_ = 0;
+    gripper_position_ = 0;
+    gripper_velocity_ = 0;
+    gripper_position_command_ = 0;
   }
 
   RCLCPP_INFO(kLogger, "Successfully activated!");
@@ -120,7 +130,10 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
   RCLCPP_INFO(kLogger, "Reading...");
 
   RCLCPP_INFO(
-    kLogger, "Got state %.5f for joint '%s'!", hw_joint_state_,
+    kLogger, "Got position %.5f for joint '%s'!", gripper_position_,
+    info_.joints[0].name.c_str());
+  RCLCPP_INFO(
+    kLogger, "Got velocity %.5f for joint '%s'!", gripper_velocity_,
     info_.joints[0].name.c_str());
 
   RCLCPP_INFO(kLogger, "Joints successfully read!");
@@ -136,10 +149,10 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 
   // Simulate sending commands to the hardware
   RCLCPP_INFO(
-    kLogger, "Got command %.5f for joint '%s'!", hw_joint_command_,
+    kLogger, "Got command %.5f for joint '%s'!", gripper_position_command_,
     info_.joints[0].name.c_str());
 
-  hw_joint_state_ = hw_joint_command_;
+  gripper_position_ = gripper_position_command_;
 
   RCLCPP_INFO(kLogger, "Joints successfully written!");
   // END: This part here is for exemplary purposes - Please do not copy to your production code

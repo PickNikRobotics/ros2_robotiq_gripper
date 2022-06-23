@@ -49,14 +49,9 @@ public:
   hardware_interface::return_type write() override;
 
 private:
-  // Parameters for the RRBot simulation
-  double hw_start_sec_;
-  double hw_stop_sec_;
-  double hw_slowdown_;
-
-  // Store the command for the simulated robot
-  double hw_joint_command_;
-  double hw_joint_state_;
+  double gripper_position_;
+  double gripper_velocity_;
+  double gripper_position_command_;
 };
 
 }  // namespace robotiq_driver
