@@ -29,7 +29,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(
   {
     return CallbackReturn::ERROR;
   }
-  
+
   gripper_position_ = std::numeric_limits<double>::quiet_NaN();
   gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
   gripper_position_command_ = std::numeric_limits<double>::quiet_NaN();
