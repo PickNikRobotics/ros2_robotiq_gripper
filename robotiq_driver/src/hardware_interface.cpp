@@ -72,14 +72,6 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface
   // Create the interface to the gripper.
   gripper_interface_ = std::make_unique<RobotiqGripperInterface>("/dev/ttyUSB0");
 
-  // Activate the gripper.
-  gripper_interface_->deactivateGripper();
-  if (!gripper_interface_->activateGripper())
-  {
-    RCLCPP_FATAL(kLogger, "Failed to activate gripper.");
-    return CallbackReturn::ERROR;
-  }
-
   return CallbackReturn::SUCCESS;
 }
 
@@ -113,6 +105,14 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
     gripper_position_ = 0;
     gripper_velocity_ = 0;
     gripper_position_command_ = 0;
+  }
+
+  // Activate the gripper.
+  gripper_interface_->deactivateGripper();
+  if (!gripper_interface_->activateGripper())
+  {
+    RCLCPP_FATAL(kLogger, "Failed to activate gripper.");
+    return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(kLogger, "Successfully activated!");
