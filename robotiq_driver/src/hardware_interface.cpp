@@ -122,6 +122,9 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
 
 CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/)
 {
+  // Deactivate the gripper.
+  gripper_interface_->deactivateGripper();
+
   return CallbackReturn::SUCCESS;
 }
 
