@@ -36,6 +36,12 @@ public:
    */
   void setGripperPosition(uint8_t pos);
 
+  /**
+   * @brief Returns true if the gripper is currently moving, false otherwise.
+   *
+   */
+  bool gripperIsMoving();
+
   enum class ActivationStatus
   {
     RESET,

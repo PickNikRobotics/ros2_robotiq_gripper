@@ -102,6 +102,11 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   readResponse(8);
 }
 
+bool RobotiqGripperInterface::gripperIsMoving() {
+  updateStatus();
+  return object_detection_status_ == ObjectDetectionStatus::MOVING;
+}
+
 std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_register, uint8_t num_registers)
 {
   std::vector<uint8_t> cmd = { slave_id_,
@@ -192,7 +197,7 @@ void RobotiqGripperInterface::updateStatus()
   }
 
   // Object detection status.
-  switch ((gripper_status_byte & 0xC0) >> 4)
+  switch ((gripper_status_byte & 0xC0) >> 6)
   {
     case 0x00:
       object_detection_status_ = ObjectDetectionStatus::MOVING;
