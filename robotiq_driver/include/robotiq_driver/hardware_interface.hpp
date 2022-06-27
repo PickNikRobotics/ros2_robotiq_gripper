@@ -54,6 +54,9 @@ private:
   double gripper_velocity_;
   double gripper_position_command_;
   std::unique_ptr<RobotiqGripperInterface> gripper_interface_;
+
+  double gripper_open_pos_;
+  std::string com_port_;
 };
 
 }  // namespace robotiq_driver

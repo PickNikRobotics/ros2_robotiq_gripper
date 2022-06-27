@@ -17,7 +17,6 @@
 #include "rclcpp/rclcpp.hpp"
 
 const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
-const double kGripperOpenPos = 0.7929;
 
 namespace robotiq_driver
 {
@@ -27,6 +26,10 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface
   {
     return CallbackReturn::ERROR;
   }
+
+  // Read parameters.
+  gripper_open_pos_ = stod(info_.hardware_parameters["gripper_open_position"]);
+  com_port_ = info_.hardware_parameters["COM_port"];
 
   gripper_position_ = std::numeric_limits<double>::quiet_NaN();
   gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
@@ -70,7 +73,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface
   }
 
   // Create the interface to the gripper.
-  gripper_interface_ = std::make_unique<RobotiqGripperInterface>("/dev/ttyUSB0");
+  gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
 
   return CallbackReturn::SUCCESS;
 }
@@ -134,7 +137,7 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
   RCLCPP_INFO(kLogger, "Reading...");
 
   // getGripperPosition() returns 0x00 when the gripper is fully open, and 0xFF when it is fully closed.
-  gripper_position_ = (1 - gripper_interface_->getGripperPosition() / double(0xFF)) * kGripperOpenPos;
+  gripper_position_ = (1 - gripper_interface_->getGripperPosition() / double(0xFF)) * gripper_open_pos_;
 
   RCLCPP_INFO(kLogger, "Got position %.5f for joint '%s'!", gripper_position_, info_.joints[0].name.c_str());
   RCLCPP_INFO(kLogger, "Got velocity %.5f for joint '%s'!", gripper_velocity_, info_.joints[0].name.c_str());
@@ -154,7 +157,7 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write()
   RCLCPP_INFO(kLogger, "Got command %.5f for joint '%s'!", gripper_position_command_, info_.joints[0].name.c_str());
 
   // For the gripper interface, a position command of 0xFF fully closes the gripper, and 0x00 fully opens it.
-  uint8_t gripper_pos = (1 - gripper_position_command_ / kGripperOpenPos) * 0xFF;
+  uint8_t gripper_pos = (1 - gripper_position_command_ / gripper_open_pos_) * 0xFF;
   gripper_interface_->setGripperPosition(gripper_pos);
 
   RCLCPP_INFO(kLogger, "Joints successfully written!");
