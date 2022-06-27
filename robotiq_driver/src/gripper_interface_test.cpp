@@ -12,7 +12,14 @@ int main() {
     gripper.deactivateGripper();
 
     std::cout << "Activating gripper...\n";
-    std::cout << "Gripper activated? " << (gripper.activateGripper() ? "Yes.\n" : "No.\n");
+    if (!gripper.activateGripper()) {
+        std::cout << "Failed to activate gripper.\n";
+        return 1;
+    }
+    std::cout << "Gripper successfully activated.\n";
+
+    std::cout << "Closing gripper...\n";
+    gripper.setGripperPosition(0xFF);
 
     return 0;
 }

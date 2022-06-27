@@ -29,6 +29,13 @@ public:
    */
   void deactivateGripper();
 
+  /**
+   * @brief Commands the gripper to move to the desired position.
+   *
+   * @param pos A value between 0x00 (fully open) and 0xFF (fully closed).
+   */
+  void setGripperPosition(uint8_t pos);
+
   enum class ActivationStatus
   {
     RESET,

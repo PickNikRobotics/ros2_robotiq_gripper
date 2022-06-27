@@ -79,6 +79,29 @@ void RobotiqGripperInterface::deactivateGripper()
   readResponse(8);
 }
 
+void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
+{
+  uint8_t action_register = 0x09;
+  uint8_t gripper_options_1 = 0x00;
+  uint8_t gripper_options_2 = 0x00;
+  uint8_t speed = 0x80;
+  uint8_t force = 0x80;
+
+  auto cmd = createWriteCommand(kActionRequestRegister,
+                                {action_register << 8 | gripper_options_1,
+                                 gripper_options_2 << 8 | pos,
+                                 speed << 8 | force});
+
+  size_t num_bytes_written = port_.write(cmd);
+  if (num_bytes_written != cmd.size())
+  {
+    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
+    return;
+  }
+
+  readResponse(8);
+}
+
 std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_register, uint8_t num_registers)
 {
   std::vector<uint8_t> cmd = { slave_id_,
