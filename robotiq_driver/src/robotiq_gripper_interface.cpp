@@ -17,6 +17,7 @@ constexpr uint16_t kActionRequestRegister = 0x03E8;
 
 constexpr size_t kResponseHeaderSize = 3;
 constexpr size_t kGripperStatusIndex = 0;
+constexpr size_t kPositionIndex = 4;
 
 static uint8_t getFirstByte(uint16_t val)
 {
@@ -100,6 +101,11 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   }
 
   readResponse(8);
+}
+
+uint8_t RobotiqGripperInterface::getGripperPosition() {
+  updateStatus();
+  return gripper_position_;
 }
 
 bool RobotiqGripperInterface::gripperIsMoving() {
@@ -212,4 +218,7 @@ void RobotiqGripperInterface::updateStatus()
       object_detection_status_ = ObjectDetectionStatus::AT_REQUESTED_POSITION;
       break;
   }
+
+  // Read the current gripper position.
+  gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
 }

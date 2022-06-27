@@ -22,25 +22,25 @@ int main() {
     std::cout << "Closing gripper...\n";
     gripper.setGripperPosition(0xFF);
     while (gripper.gripperIsMoving()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
     while (gripper.gripperIsMoving()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
     }
 
     std::cout << "Half closing gripper...\n";
     gripper.setGripperPosition(0x80);
     while (gripper.gripperIsMoving()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
     while (gripper.gripperIsMoving()) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
     }
 
     return 0;

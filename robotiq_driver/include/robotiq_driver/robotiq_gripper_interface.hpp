@@ -37,6 +37,13 @@ public:
   void setGripperPosition(uint8_t pos);
 
   /**
+   * @brief Return the current position of the gripper.
+   *
+   * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
+   */
+  uint8_t getGripperPosition();
+
+  /**
    * @brief Returns true if the gripper is currently moving, false otherwise.
    *
    */
@@ -88,4 +95,6 @@ private:
   ActionStatus action_status_;
   GripperStatus gripper_status_;
   ObjectDetectionStatus object_detection_status_;
+
+  uint8_t gripper_position_;
 };
