@@ -29,12 +29,50 @@ public:
    */
   void deactivateGripper();
 
+  enum class ActivationStatus
+  {
+    RESET,
+    ACTIVE
+  };
+
+  enum class ActionStatus
+  {
+    STOPPED,
+    MOVING
+  };
+
+  enum class GripperStatus
+  {
+    RESET,
+    IN_PROGRESS,
+    COMPLETED
+  };
+
+  enum class ObjectDetectionStatus
+  {
+    MOVING,
+    OBJECT_DETECTED_OPENING,
+    OBJECT_DETECTED_CLOSING,
+    AT_REQUESTED_POSITION
+  };
+
 private:
   std::vector<uint8_t> createReadCommand(uint16_t first_register, uint8_t num_registers);
   std::vector<uint8_t> createWriteCommand(uint16_t first_register, const std::vector<uint16_t>& data);
   std::vector<uint8_t> readResponse(size_t num_bytes);
 
+  /**
+   * @brief Read the current status of the gripper, and update member variables as appropriate.
+   *
+   */
+  void updateStatus();
+
   serial::Serial port_;
   uint8_t slave_id_;
   std::vector<uint8_t> read_command_;
+
+  ActivationStatus activation_status_;
+  ActionStatus action_status_;
+  GripperStatus gripper_status_;
+  ObjectDetectionStatus object_detection_status_;
 };

@@ -19,6 +19,7 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "robotiq_driver/visibility_control.h"
+#include "robotiq_driver/robotiq_gripper_interface.hpp"
 
 namespace robotiq_driver
 {
@@ -52,6 +53,7 @@ private:
   double gripper_position_;
   double gripper_velocity_;
   double gripper_position_command_;
+  std::unique_ptr<RobotiqGripperInterface> gripper_interface_;
 };
 
 }  // namespace robotiq_driver
