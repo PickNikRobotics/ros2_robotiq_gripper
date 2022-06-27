@@ -2,6 +2,8 @@
 #include "robotiq_driver/crc.hpp"
 
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 constexpr int kBaudRate = 115200;
 constexpr auto kTimeoutMilliseconds = 1000;
@@ -54,8 +56,13 @@ bool RobotiqGripperInterface::activateGripper()
   readResponse(8);
 
   updateStatus();
+  while (gripper_status_ == GripperStatus::IN_PROGRESS)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    updateStatus();
+  }
 
-  return true;
+  return gripper_status_ == GripperStatus::COMPLETED;
 }
 
 void RobotiqGripperInterface::deactivateGripper()
