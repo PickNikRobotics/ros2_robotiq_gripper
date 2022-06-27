@@ -8,10 +8,13 @@ constexpr auto kTimeoutMilliseconds = 1000;
 
 constexpr uint8_t kReadFunctionCode = 0x03;
 constexpr uint16_t kFirstOutputRegister = 0x07D0;
-constexpr uint8_t kNumOutputRegisters = 0x06;
+constexpr uint16_t kNumOutputRegisters = 0x0006;
 
 constexpr uint8_t kWriteFunctionCode = 0x10;
 constexpr uint16_t kActionRequestRegister = 0x03E8;
+
+constexpr size_t kResponseHeaderSize = 3;
+constexpr size_t kGripperStatusIndex = 0;
 
 static uint8_t getFirstByte(uint16_t val)
 {
@@ -50,15 +53,18 @@ bool RobotiqGripperInterface::activateGripper()
 
   readResponse(8);
 
+  updateStatus();
+
   return true;
 }
 
 void RobotiqGripperInterface::deactivateGripper()
 {
-  auto cmd = createWriteCommand(kActionRequestRegister, {0x0000, 0x0000, 0x0000});
+  auto cmd = createWriteCommand(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
 
   size_t num_bytes_written = port_.write(cmd);
-  if (num_bytes_written != cmd.size()) {
+  if (num_bytes_written != cmd.size())
+  {
     std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
     return;
   }
@@ -68,8 +74,12 @@ void RobotiqGripperInterface::deactivateGripper()
 
 std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_register, uint8_t num_registers)
 {
-  std::vector<uint8_t> cmd = { slave_id_, kReadFunctionCode, getFirstByte(first_register),
-                               getSecondByte(first_register), num_registers };
+  std::vector<uint8_t> cmd = { slave_id_,
+                               kReadFunctionCode,
+                               getFirstByte(first_register),
+                               getSecondByte(first_register),
+                               getFirstByte(num_registers),
+                               getSecondByte(num_registers) };
   auto crc = computeCRC(cmd.begin(), cmd.end());
   cmd.push_back(getFirstByte(crc));
   cmd.push_back(getSecondByte(crc));
@@ -113,4 +123,58 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
   }
 
   return response;
+}
+
+void RobotiqGripperInterface::updateStatus()
+{
+  // Tell the gripper that we want to read its status.
+  size_t num_bytes_written = port_.write(read_command_);
+  if (num_bytes_written != read_command_.size())
+  {
+    std::cerr << "Attempted to write " << read_command_.size() << " bytes, but only wrote " << num_bytes_written
+              << ".\n";
+    return;
+  }
+
+  auto response = readResponse(17);
+
+  // Process the response.
+  uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
+
+  // Activation status.
+  activation_status_ = ((gripper_status_byte & 0x01) == 0x00) ? ActivationStatus::RESET : ActivationStatus::ACTIVE;
+
+  // Action status.
+  action_status_ = ((gripper_status_byte & 0x08) == 0x00) ? ActionStatus::STOPPED : ActionStatus::MOVING;
+
+  // Gripper status.
+  switch ((gripper_status_byte & 0x30) >> 4)
+  {
+    case 0x00:
+      gripper_status_ = GripperStatus::RESET;
+      break;
+    case 0x01:
+      gripper_status_ = GripperStatus::IN_PROGRESS;
+      break;
+    case 0x03:
+      gripper_status_ = GripperStatus::COMPLETED;
+      break;
+  }
+
+  // Object detection status.
+  switch ((gripper_status_byte & 0xC0) >> 4)
+  {
+    case 0x00:
+      object_detection_status_ = ObjectDetectionStatus::MOVING;
+      break;
+    case 0x01:
+      object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_OPENING;
+      break;
+    case 0x02:
+      object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_CLOSING;
+      break;
+    case 0x03:
+      object_detection_status_ = ObjectDetectionStatus::AT_REQUESTED_POSITION;
+      break;
+  }
 }
