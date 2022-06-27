@@ -33,6 +33,8 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, ui
   : port_(com_port, kBaudRate, serial::Timeout::simpleTimeout(kTimeoutMilliseconds))
   , slave_id_(slave_id)
   , read_command_(createReadCommand(kFirstOutputRegister, kNumOutputRegisters))
+  , commanded_gripper_speed_(0x80)
+  , commanded_gripper_force_(0x80)
 {
   if (!port_.isOpen())
   {
@@ -85,13 +87,10 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   uint8_t action_register = 0x09;
   uint8_t gripper_options_1 = 0x00;
   uint8_t gripper_options_2 = 0x00;
-  uint8_t speed = 0x80;
-  uint8_t force = 0x80;
 
   auto cmd = createWriteCommand(kActionRequestRegister,
-                                {action_register << 8 | gripper_options_1,
-                                 gripper_options_2 << 8 | pos,
-                                 speed << 8 | force});
+                                { action_register << 8 | gripper_options_1, gripper_options_2 << 8 | pos,
+                                  commanded_gripper_speed_ << 8 | commanded_gripper_force_ });
 
   size_t num_bytes_written = port_.write(cmd);
   if (num_bytes_written != cmd.size())
@@ -103,12 +102,14 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   readResponse(8);
 }
 
-uint8_t RobotiqGripperInterface::getGripperPosition() {
+uint8_t RobotiqGripperInterface::getGripperPosition()
+{
   updateStatus();
   return gripper_position_;
 }
 
-bool RobotiqGripperInterface::gripperIsMoving() {
+bool RobotiqGripperInterface::gripperIsMoving()
+{
   updateStatus();
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
 }
@@ -125,6 +126,16 @@ std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_r
   cmd.push_back(getFirstByte(crc));
   cmd.push_back(getSecondByte(crc));
   return cmd;
+}
+
+void RobotiqGripperInterface::setSpeed(uint8_t speed)
+{
+  commanded_gripper_speed_ = speed;
+}
+
+void RobotiqGripperInterface::setForce(uint8_t force)
+{
+  commanded_gripper_force_ = force;
 }
 
 std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(uint16_t first_register,

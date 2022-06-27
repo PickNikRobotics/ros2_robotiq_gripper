@@ -49,6 +49,20 @@ public:
    */
   bool gripperIsMoving();
 
+  /**
+   * @brief Set the speed of the gripper.
+   *
+   * @param speed A value between 0x00 (stopped) and 0xFF (full speed).
+   */
+  void setSpeed(uint8_t speed);
+
+  /**
+   * @brief Set how forcefully the gripper opens or closes.
+   *
+   * @param force A value between 0x00 (no force) or 0xFF (maximum force).
+   */
+  void setForce(uint8_t force);
+
   enum class ActivationStatus
   {
     RESET,
@@ -97,4 +111,6 @@ private:
   ObjectDetectionStatus object_detection_status_;
 
   uint8_t gripper_position_;
+  uint8_t commanded_gripper_force_;
+  uint8_t commanded_gripper_speed_;
 };

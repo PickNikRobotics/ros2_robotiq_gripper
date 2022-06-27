@@ -22,25 +22,43 @@ int main() {
     std::cout << "Closing gripper...\n";
     gripper.setGripperPosition(0xFF);
     while (gripper.gripperIsMoving()) {
-        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
     while (gripper.gripperIsMoving()) {
-        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Half closing gripper...\n";
     gripper.setGripperPosition(0x80);
     while (gripper.gripperIsMoving()) {
-        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
     while (gripper.gripperIsMoving()) {
-        std::cout << "\tCurrent gripper position: " << std::hex << int(gripper.getGripperPosition()) << "\n";
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    std::cout << "Decreasing gripper speed...\n";
+    gripper.setSpeed(0x0F);
+
+    std::cout << "Closing gripper...\n";
+    gripper.setGripperPosition(0xFF);
+    while (gripper.gripperIsMoving()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    std::cout << "Increasing gripper speed...\n";
+    gripper.setSpeed(0xFF);
+
+    std::cout << "Opening gripper...\n";
+    gripper.setGripperPosition(0x00);
+    while (gripper.gripperIsMoving()) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     return 0;
