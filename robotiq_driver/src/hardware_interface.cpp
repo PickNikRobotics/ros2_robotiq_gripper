@@ -31,7 +31,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface
   gripper_open_pos_ = stod(info_.hardware_parameters["gripper_open_position"]);
   com_port_ = info_.hardware_parameters["COM_port"];
   double gripper_speed = stod(info_.hardware_parameters["gripper_speed_multiplier"]);
-  double gripper_force = stod(info_.hardware_parameters["gripper_force_multipler"]);
+  double gripper_force = stod(info_.hardware_parameters["gripper_force_multiplier"]);
 
   // Speed and force must lie between 0.0 and 1.0.
   gripper_speed = std::min(1.0, std::max(0.0, gripper_speed));
