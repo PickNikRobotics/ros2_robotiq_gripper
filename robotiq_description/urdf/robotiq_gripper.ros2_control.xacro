@@ -5,7 +5,7 @@
         <ros2_control name="${name}" type="actuator">
             <hardware>
                 <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-                <param name="gripper_open_position">0.7929</param>
+                <param name="gripper_closed_position">0.7929</param>
                 <param name="COM_port">/dev/ttyUSB0</param>
                 <param name="gripper_speed_multiplier">1.0</param>
                 <param name="gripper_force_multiplier">0.5</param>

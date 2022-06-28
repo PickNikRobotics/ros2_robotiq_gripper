@@ -55,7 +55,7 @@ private:
   double gripper_position_command_;
   std::unique_ptr<RobotiqGripperInterface> gripper_interface_;
 
-  double gripper_open_pos_;
+  double gripper_closed_pos_;
   std::string com_port_;
 };
 
