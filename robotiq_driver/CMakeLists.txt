@@ -10,26 +10,29 @@ find_package(ament_cmake REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 find_package(serial REQUIRED)
 
 # # COMPILE
 add_library(
   ${PROJECT_NAME}
-  STATIC
+  SHARED
   src/crc.cpp
   src/hardware_interface.cpp
   src/robotiq_gripper_interface.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}
-  PRIVATE
-  include
+  PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
 )
 ament_target_dependencies(
   ${PROJECT_NAME}
   hardware_interface
   pluginlib
   rclcpp
+  rclcpp_lifecycle
   serial
 )
 
@@ -43,7 +46,10 @@ target_link_libraries(gripper_interface_test ${PROJECT_NAME})
 # # INSTALL
 install(
   TARGETS ${PROJECT_NAME}
-  DESTINATION lib/${PROJECT_NAME}
+  EXPORT export_${PROJECT_NAME}
+  ARCHIVE DESTINATION lib/${PROJECT_NAME}
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 install(
   TARGETS gripper_interface_test
@@ -72,6 +78,9 @@ ament_export_include_directories(
 )
 ament_export_libraries(
   ${PROJECT_NAME}
+)
+ament_export_targets(
+  export_${PROJECT_NAME}
 )
 ament_export_dependencies(
   hardware_interface
