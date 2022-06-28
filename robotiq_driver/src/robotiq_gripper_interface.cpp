@@ -11,9 +11,23 @@ constexpr auto kTimeoutMilliseconds = 1000;
 constexpr uint8_t kReadFunctionCode = 0x03;
 constexpr uint16_t kFirstOutputRegister = 0x07D0;
 constexpr uint16_t kNumOutputRegisters = 0x0006;
+// The response to a read request consists of:
+//   slave ID (1 byte)
+//   function code (1 byte)
+//   number of data bytes (1 byte)
+//   data bytes (2 bytes per register)
+//   CRC (2 bytes)
+constexpr int kReadResponseSize = 2 * kNumOutputRegisters + 5;
 
 constexpr uint8_t kWriteFunctionCode = 0x10;
 constexpr uint16_t kActionRequestRegister = 0x03E8;
+// The response to a write command consists of:
+//   slave ID (1 byte)
+//   function code (1 byte)
+//   address of the first register that was written (2 bytes)
+//   number of registers written (2 bytes)
+//   CRC (2 bytes)
+constexpr int kWriteResponseSize = 8;
 
 constexpr size_t kResponseHeaderSize = 3;
 constexpr size_t kGripperStatusIndex = 0;
@@ -52,7 +66,7 @@ bool RobotiqGripperInterface::activateGripper()
     return false;
   }
 
-  readResponse(8);
+  readResponse(kWriteResponseSize);
 
   updateStatus();
   while (gripper_status_ == GripperStatus::IN_PROGRESS)
@@ -71,7 +85,7 @@ void RobotiqGripperInterface::deactivateGripper()
     return;
   }
 
-  readResponse(8);
+  readResponse(kWriteResponseSize);
 }
 
 void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
@@ -87,7 +101,7 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
     return;
   }
 
-  readResponse(8);
+  readResponse(kWriteResponseSize);
 }
 
 uint8_t RobotiqGripperInterface::getGripperPosition()
@@ -182,7 +196,7 @@ void RobotiqGripperInterface::updateStatus()
     return;
   }
 
-  auto response = readResponse(17);
+  auto response = readResponse(kReadResponseSize);
 
   // Process the response.
   uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
