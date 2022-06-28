@@ -48,11 +48,7 @@ bool RobotiqGripperInterface::activateGripper()
   auto cmd = createWriteCommand(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 }  // set rACT to 1, clear all
                                                                                     // other registers.
   );
-
-  size_t num_bytes_written = port_.write(cmd);
-  if (num_bytes_written != cmd.size())
-  {
-    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
+  if (!sendCommand(cmd)) {
     return false;
   }
 
@@ -71,11 +67,7 @@ bool RobotiqGripperInterface::activateGripper()
 void RobotiqGripperInterface::deactivateGripper()
 {
   auto cmd = createWriteCommand(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
-
-  size_t num_bytes_written = port_.write(cmd);
-  if (num_bytes_written != cmd.size())
-  {
-    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
+  if (!sendCommand(cmd)) {
     return;
   }
 
@@ -91,11 +83,7 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   auto cmd = createWriteCommand(kActionRequestRegister,
                                 { action_register << 8 | gripper_options_1, gripper_options_2 << 8 | pos,
                                   commanded_gripper_speed_ << 8 | commanded_gripper_force_ });
-
-  size_t num_bytes_written = port_.write(cmd);
-  if (num_bytes_written != cmd.size())
-  {
-    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
+  if (!sendCommand(cmd)) {
     return;
   }
 
@@ -177,14 +165,20 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
   return response;
 }
 
+bool RobotiqGripperInterface::sendCommand(const std::vector<uint8_t> cmd) {
+  size_t num_bytes_written = port_.write(cmd);
+  if (num_bytes_written != cmd.size())
+  {
+    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
+    return false;
+  }
+  return true;
+}
+
 void RobotiqGripperInterface::updateStatus()
 {
   // Tell the gripper that we want to read its status.
-  size_t num_bytes_written = port_.write(read_command_);
-  if (num_bytes_written != read_command_.size())
-  {
-    std::cerr << "Attempted to write " << read_command_.size() << " bytes, but only wrote " << num_bytes_written
-              << ".\n";
+  if (!sendCommand(read_command_)) {
     return;
   }
 

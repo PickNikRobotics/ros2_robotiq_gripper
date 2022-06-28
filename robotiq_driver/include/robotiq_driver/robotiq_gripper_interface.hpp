@@ -96,6 +96,15 @@ private:
   std::vector<uint8_t> readResponse(size_t num_bytes);
 
   /**
+   * @brief Send a command to the gripper.
+   *
+   * @param cmd The command.
+   * @return true If the command was sent successfully.
+   * @return false If the command was not sent successfully.
+   */
+  bool sendCommand(const std::vector<uint8_t> cmd);
+
+  /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.
    *
    */
