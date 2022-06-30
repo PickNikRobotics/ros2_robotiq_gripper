@@ -141,35 +141,17 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifec
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(kLogger, "Reading...");
-
   // getGripperPosition() returns 0x00 when the gripper is fully open, and 0xFF when it is fully closed.
   gripper_position_ = (gripper_interface_->getGripperPosition() / double(0xFF)) * gripper_closed_pos_;
-
-  RCLCPP_INFO(kLogger, "Got position %.5f for joint '%s'!", gripper_position_, info_.joints[0].name.c_str());
-  RCLCPP_INFO(kLogger, "Got velocity %.5f for joint '%s'!", gripper_velocity_, info_.joints[0].name.c_str());
-
-  RCLCPP_INFO(kLogger, "Joints successfully read!");
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
 }
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 {
-  // BEGIN: This part here is for exemplary purposes - Please do not copy to your production code
-  RCLCPP_INFO(kLogger, "Writing...please wait...");
-
-  // Simulate sending commands to the hardware
-  RCLCPP_INFO(kLogger, "Got command %.5f for joint '%s'!", gripper_position_command_, info_.joints[0].name.c_str());
-
   // For the gripper interface, a position command of 0xFF fully closes the gripper, and 0x00 fully opens it.
   uint8_t gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * 0xFF;
   gripper_interface_->setGripperPosition(gripper_pos);
-
-  RCLCPP_INFO(kLogger, "Joints successfully written!");
-  // END: This part here is for exemplary purposes - Please do not copy to your production code
 
   return hardware_interface::return_type::OK;
 }
