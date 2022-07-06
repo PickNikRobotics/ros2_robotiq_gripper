@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include <boost/lockfree/spsc_queue.hpp>
+
 #include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
@@ -27,6 +29,9 @@ class RobotiqGripperHardwareInterface : public hardware_interface::ActuatorInter
 {
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(RobotiqGripperHardwareInterface)
+
+  ROBOTIQ_DRIVER_PUBLIC
+  RobotiqGripperHardwareInterface();
 
   ROBOTIQ_DRIVER_PUBLIC
   CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
@@ -57,6 +62,16 @@ private:
 
   double gripper_closed_pos_;
   std::string com_port_;
+
+  enum class CommandType
+  {
+    READ,
+    WRITE
+  };
+  std::thread command_interface_;
+  bool command_interface_is_running_;
+  boost::lockfree::spsc_queue<uint8_t> write_commands_;
+  boost::lockfree::spsc_queue<uint8_t> responses_;
 };
 
 }  // namespace robotiq_driver
