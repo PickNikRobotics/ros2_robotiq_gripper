@@ -143,7 +143,6 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
     {
       auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval) {
-        RCLCPP_INFO(kLogger, "Starting gripper I/O.");
         // Write the latest command to the gripper.
         std::optional<double> cmd = std::nullopt;
         while (write_commands_.read_available())
@@ -153,12 +152,10 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
         }
         if (cmd.has_value()) {
           this->gripper_interface_->setGripperPosition(cmd.value());
-          RCLCPP_INFO(kLogger, "Wrote %f to gripper.", cmd.value());
         }
 
         // Read the state of the gripper.
         this->responses_.push(this->gripper_interface_->getGripperPosition());
-        RCLCPP_INFO(kLogger, "Read gripper state.");
 
         last_io = now;
       }
@@ -181,13 +178,11 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifec
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
-  RCLCPP_INFO(kLogger, "Attempting to read from gripper.");
   while (responses_.read_available())
   {
     // getGripperPosition() returns 0x00 when the gripper is fully open, and 0xFF when it is fully closed.
     gripper_position_ = (responses_.front() / double(0xFF)) * gripper_closed_pos_;
     responses_.pop();
-    RCLCPP_INFO(kLogger, "Read %f from gripper", gripper_position_);
   }
 
   return hardware_interface::return_type::OK;
@@ -195,7 +190,6 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 {
-  RCLCPP_INFO(kLogger, "Received command %f for gripper", gripper_position_command_);
   // For the gripper interface, a position command of 0xFF fully closes the gripper, and 0x00 fully opens it.
   uint8_t gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * 0xFF;
   write_commands_.push(gripper_pos);
