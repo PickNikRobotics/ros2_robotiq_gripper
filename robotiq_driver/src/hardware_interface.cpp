@@ -134,7 +134,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
 
   command_interface_is_running_ = true;
 
-  command_interface_ = std::thread([this, &kLogger] {
+  command_interface_ = std::thread([this] {
     // Read from and write to the gripper at 100 Hz.
     auto io_interval = std::chrono::milliseconds(10);
     auto last_io = std::chrono::high_resolution_clock::now();
