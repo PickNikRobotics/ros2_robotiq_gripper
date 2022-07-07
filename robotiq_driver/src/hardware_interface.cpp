@@ -16,6 +16,10 @@
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
 
+constexpr uint8_t kGripperMinPos = 3;
+constexpr uint8_t kGripperMaxPos = 230;
+constexpr uint8_t kGripperRange = kGripperMaxPos - kGripperMinPos;
+
 const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
 
 namespace robotiq_driver
@@ -180,8 +184,7 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
   while (responses_.read_available())
   {
-    // getGripperPosition() returns 0x00 when the gripper is fully open, and 0xFF when it is fully closed.
-    gripper_position_ = (responses_.front() / double(0xFF)) * gripper_closed_pos_;
+    gripper_position_ = gripper_closed_pos_ * (responses_.front() - kGripperMinPos) / kGripperRange;
     responses_.pop();
   }
 
@@ -190,9 +193,9 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 {
-  // For the gripper interface, a position command of 0xFF fully closes the gripper, and 0x00 fully opens it.
-  uint8_t gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * 0xFF;
-  write_commands_.push(gripper_pos);
+  double gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * kGripperRange + kGripperMinPos;
+  gripper_pos = std::max(std::min(gripper_pos, 255.0), 0.0);
+  write_commands_.push(uint8_t(gripper_pos));
 
   return hardware_interface::return_type::OK;
 }
