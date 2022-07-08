@@ -95,8 +95,9 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   uint8_t gripper_options_2 = 0x00;
 
   auto cmd = createWriteCommand(kActionRequestRegister,
-                                { action_register << 8 | gripper_options_1, gripper_options_2 << 8 | pos,
-                                  commanded_gripper_speed_ << 8 | commanded_gripper_force_ });
+                                { uint16_t(action_register << 8 | gripper_options_1),
+                                  uint16_t(gripper_options_2 << 8 | pos),
+                                  uint16_t(commanded_gripper_speed_ << 8 | commanded_gripper_force_) });
   if (!sendCommand(cmd)) {
     return;
   }

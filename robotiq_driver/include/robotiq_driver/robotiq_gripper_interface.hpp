@@ -120,6 +120,6 @@ private:
   ObjectDetectionStatus object_detection_status_;
 
   uint8_t gripper_position_;
-  uint8_t commanded_gripper_force_;
   uint8_t commanded_gripper_speed_;
+  uint8_t commanded_gripper_force_;
 };
