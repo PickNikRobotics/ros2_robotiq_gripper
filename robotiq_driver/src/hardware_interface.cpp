@@ -24,7 +24,7 @@ const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
 
 namespace robotiq_driver
 {
-RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface() : write_commands_(20), responses_(20)
+RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
 {
 }
 
@@ -148,18 +148,10 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
       auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval) {
         // Write the latest command to the gripper.
-        std::optional<double> cmd = std::nullopt;
-        while (write_commands_.read_available())
-        {
-          cmd = write_commands_.front();
-          write_commands_.pop();
-        }
-        if (cmd.has_value()) {
-          this->gripper_interface_->setGripperPosition(cmd.value());
-        }
+        this->gripper_interface_->setGripperPosition(write_command_.load());
 
         // Read the state of the gripper.
-        this->responses_.push(this->gripper_interface_->getGripperPosition());
+        gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
 
         last_io = now;
       }
@@ -182,11 +174,7 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifec
 
 hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
-  while (responses_.read_available())
-  {
-    gripper_position_ = gripper_closed_pos_ * (responses_.front() - kGripperMinPos) / kGripperRange;
-    responses_.pop();
-  }
+  gripper_position_ = gripper_closed_pos_ * (gripper_current_state_.load() - kGripperMinPos) / kGripperRange;
 
   return hardware_interface::return_type::OK;
 }
@@ -195,7 +183,7 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write()
 {
   double gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * kGripperRange + kGripperMinPos;
   gripper_pos = std::max(std::min(gripper_pos, 255.0), 0.0);
-  write_commands_.push(uint8_t(gripper_pos));
+  write_command_.store(uint8_t(gripper_pos));
 
   return hardware_interface::return_type::OK;
 }

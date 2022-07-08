@@ -10,8 +10,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/lockfree/spsc_queue.hpp>
-
 #include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
@@ -63,15 +61,10 @@ private:
   double gripper_closed_pos_;
   std::string com_port_;
 
-  enum class CommandType
-  {
-    READ,
-    WRITE
-  };
   std::thread command_interface_;
   bool command_interface_is_running_;
-  boost::lockfree::spsc_queue<uint8_t> write_commands_;
-  boost::lockfree::spsc_queue<uint8_t> responses_;
+  std::atomic<uint8_t> write_command_;
+  std::atomic<uint8_t> gripper_current_state_;
 };
 
 }  // namespace robotiq_driver

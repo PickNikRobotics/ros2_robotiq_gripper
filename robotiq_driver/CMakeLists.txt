@@ -12,7 +12,6 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(serial REQUIRED)
-find_package(Boost REQUIRED)
 
 # # COMPILE
 add_library(
