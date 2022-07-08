@@ -44,13 +44,12 @@ static unsigned char kCRCLoTable[] = {
 0x40
 };
 
-uint16_t computeCRC(const std::vector<uint8_t>::iterator begin,
-                    const std::vector<uint8_t>::iterator end) {
+uint16_t computeCRC(const std::vector<uint8_t> & cmd) {
     uint16_t crc_hi = 0x00FF;
     uint16_t crc_lo = 0x00FF;
 
-    for (auto it = begin; it != end; ++it) {
-        size_t index = crc_lo ^ *it;
+    for (auto byte : cmd) {
+        size_t index = crc_lo ^ byte;
         crc_lo = crc_hi ^ kCRCHiTable[index];
         crc_hi = kCRCLoTable[index];
     }

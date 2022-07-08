@@ -124,7 +124,7 @@ std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_r
                                getSecondByte(first_register),
                                getFirstByte(num_registers),
                                getSecondByte(num_registers) };
-  auto crc = computeCRC(cmd.begin(), cmd.end());
+  auto crc = computeCRC(cmd);
   cmd.push_back(getFirstByte(crc));
   cmd.push_back(getSecondByte(crc));
   return cmd;
@@ -159,7 +159,7 @@ std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(uint16_t first_
     cmd.push_back(getSecondByte(d));
   }
 
-  auto crc = computeCRC(cmd.begin(), cmd.end());
+  auto crc = computeCRC(cmd);
   cmd.push_back(getFirstByte(crc));
   cmd.push_back(getSecondByte(crc));
 
