@@ -69,10 +69,10 @@ public:
   CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type read() override;
+  hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type write() override;
+  hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 private:
   static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
