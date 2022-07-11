@@ -36,6 +36,7 @@ controller_interface::InterfaceConfiguration RobotiqActivationController::comman
   config.type = controller_interface::interface_configuration_type::INDIVIDUAL;
 
   config.names.emplace_back("reactivate_gripper/reactivate_gripper_cmd");
+  config.names.emplace_back("reactivate_gripper/reactivate_gripper_response");
 
   return config;
 }
@@ -57,9 +58,10 @@ controller_interface::return_type RobotiqActivationController::update(const rclc
 rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
 RobotiqActivationController::on_activate(const rclcpp_lifecycle::State& /*previous_state*/)
 {
-  if (command_interfaces_.size() != 1)
+  // Check command interfaces.
+  if (command_interfaces_.size() != 2)
   {
-    RCLCPP_ERROR(get_node()->get_logger(), "Expected %d command interfaces, but got %zu.", 1,
+    RCLCPP_ERROR(get_node()->get_logger(), "Expected %d command interfaces, but got %zu.", 2,
                  command_interfaces_.size());
     return rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn::ERROR;
   }
@@ -103,10 +105,16 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn Roboti
 bool RobotiqActivationController::reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr /*req*/,
                                                     std_srvs::srv::Trigger::Response::SharedPtr resp)
 {
-  command_interfaces_[0].set_value(1.0);
-  resp->success = true;
+  command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].set_value(ASYNC_WAITING);
+  command_interfaces_[REACTIVATE_GRIPPER_CMD].set_value(1.0);
 
-  return true;
+  while (command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value() == ASYNC_WAITING)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+  resp->success = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value();
+
+  return resp->success;
 }
 }  // namespace robotiq_controllers
 

@@ -92,6 +92,8 @@ private:
 
   double reactivate_gripper_cmd_;
   std::atomic<bool> reactivate_gripper_async_cmd_;
+  double reactivate_gripper_response_;
+  std::atomic<std::optional<bool>> reactivate_gripper_async_response_;
 };
 
 }  // namespace robotiq_driver

@@ -53,6 +53,13 @@ private:
   bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
                          std_srvs::srv::Trigger::Response::SharedPtr resp);
 
+  static constexpr double ASYNC_WAITING = 2.0;
+  enum CommandInterfaces
+  {
+    REACTIVATE_GRIPPER_CMD,
+    REACTIVATE_GRIPPER_RESPONSE
+  };
+
   rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
 };
 }  // namespace robotiq_controllers
