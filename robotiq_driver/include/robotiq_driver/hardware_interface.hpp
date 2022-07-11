@@ -75,6 +75,8 @@ public:
   hardware_interface::return_type write() override;
 
 private:
+  static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
+
   double gripper_position_;
   double gripper_velocity_;
   double gripper_position_command_;
@@ -87,6 +89,9 @@ private:
   bool command_interface_is_running_;
   std::atomic<uint8_t> write_command_;
   std::atomic<uint8_t> gripper_current_state_;
+
+  double reactivate_gripper_cmd_;
+  std::atomic<bool> reactivate_gripper_async_cmd_;
 };
 
 }  // namespace robotiq_driver

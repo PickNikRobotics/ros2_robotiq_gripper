@@ -136,11 +136,18 @@ def generate_launch_description():
         arguments=["robotiq_gripper_controller", "-c", "/controller_manager"],
     )
 
+    robotiq_activation_controller_spawner = launch_ros.actions.Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["robotiq_activation_controller", "-c", "/controller_manager"],
+    )
+
     nodes = [
         control_node,
         robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         robotiq_gripper_controller_spawner,
+        robotiq_activation_controller_spawner,
         rviz_node,
     ]
 

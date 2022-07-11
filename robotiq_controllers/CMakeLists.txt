@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(robotiq_driver)
+project(robotiq_controllers)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -7,46 +7,29 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(hardware_interface REQUIRED)
-find_package(pluginlib REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(rclcpp_lifecycle REQUIRED)
-find_package(serial REQUIRED)
+find_package(controller_interface REQUIRED)
+find_package(std_srvs REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
-  ament_cmake
-  hardware_interface
-  pluginlib
-  rclcpp
-  rclcpp_lifecycle
-  serial
+  controller_interface
+  std_srvs
 )
 
-# # COMPILE
-add_library(
-  ${PROJECT_NAME}
-  SHARED
-  src/crc.cpp
-  src/hardware_interface.cpp
-  src/robotiq_gripper_interface.cpp
+include_directories(include)
+
+add_library(${PROJECT_NAME} SHARED
+  src/robotiq_activation_controller.cpp
 )
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC
-  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>
+
+target_include_directories(${PROJECT_NAME} PRIVATE
+  include
 )
-ament_target_dependencies(
-  ${PROJECT_NAME}
+
+ament_target_dependencies(${PROJECT_NAME}
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
-pluginlib_export_plugin_description_file(hardware_interface hardware_interface_plugin.xml)
-
-add_executable(gripper_interface_test src/gripper_interface_test.cpp)
-target_include_directories(gripper_interface_test PRIVATE include)
-ament_target_dependencies(gripper_interface_test serial)
-target_link_libraries(gripper_interface_test ${PROJECT_NAME})
+pluginlib_export_plugin_description_file(controller_interface controller_plugins.xml)
 
 # # INSTALL
 install(
@@ -57,27 +40,17 @@ install(
   RUNTIME DESTINATION bin
 )
 install(
-  TARGETS gripper_interface_test
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(
   DIRECTORY include/
   DESTINATION include
-)
-install(
-  DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
-)
-install(
-  DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
 )
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
+
   # the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   set(ament_cmake_copyright_FOUND TRUE)
+
   # the following line skips cpplint (only works in a git repo)
   # comment the line when this package is in a git repo and when
   # a copyright and license is added to all source files
@@ -85,7 +58,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-## EXPORTS
+# # EXPORTS
 ament_export_include_directories(
   include
 )

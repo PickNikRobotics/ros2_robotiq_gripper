@@ -70,6 +70,8 @@ CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface
   gripper_position_ = std::numeric_limits<double>::quiet_NaN();
   gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
   gripper_position_command_ = std::numeric_limits<double>::quiet_NaN();
+  reactivate_gripper_cmd_ = NO_NEW_CMD_;
+  reactivate_gripper_async_cmd_.store(false);
 
   const hardware_interface::ComponentInfo& joint = info_.joints[0];
 
@@ -134,6 +136,8 @@ std::vector<hardware_interface::CommandInterface> RobotiqGripperHardwareInterfac
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
       info_.joints[0].name, hardware_interface::HW_IF_POSITION, &gripper_position_command_));
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+      "reactivate_gripper", "reactivate_gripper_cmd", &reactivate_gripper_cmd_));
 
   return command_interfaces;
 }
@@ -169,6 +173,14 @@ CallbackReturn RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecyc
     {
       auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval) {
+        // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
+        if (reactivate_gripper_async_cmd_.load())
+        {
+          this->gripper_interface_->deactivateGripper();
+          this->gripper_interface_->activateGripper();
+          reactivate_gripper_async_cmd_.store(false);
+        }
+
         // Write the latest command to the gripper.
         this->gripper_interface_->setGripperPosition(write_command_.load());
 
@@ -197,6 +209,12 @@ CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifec
 hardware_interface::return_type RobotiqGripperHardwareInterface::read()
 {
   gripper_position_ = gripper_closed_pos_ * (gripper_current_state_.load() - kGripperMinPos) / kGripperRange;
+
+  if (!std::isnan(reactivate_gripper_cmd_)) {
+    RCLCPP_INFO(kLogger, "Sending gripper reactivation request.");
+    reactivate_gripper_async_cmd_.store(true);
+    reactivate_gripper_cmd_ = NO_NEW_CMD_;
+  }
 
   return hardware_interface::return_type::OK;
 }
