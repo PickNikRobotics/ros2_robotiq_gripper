@@ -210,6 +210,7 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
 
 bool RobotiqGripperInterface::sendCommand(const std::vector<uint8_t> cmd) {
   size_t num_bytes_written = port_.write(cmd);
+  port_.flush();
   if (num_bytes_written != cmd.size())
   {
     std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
