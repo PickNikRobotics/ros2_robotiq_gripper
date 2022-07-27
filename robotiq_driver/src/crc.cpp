@@ -49,7 +49,7 @@ uint16_t computeCRC(const std::vector<uint8_t> & cmd) {
     uint16_t crc_lo = 0x00FF;
 
     for (auto byte : cmd) {
-        size_t index = crc_lo ^ byte;
+        std::size_t index = crc_lo ^ byte;
         crc_lo = crc_hi ^ kCRCHiTable[index];
         crc_hi = kCRCLoTable[index];
     }
