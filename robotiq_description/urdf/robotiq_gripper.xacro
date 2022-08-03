@@ -4,12 +4,10 @@
     <xacro:arg name="use_sim" default="true" />
 
     <!-- Import macros -->
-    <xacro:include filename="$(find robotiq_85_description)/urdf/robotiq_85_gripper_macro.urdf.xacro" />
+    <xacro:include filename="$(find kortex_description)/grippers/robotiq_2f_85/urdf/robotiq_2f_85_macro.xacro" />
 
     <link name="world" />
-    <xacro:robotiq_85_gripper prefix="" parent="world">
-        <origin xyz="0 0 0" rpy="0 0 0" />
-    </xacro:robotiq_85_gripper>
+    <xacro:load_gripper parent="world"  prefix="" />
     <xacro:unless value="$(arg use_sim)">
         <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper.ros2_control.xacro" />
         <xacro:robotiq_gripper_ros2_control name="RobotiqGripperHardwareInterface" com_port="/dev/ttyUSB0" />
