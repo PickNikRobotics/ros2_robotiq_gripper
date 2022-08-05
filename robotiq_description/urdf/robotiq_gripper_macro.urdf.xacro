@@ -1,11 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
     <xacro:macro name="robotiq_gripper" params="parent *origin sim:=false prefix">
-        <!-- Import macros -->
-        <!-- <xacro:include filename="$(find kortex_description)/grippers/robotiq_2f_85/urdf/robotiq_2f_85_macro.xacro" />
-
-        <xacro:load_gripper parent="${parent}"  prefix="" /> -->
-
         <link name="${prefix}robotiq_85_base_link">
             <visual>
                 <geometry>
