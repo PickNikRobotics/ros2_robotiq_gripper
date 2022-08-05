@@ -1,0 +1,148 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
+    <xacro:macro name="robotiq_gripper" params="parent *origin sim:=false prefix">
+        <!-- Import macros -->
+        <!-- <xacro:include filename="$(find kortex_description)/grippers/robotiq_2f_85/urdf/robotiq_2f_85_macro.xacro" />
+
+        <xacro:load_gripper parent="${parent}"  prefix="" /> -->
+
+        <link name="${prefix}robotiq_85_base_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/robotiq_base.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_left_knuckle_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/left_knuckle.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_right_knuckle_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/right_knuckle.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_left_finger_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/left_finger.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_right_finger_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/right_finger.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_left_inner_knuckle_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/left_inner_knuckle.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_right_inner_knuckle_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/right_inner_knuckle.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_left_finger_tip_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/left_finger_tip.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <link name="${prefix}robotiq_85_right_finger_tip_link">
+            <visual>
+                <geometry>
+                    <mesh filename="package://robotiq_description/meshes/collision/right_finger_tip.stl" />
+                </geometry>
+            </visual>
+        </link>
+
+        <joint name="${prefix}robotiq_85_base_joint" type="fixed">
+            <parent link="${parent}" />
+            <child link="${prefix}robotiq_85_base_link" />
+            <xacro:insert_block name="origin" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_left_knuckle_joint" type="revolute">
+            <parent link="${prefix}robotiq_85_base_link" />
+            <child link="${prefix}robotiq_85_left_knuckle_link" />
+            <axis xyz="0 1 0" />
+            <origin xyz="0.03060114 0.0 0.05490452" rpy="0 0 0" />
+            <limit lower="0.0" upper="0.8" velocity="0.5" effort="50" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_right_knuckle_joint" type="revolute">
+            <parent link="${prefix}robotiq_85_base_link" />
+            <child link="${prefix}robotiq_85_right_knuckle_link" />
+            <axis xyz="0 1 0" />
+            <origin xyz="-0.03060114 0.0 0.05490452" rpy="0 0 0" />
+            <limit lower="-0.8" upper="0.0" velocity="0.5" effort="50" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_left_finger_joint" type="fixed">
+            <parent link="${prefix}robotiq_85_left_knuckle_link" />
+            <child link="${prefix}robotiq_85_left_finger_link" />
+            <origin xyz="0.03152616 0.0 -0.00376347" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_right_finger_joint" type="fixed">
+            <parent link="${prefix}robotiq_85_right_knuckle_link" />
+            <child link="${prefix}robotiq_85_right_finger_link" />
+            <origin xyz="-0.03152616 0.0 -0.00376347" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_left_inner_knuckle_joint" type="continuous">
+            <parent link="${prefix}robotiq_85_base_link" />
+            <child link="${prefix}robotiq_85_left_inner_knuckle_link" />
+            <axis xyz="0 1 0" />
+            <origin xyz="0.0127 0.0 0.06142" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_right_inner_knuckle_joint" type="continuous">
+            <parent link="${prefix}robotiq_85_base_link" />
+            <child link="${prefix}robotiq_85_right_inner_knuckle_link" />
+            <axis xyz="0 1 0" />
+            <origin xyz="-0.0127 0.0 0.06142" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_left_finger_tip_joint" type="continuous">
+            <parent link="${prefix}robotiq_85_left_finger_link" />
+            <child link="${prefix}robotiq_85_left_finger_tip_link" />
+            <axis xyz="1 0 0" />
+            <origin xyz="0.00563134 0.0 0.04718515" rpy="0 0 0" />
+        </joint>
+
+        <joint name="${prefix}robotiq_85_right_finger_tip_joint" type="continuous">
+            <parent link="${prefix}robotiq_85_right_finger_link" />
+            <child link="${prefix}robotiq_85_right_finger_tip_link" />
+            <axis xyz="1 0 0" />
+            <origin xyz="-0.00563134 0.0 0.04718515" rpy="0 0 0" />
+        </joint>
+
+        <xacro:unless value="$(arg use_sim)">
+            <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper.ros2_control.xacro" />
+            <xacro:robotiq_gripper_ros2_control name="RobotiqGripperHardwareInterface" com_port="/dev/ttyUSB0" />
+        </xacro:unless>
+    </xacro:macro>
+</robot>

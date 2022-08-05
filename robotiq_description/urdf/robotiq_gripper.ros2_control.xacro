@@ -10,7 +10,7 @@
                 <param name="gripper_speed_multiplier">1.0</param>
                 <param name="gripper_force_multiplier">0.5</param>
             </hardware>
-            <joint name="finger_joint">
+            <joint name="robotiq_85_left_knuckle_joint">
                 <param name="initial_position">0.7929</param>
                 <command_interface name="position" />
                 <state_interface name="position" />
