@@ -6,7 +6,7 @@
             <hardware>
                 <plugin>fake_components/GenericSystem</plugin>
             </hardware>
-            <joint name="finger_joint">
+            <joint name="robotiq_85_left_knuckle_joint">
                 <param name="initial_position">0.7929</param>
                 <command_interface name="position" />
                 <state_interface name="position"/>
