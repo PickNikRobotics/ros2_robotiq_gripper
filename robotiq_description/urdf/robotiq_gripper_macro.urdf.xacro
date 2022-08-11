@@ -230,7 +230,7 @@
             <mimic joint="robotiq_85_left_knuckle_joint" />
         </joint>
 
-        <xacro:unless value="$(arg use_sim)">
+        <xacro:unless value="${sim}">
             <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper.ros2_control.xacro" />
             <xacro:robotiq_gripper_ros2_control name="RobotiqGripperHardwareInterface" com_port="/dev/ttyUSB0" />
         </xacro:unless>
