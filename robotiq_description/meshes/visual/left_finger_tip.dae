@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 3.0.1 commit date:2022-01-25, commit time:17:19, hash:dc2d18018171</authoring_tool>
     </contributor>
-    <created>2022-08-11T20:30:24</created>
-    <modified>2022-08-11T20:30:24</modified>
+    <created>2022-08-24T15:33:17</created>
+    <modified>2022-08-24T15:33:17</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -14,34 +14,52 @@
     <effect id="black-effect">
       <profile_COMMON>
         <technique sid="common">
-          <lambert>
+          <phong>
             <emission>
               <color sid="emission">0 0 0 1</color>
             </emission>
+            <ambient>
+              <color sid="ambient">0.25 0.25 0.25 1</color>
+            </ambient>
             <diffuse>
-              <color sid="diffuse">0.00303527 0.003035269 0.00303527 1</color>
+              <color sid="diffuse">0.03150501 0.03150501 0.03150501 1</color>
             </diffuse>
+            <specular>
+              <color sid="specular">0.03150501 0.03150501 0.03150501 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">0</float>
+            </shininess>
             <index_of_refraction>
-              <float sid="ior">1.45</float>
+              <float sid="index_of_refraction">1</float>
             </index_of_refraction>
-          </lambert>
+          </phong>
         </technique>
       </profile_COMMON>
     </effect>
     <effect id="grey-effect">
       <profile_COMMON>
         <technique sid="common">
-          <lambert>
+          <phong>
             <emission>
               <color sid="emission">0 0 0 1</color>
             </emission>
+            <ambient>
+              <color sid="ambient">0.25 0.25 0.25 1</color>
+            </ambient>
             <diffuse>
               <color sid="diffuse">0.7991033 0.7991029 0.799103 1</color>
             </diffuse>
+            <specular>
+              <color sid="specular">0.7991033 0.7991029 0.799103 1</color>
+            </specular>
+            <shininess>
+              <float sid="shininess">0</float>
+            </shininess>
             <index_of_refraction>
-              <float sid="ior">1.45</float>
+              <float sid="index_of_refraction">1</float>
             </index_of_refraction>
-          </lambert>
+          </phong>
         </technique>
       </profile_COMMON>
     </effect>
