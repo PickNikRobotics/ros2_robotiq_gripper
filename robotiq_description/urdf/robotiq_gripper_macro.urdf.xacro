@@ -203,7 +203,7 @@
             <child link="${prefix}robotiq_85_left_inner_knuckle_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="0.0127 0.0 0.06142" rpy="0 0 0" />
-            <mimic joint="robotiq_85_left_knuckle_joint" />
+            <mimic joint="${prefix}robotiq_85_left_knuckle_joint" />
         </joint>
 
         <joint name="${prefix}robotiq_85_right_inner_knuckle_joint" type="continuous">
@@ -211,7 +211,7 @@
             <child link="${prefix}robotiq_85_right_inner_knuckle_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="-0.0127 0.0 0.06142" rpy="0 0 0" />
-            <mimic joint="robotiq_85_left_knuckle_joint" multiplier="-1" />
+            <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="-1" />
         </joint>
 
         <joint name="${prefix}robotiq_85_left_finger_tip_joint" type="continuous">
@@ -219,7 +219,7 @@
             <child link="${prefix}robotiq_85_left_finger_tip_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="0.00563134 0.0 0.04718515" rpy="0 0 0" />
-            <mimic joint="robotiq_85_left_knuckle_joint" multiplier="-1" />
+            <mimic joint="${prefix}robotiq_85_left_knuckle_joint" multiplier="-1" />
         </joint>
 
         <joint name="${prefix}robotiq_85_right_finger_tip_joint" type="continuous">
@@ -227,7 +227,7 @@
             <child link="${prefix}robotiq_85_right_finger_tip_link" />
             <axis xyz="0 -1 0" />
             <origin xyz="-0.00563134 0.0 0.04718515" rpy="0 0 0" />
-            <mimic joint="robotiq_85_left_knuckle_joint" />
+            <mimic joint="${prefix}robotiq_85_left_knuckle_joint" />
         </joint>
     </xacro:macro>
 </robot>
