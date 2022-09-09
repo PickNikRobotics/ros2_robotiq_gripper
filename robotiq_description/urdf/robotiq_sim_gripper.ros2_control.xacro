@@ -47,6 +47,10 @@
                 <state_interface name="position" />
                 <state_interface name="velocity" />
             </joint>
+            <gpio name="reactivate_gripper">
+                <command_interface name="reactivate_gripper_cmd" />
+                <command_interface name="reactivate_gripper_response" />
+            </gpio>
         </ros2_control>
     </xacro:macro>
 
