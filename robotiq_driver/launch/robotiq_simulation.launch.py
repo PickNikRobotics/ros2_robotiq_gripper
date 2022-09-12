@@ -51,7 +51,7 @@ def generate_launch_description():
         get_package_share_directory('robotiq_description'))
 
     xacro_file = os.path.join(ignition_ros2_control_demos_path,
-                              'urdf',
+                              'urdf/gz',
                               'robotiq_gripper.urdf.xacro')
 
     doc = xacro.parse(open(xacro_file))
