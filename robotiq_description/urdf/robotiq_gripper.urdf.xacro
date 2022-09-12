@@ -3,7 +3,6 @@
     <!-- parameters -->
     <xacro:arg name="com_port" default="10000" />
     <xacro:arg name="use_fake_hardware" default="false" />
-    <xacro:arg name="sim_gz" default="true" />
 
     <!-- Import macros -->
     <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper_macro.urdf.xacro" />
@@ -12,7 +11,6 @@
     <xacro:robotiq_gripper
       parent="world"
       use_fake_hardware="$(arg use_fake_hardware)"
-      sim_gz="$(arg sim_gz)"
       com_port="$(arg com_port)"
       prefix="">
         <origin xyz="0 0 0" rpy="0 0 0" />

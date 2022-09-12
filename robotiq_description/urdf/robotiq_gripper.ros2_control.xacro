@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="robotiq_gripper_ros2_control" params="name com_port use_fake_hardware:=false sim_gz:=false">
+    <xacro:macro name="robotiq_gripper_ros2_control" params="name com_port use_fake_hardware:=false">
         <!-- ros2_control custom hardware interface -->
-        <xacro:unless value="${use_fake_hardware or sim_gz}">
+        <xacro:unless value="${use_fake_hardware}">
             <ros2_control name="${name}" type="actuator">
                 <hardware>
                     <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
@@ -21,17 +21,11 @@
             </ros2_control>
         </xacro:unless>
 
-        <xacro:if value="${use_fake_hardware or sim_gz}">
+        <xacro:if value="${use_fake_hardware}">
             <ros2_control name="${name}" type="system">
                 <hardware>
                     <!-- ros2_control fake component -->
-                    <xacro:if value="${use_fake_hardware}">
-                        <plugin>fake_components/GenericSystem</plugin>
-                    </xacro:if>
-                    <!-- gz simulation -->
-                    <xacro:if value="${sim_gz}">
-                        <plugin>ign_ros2_control/IgnitionSystem</plugin>
-                    </xacro:if>
+                    <plugin>fake_components/GenericSystem</plugin>
                 </hardware>
                 <joint name="robotiq_85_left_knuckle_joint">
                     <param name="initial_position">0.7929</param>
@@ -75,14 +69,6 @@
                     <state_interface name="velocity" />
                 </joint>
             </ros2_control>
-            <!--gz plugin for ros2 control -->
-            <xacro:if value="${sim_gz}">
-                <gazebo>
-                    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-                        <parameters>$(find robotiq_driver)/config/robotiq_controllers.yaml</parameters>
-                    </plugin>
-                </gazebo>
-            </xacro:if>
         </xacro:if>
     </xacro:macro>
 </robot>
