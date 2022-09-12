@@ -1,0 +1,9 @@
+repositories:
+  serial:
+    type: git
+    url: https://github.com/tylerjw/serial.git
+    version: ros2
+  gz_ros2_control:
+      type: git
+      url: https://github.com/livanov93/ign_ros2_control.git
+      version: mimic-joint-feature
