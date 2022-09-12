@@ -1,22 +1,88 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="robotiq_gripper_ros2_control" params="name com_port">
-        <ros2_control name="${name}" type="actuator">
-            <hardware>
-                <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-                <param name="gripper_closed_position">0.7929</param>
-                <param name="COM_port">${com_port}</param>
-                <param name="gripper_speed_multiplier">1.0</param>
-                <param name="gripper_force_multiplier">0.5</param>
-            </hardware>
-            <joint name="robotiq_85_left_knuckle_joint">
-                <param name="initial_position">0.7929</param>
-                <command_interface name="position" />
-                <state_interface name="position" />
-                <state_interface name="velocity" />
-            </joint>
-        </ros2_control>
-    </xacro:macro>
+    <xacro:macro name="robotiq_gripper_ros2_control" params="name com_port use_fake_hardware:=false sim_gz:=false">
+        <!-- ros2_control custom hardware interface -->
+        <xacro:unless value="${use_fake_hardware or sim_gz}">
+            <ros2_control name="${name}" type="actuator">
+                <hardware>
+                    <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
+                    <param name="gripper_closed_position">0.7929</param>
+                    <param name="COM_port">${com_port}</param>
+                    <param name="gripper_speed_multiplier">1.0</param>
+                    <param name="gripper_force_multiplier">0.5</param>
+                </hardware>
+                <joint name="robotiq_85_left_knuckle_joint">
+                    <param name="initial_position">0.7929</param>
+                    <command_interface name="position" />
+                    <state_interface name="position" />
+                    <state_interface name="velocity" />
+                </joint>
+            </ros2_control>
+        </xacro:unless>
 
+        <xacro:if value="${use_fake_hardware or sim_gz}">
+            <ros2_control name="${name}" type="system">
+                <hardware>
+                    <!-- ros2_control fake component -->
+                    <xacro:if value="${use_fake_hardware}">
+                        <plugin>fake_components/GenericSystem</plugin>
+                    </xacro:if>
+                    <!-- gz simulation -->
+                    <xacro:if value="${sim_gz}">
+                        <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                    </xacro:if>
+                </hardware>
+                <joint name="robotiq_85_left_knuckle_joint">
+                    <param name="initial_position">0.7929</param>
+                    <command_interface name="position" />
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </joint>
+                <joint name="robotiq_85_right_knuckle_joint">
+                    <param name="mimic">robotiq_85_left_knuckle_joint</param>
+                    <param name="multiplier">-1</param>
+                    <command_interface name="position"/>
+                    <state_interface name="position"/>
+                    <state_interface name="velocity"/>
+                </joint>
+                <joint name="robotiq_85_left_inner_knuckle_joint">
+                    <param name="mimic">robotiq_85_left_knuckle_joint</param>
+                    <param name="multiplier">1</param>
+                    <command_interface name="position" />
+                    <state_interface name="position" />
+                    <state_interface name="velocity" />
+                </joint>
+                <joint name="robotiq_85_right_inner_knuckle_joint">
+                    <param name="mimic">robotiq_85_left_knuckle_joint</param>
+                    <param name="multiplier">-1</param>
+                    <command_interface name="position" />
+                    <state_interface name="position" />
+                    <state_interface name="velocity" />
+                </joint>
+                <joint name="robotiq_85_left_finger_tip_joint">
+                    <param name="mimic">robotiq_85_left_knuckle_joint</param>
+                    <param name="multiplier">-1</param>
+                    <command_interface name="position" />
+                    <state_interface name="position" />
+                    <state_interface name="velocity" />
+                </joint>
+                <joint name="robotiq_85_right_finger_tip_joint">
+                    <param name="mimic">robotiq_85_left_knuckle_joint</param>
+                    <param name="multiplier">1</param>
+                    <command_interface name="position" />
+                    <state_interface name="position" />
+                    <state_interface name="velocity" />
+                </joint>
+            </ros2_control>
+            <!--gz plugin for ros2 control -->
+            <xacro:if value="${sim_gz}">
+                <gazebo>
+                    <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+                        <parameters>$(find robotiq_driver)/config/robotiq_controllers.yaml</parameters>
+                    </plugin>
+                </gazebo>
+            </xacro:if>
+        </xacro:if>
+    </xacro:macro>
 </robot>

@@ -26,7 +26,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import launch
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch_ros.substitutions import FindPackageShare
+from launch_ros.actions import Node
+
 from launch.substitutions import (
     Command,
     FindExecutable,
@@ -34,90 +38,76 @@ from launch.substitutions import (
     PathJoinSubstitution,
 )
 import launch_ros
-import os
+from launch.conditions import IfCondition, UnlessCondition
 
 
 def generate_launch_description():
-    description_pkg_share = launch_ros.substitutions.FindPackageShare(
-        package="robotiq_description"
-    ).find("robotiq_description")
-    default_model_path = os.path.join(
-        description_pkg_share, "urdf", "robotiq_gripper.urdf.xacro"
-    )
-    default_rviz_config_path = os.path.join(
-        description_pkg_share, "rviz", "view_urdf.rviz"
-    )
-
-    pkg_share = launch_ros.substitutions.FindPackageShare(
-        package="robotiq_driver"
-    ).find("robotiq_driver")
-
-    args = []
-    args.append(
-        launch.actions.DeclareLaunchArgument(
-            name="model",
-            default_value=default_model_path,
-            description="Absolute path to gripper URDF file",
+    declared_arguments = []
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "com_port",
+            description="Communication port for real hardware.",
+            default_value="10000",
         )
     )
-    args.append(
-        launch.actions.DeclareLaunchArgument(
-            name="rvizconfig",
-            default_value=default_rviz_config_path,
-            description="Absolute path to rviz config file",
+    # use ros2_control fake hardware
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_fake_hardware",
+            description="Use ros2_control fake hardware interface for simulation.",
+            default_value="false",
         )
     )
+
+    com_port = LaunchConfiguration("com_port")
+    use_fake_hardware = LaunchConfiguration("use_fake_hardware")
 
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
             " ",
-            LaunchConfiguration("model"),
+            PathJoinSubstitution([FindPackageShare("robotiq_description"),
+                                  "urdf",
+                                  "robotiq_gripper.urdf.xacro"]
+                                 ),
             " ",
-            "use_sim:=false",
-        ]
-    )
-    robot_description_param = {
-        "robot_description": launch_ros.parameter_descriptions.ParameterValue(
-            robot_description_content, value_type=str
-        )
-    }
-
-    update_rate_config_file = PathJoinSubstitution(
-        [
-            pkg_share,
-            "config",
-            "robotiq_update_rate.yaml",
+            "com_port:=",
+            com_port,
+            " ",
+            "use_fake_hardware:=",
+            use_fake_hardware,
         ]
     )
 
-    controllers_file = "robotiq_controllers.yaml"
-    initial_joint_controllers = PathJoinSubstitution(
-        [pkg_share, "config", controllers_file]
+    robot_description = {"robot_description": robot_description_content}
+
+    rviz_config_file = PathJoinSubstitution(
+        [FindPackageShare("robotiq_description"), "rviz", "view_urdf.rviz"]
     )
 
-    control_node = launch_ros.actions.Node(
-        package="controller_manager",
-        executable="ros2_control_node",
-        parameters=[
-            robot_description_param,
-            update_rate_config_file,
-            initial_joint_controllers,
-        ],
+    ros2_control_config_file = PathJoinSubstitution(
+        [FindPackageShare("robotiq_driver"), "config", "robotiq_controllers.yaml"]
     )
 
-    robot_state_publisher_node = launch_ros.actions.Node(
+    robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        parameters=[robot_description_param],
+        output="both",
+        parameters=[robot_description],
     )
-
-    rviz_node = launch_ros.actions.Node(
+    rviz_node = Node(
         package="rviz2",
         executable="rviz2",
         name="rviz2",
         output="log",
-        arguments=["-d", LaunchConfiguration("rvizconfig")],
+        arguments=["-d", rviz_config_file],
+    )
+
+    control_node = Node(
+        package="controller_manager",
+        executable="ros2_control_node",
+        parameters=[robot_description, ros2_control_config_file],
+        output="screen",
     )
 
     joint_state_broadcaster_spawner = launch_ros.actions.Node(
@@ -140,15 +130,16 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=["robotiq_activation_controller", "-c", "/controller_manager"],
+        condition=UnlessCondition(use_fake_hardware),
     )
 
-    nodes = [
+    nodes_to_start = [
         control_node,
-        robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         robotiq_gripper_controller_spawner,
         robotiq_activation_controller_spawner,
+        robot_state_publisher_node,
         rviz_node,
     ]
 
-    return launch.LaunchDescription(args + nodes)
+    return LaunchDescription(declared_arguments + nodes_to_start)

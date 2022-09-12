@@ -1,15 +1,28 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
-    <xacro:macro name="robotiq_gripper" params="parent *origin sim:=false prefix">
+    <!--include macro for ros2_control-->
+    <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper.ros2_control.xacro" />
+
+    <xacro:macro name="robotiq_gripper" params="parent *origin prefix com_port:=10000 use_fake_hardware:=false sim_gz:=true" >
         <link name="${prefix}robotiq_85_base_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/robotiq_base.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/robotiq_base.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/robotiq_base.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/robotiq_base.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/robotiq_base.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/robotiq_base.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -22,12 +35,22 @@
         <link name="${prefix}robotiq_85_left_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/left_knuckle.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/left_knuckle.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/left_knuckle.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/left_knuckle.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/left_knuckle.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/left_knuckle.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -40,12 +63,22 @@
         <link name="${prefix}robotiq_85_right_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/right_knuckle.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/right_knuckle.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/right_knuckle.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/right_knuckle.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/right_knuckle.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/right_knuckle.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -58,12 +91,22 @@
         <link name="${prefix}robotiq_85_left_finger_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/left_finger.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/left_finger.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/left_finger.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/left_finger.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/left_finger.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/left_finger.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -76,12 +119,22 @@
         <link name="${prefix}robotiq_85_right_finger_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/right_finger.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/right_finger.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/right_finger.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/right_finger.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/right_finger.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/right_finger.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -94,12 +147,22 @@
         <link name="${prefix}robotiq_85_left_inner_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/left_inner_knuckle.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/left_inner_knuckle.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/left_inner_knuckle.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/left_inner_knuckle.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/left_inner_knuckle.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/left_inner_knuckle.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -112,12 +175,22 @@
         <link name="${prefix}robotiq_85_right_inner_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/right_inner_knuckle.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/right_inner_knuckle.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/right_inner_knuckle.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/right_inner_knuckle.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/right_inner_knuckle.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/right_inner_knuckle.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -130,12 +203,22 @@
         <link name="${prefix}robotiq_85_left_finger_tip_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/left_finger_tip.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/left_finger_tip.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/left_finger_tip.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/left_finger_tip.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/left_finger_tip.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/left_finger_tip.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -148,12 +231,22 @@
         <link name="${prefix}robotiq_85_right_finger_tip_link">
             <visual>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/visual/right_finger_tip.dae" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/visual/right_finger_tip.dae" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/visual/right_finger_tip.dae" />
+                    </xacro:unless>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="package://robotiq_description/meshes/collision/right_finger_tip.stl" />
+                    <xacro:if value="${sim_gz}">
+                        <mesh filename="file://$(find robotiq_description)/meshes/collision/right_finger_tip.stl" />
+                    </xacro:if>
+                    <xacro:unless value="${sim_gz}">
+                        <mesh filename="package://robotiq_description/meshes/collision/right_finger_tip.stl" />
+                    </xacro:unless>
                 </geometry>
             </collision>
             <inertial>
@@ -229,5 +322,12 @@
             <origin xyz="-0.00563134 0.0 0.04718515" rpy="0 0 0" />
             <mimic joint="${prefix}robotiq_85_left_knuckle_joint" />
         </joint>
+
+        <!--instance of robotiq ros2 control hardware interface-->
+        <xacro:robotiq_gripper_ros2_control
+          name="${prefix}robotiq_gripper_hardware_interface"
+          use_fake_hardware="${use_fake_hardware}"
+          sim_gz="${sim_gz}"
+          com_port="${com_port}"/>
     </xacro:macro>
 </robot>
