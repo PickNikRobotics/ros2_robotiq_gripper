@@ -50,12 +50,6 @@
                 <state_interface name="velocity" />
             </joint>
         </ros2_control>
-
-        <gazebo>
-            <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
-                <parameters>$(find robotiq_driver)/config/robotiq_controllers.yaml</parameters>
-            </plugin>
-        </gazebo>
     </xacro:macro>
 
 </robot>

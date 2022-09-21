@@ -9,4 +9,10 @@
       prefix="">
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:robotiq_gripper>
+
+    <gazebo>
+        <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+            <parameters>$(find robotiq_driver)/config/robotiq_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
 </robot>
