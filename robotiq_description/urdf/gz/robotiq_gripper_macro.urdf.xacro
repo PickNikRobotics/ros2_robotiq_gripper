@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
-    <xacro:include filename="$(find robotiq_description)/urdf/gz/robotiq_gripper.ros2_control.xacro" />
 
-    <xacro:macro name="robotiq_gripper" params="parent *origin sim:=false prefix">
+    <xacro:macro name="robotiq_gripper" params="parent *origin prefix">
         <link name="${prefix}robotiq_85_base_link">
             <visual>
                 <geometry>
@@ -231,8 +230,6 @@
             <origin xyz="-0.00563134 0.0 0.04718515" rpy="0 0 0" />
             <mimic joint="robotiq_85_left_knuckle_joint" />
         </joint>
-
-        <xacro:robotiq_gz_gripper_ros2_control name="IgnitionSystem"/>
 
     </xacro:macro>
 </robot>

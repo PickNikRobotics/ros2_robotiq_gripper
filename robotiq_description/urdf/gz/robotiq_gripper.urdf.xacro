@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
     <!-- Import macros -->
+    <xacro:include filename="$(find robotiq_description)/urdf/gz/robotiq_gripper.ros2_control.xacro" />
     <xacro:include filename="$(find robotiq_description)/urdf/gz/robotiq_gripper_macro.urdf.xacro" />
 
     <link name="world" />
@@ -9,6 +10,8 @@
       prefix="">
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:robotiq_gripper>
+
+    <xacro:robotiq_gz_gripper_ros2_control name="IgnitionSystem"/>
 
     <gazebo>
         <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
