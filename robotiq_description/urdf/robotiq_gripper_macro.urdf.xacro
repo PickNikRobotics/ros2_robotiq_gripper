@@ -148,6 +148,18 @@
             </inertial>
         </link>
 
+        <gazebo reference="${prefix}robotiq_85_left_finger_tip_link">
+            <mu1>100000.0</mu1>
+            <mu2>100000.0</mu2>
+            <kp>1e+5</kp>
+            <kd>1</kd>
+            <soft_cfm>0</soft_cfm>
+            <soft_erp>0.2</soft_erp>
+            <minDepth>0.001</minDepth>
+            <selfCollide>true</selfCollide>
+            <gravity>true</gravity>
+        </gazebo>
+
         <link name="${prefix}robotiq_85_right_finger_tip_link">
             <visual>
                 <geometry>
@@ -165,6 +177,18 @@
                 <inertia ixx="1.048152e-05" iyy="1.197888e-05" izz="4.22784e-06" ixy="0.0" ixz="-3.5232e-06" iyz="0.0" />
             </inertial>
         </link>
+
+        <gazebo reference="${prefix}robotiq_85_right_finger_tip_link">
+            <mu1>100000.0</mu1>
+            <mu2>100000.0</mu2>
+            <kp>1e+5</kp>
+            <kd>1</kd>
+            <soft_cfm>0</soft_cfm>
+            <soft_erp>0.2</soft_erp>
+            <minDepth>0.001</minDepth>
+            <selfCollide>true</selfCollide>
+            <gravity>true</gravity>
+        </gazebo>
 
         <joint name="${prefix}robotiq_85_base_joint" type="fixed">
             <parent link="${parent}" />
