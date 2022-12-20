@@ -1,11 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:macro name="robotiq_sim_gripper_ros2_control" params="
-      name
-      sim_ignition:=false
-      sim_isaac:=false
-      use_fake_hardware:=false">
+    <xacro:macro name="robotiq_sim_gripper_ros2_control"
+                 params="name sim_ignition:=false sim_isaac:=false use_fake_hardware:=false">
 
         <ros2_control name="${name}" type="system">
             <hardware>
@@ -14,13 +11,11 @@
                     <param name="joint_commands_topic">/isaac_joint_commands</param>
                     <param name="joint_states_topic">/isaac_joint_states</param>
                 </xacro:if>
+                <xacro:if value="${sim_ignition}">
+                    <plugin>ign_ros2_control/IgnitionSystem</plugin>
+                </xacro:if>
                 <xacro:if value="${use_fake_hardware}">
-                    <xacro:if value="${sim_ignition}">
-                        <plugin>ign_ros2_control/IgnitionSystem</plugin>
-                    </xacro:if>
-                    <xacro:unless value="${sim_ignition}">
-                        <plugin>mock_components/GenericSystem</plugin>
-                    </xacro:unless>
+                    <plugin>mock_components/GenericSystem</plugin>
                     <param name="fake_sensor_commands">${fake_sensor_commands}</param>
                     <param name="state_following_offset">0.0</param>
                 </xacro:if>
@@ -28,14 +23,16 @@
             <joint name="robotiq_85_left_knuckle_joint">
                 <!-- With Ignition, we have mimic joints, so we only need this command interface activated -->
                 <xacro:if value="${sim_ignition}">
-                    <param name="initial_position">0.2</param>
+                    <state_interface name="position">
+                        <param name="initial_value">0.2</param>
+                    </state_interface>
                 </xacro:if>
                 <xacro:unless value="${sim_ignition}">
                     <param name="initial_position">0.7929</param>
+                    <state_interface name="position"/>
                 </xacro:unless>
 
                 <command_interface name="position" />
-                <state_interface name="position"/>
                 <state_interface name="velocity"/>
             </joint>
             <joint name="robotiq_85_right_knuckle_joint">
@@ -83,7 +80,6 @@
                     <state_interface name="velocity"/>
                 </xacro:unless>
             </joint>
-            <!-- Not active for Ignition -->
             <xacro:unless value="${sim_ignition}">
                 <gpio name="reactivate_gripper">
                     <command_interface name="reactivate_gripper_cmd" />
