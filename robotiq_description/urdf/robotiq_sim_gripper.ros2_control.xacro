@@ -2,9 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:macro name="robotiq_sim_gripper_ros2_control"
-                 params="name sim_ignition:=false sim_isaac:=false use_fake_hardware:=false">
+                 params="name sim_ignition:=false sim_isaac:=false use_fake_hardware:=true">
 
         <ros2_control name="${name}" type="system">
+            <!-- Plugins -->
             <hardware>
                 <xacro:if value="${sim_isaac}">
                     <plugin>isaac_ros2_control/IsaacSystem</plugin>
@@ -20,6 +21,8 @@
                     <param name="state_following_offset">0.0</param>
                 </xacro:if>
             </hardware>
+
+            <!-- Joint interfaces -->
             <joint name="robotiq_85_left_knuckle_joint">
                 <!-- With Ignition, we have mimic joints, so we only need this command interface activated -->
                 <xacro:if value="${sim_ignition}">
@@ -80,12 +83,15 @@
                     <state_interface name="velocity"/>
                 </xacro:unless>
             </joint>
-            <xacro:unless value="${sim_ignition}">
+
+            <!-- Only add this with fake hardware mode -->
+            <xacro:unless value="${sim_ignition or sim_isaac}">
                 <gpio name="reactivate_gripper">
                     <command_interface name="reactivate_gripper_cmd" />
                     <command_interface name="reactivate_gripper_response" />
                 </gpio>
             </xacro:unless>
+
         </ros2_control>
     </xacro:macro>
 
