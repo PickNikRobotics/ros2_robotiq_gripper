@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:macro name="robotiq_sim_gripper_ros2_control"
-                 params="name sim_ignition:=false sim_isaac:=false use_fake_hardware:=true">
+                 params="name sim_ignition:=false sim_isaac:=false use_fake_hardware:=true fake_sensor_commands:=false">
 
         <ros2_control name="${name}" type="system">
             <!-- Plugins -->
