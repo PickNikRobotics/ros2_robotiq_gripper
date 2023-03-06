@@ -4,10 +4,10 @@
         name
         prefix
         parent
-        *origin        
+        *origin
         sim_ignition:=false
-        sim_isaac:=false 
-        use_fake_hardware:=false 
+        sim_isaac:=false
+        use_fake_hardware:=false
         fake_sensor_commands:=false
         com_port:=/dev/ttyUSB0">
 
@@ -15,7 +15,7 @@
         <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper.ros2_control.xacro" />
         <!-- ros2 control instance -->
         <xacro:robotiq_gripper_ros2_control
-            name="${name}" prefix="${prefix}"            
+            name="${name}" prefix="${prefix}"
             sim_ignition="${sim_ignition}"
             sim_isaac="${sim_isaac}"
             use_fake_hardware="${use_fake_hardware}"
