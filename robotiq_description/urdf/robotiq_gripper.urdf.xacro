@@ -7,7 +7,7 @@
     <xacro:include filename="$(find robotiq_description)/urdf/robotiq_gripper_macro.urdf.xacro" />
 
     <link name="world" />
-    <xacro:robotiq_gripper parent="world" sim="$(arg use_sim)" prefix="">
+    <xacro:robotiq_gripper name="RobotiqGripperSystem" prefix="" parent="world" use_fake_hardware="$(arg use_sim)">
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:robotiq_gripper>
 </robot>
