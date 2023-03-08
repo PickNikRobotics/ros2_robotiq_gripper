@@ -32,7 +32,6 @@
 #include <string>
 #include <vector>
 
-#include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/handle.hpp"
 #include "hardware_interface/hardware_info.hpp"
 #include "hardware_interface/system_interface.hpp"
@@ -45,7 +44,7 @@
 
 namespace robotiq_driver
 {
-class RobotiqGripperHardwareInterface : public hardware_interface::ActuatorInterface
+class RobotiqGripperHardwareInterface : public hardware_interface::SystemInterface
 {
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(RobotiqGripperHardwareInterface)

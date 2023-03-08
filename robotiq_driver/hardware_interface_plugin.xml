@@ -1,5 +1,5 @@
 <library path="robotiq_driver">
-    <class name="robotiq_driver/RobotiqGripperHardwareInterface" type="robotiq_driver::RobotiqGripperHardwareInterface" base_class_type="hardware_interface::ActuatorInterface">
+    <class name="robotiq_driver/RobotiqGripperHardwareInterface" type="robotiq_driver::RobotiqGripperHardwareInterface" base_class_type="hardware_interface::SystemInterface">
         <description>
             ROS2 controller for the Robotiq gripper.
         </description>
