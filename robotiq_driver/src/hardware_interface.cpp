@@ -53,7 +53,7 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
 hardware_interface::CallbackReturn
 RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
 {
-  if (hardware_interface::ActuatorInterface::on_init(info) != CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
   }
@@ -248,4 +248,4 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write(const rcl
 
 #include "pluginlib/class_list_macros.hpp"
 
-PLUGINLIB_EXPORT_CLASS(robotiq_driver::RobotiqGripperHardwareInterface, hardware_interface::ActuatorInterface)
+PLUGINLIB_EXPORT_CLASS(robotiq_driver::RobotiqGripperHardwareInterface, hardware_interface::SystemInterface)

@@ -74,7 +74,7 @@ def generate_launch_description():
             " ",
             LaunchConfiguration("model"),
             " ",
-            "use_sim:=false",
+            "use_fake_hardware:=false",
         ]
     )
     robot_description_param = {
