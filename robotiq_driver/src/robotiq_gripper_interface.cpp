@@ -230,6 +230,9 @@ void RobotiqGripperInterface::updateStatus()
 
   if(response.empty())
   {
+    std::cerr << "Failed to receive gripper status. Please check gripper connection.\n";
+    // set gripper status to ERROR to prevent getting stuck in activateGripper loop
+    gripper_status_ = GripperStatus::ERROR;
     return;
   }
 

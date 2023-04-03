@@ -107,7 +107,8 @@ public:
   {
     RESET,
     IN_PROGRESS,
-    COMPLETED
+    COMPLETED,
+    ERROR
   };
 
   enum class ObjectDetectionStatus
