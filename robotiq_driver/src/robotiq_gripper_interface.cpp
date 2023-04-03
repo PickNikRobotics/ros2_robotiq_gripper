@@ -226,7 +226,12 @@ void RobotiqGripperInterface::updateStatus()
     return;
   }
 
-  auto response = readResponse(kReadResponseSize);
+  const auto response = readResponse(kReadResponseSize);
+
+  if(response.empty())
+  {
+    return;
+  }
 
   // Process the response.
   uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
