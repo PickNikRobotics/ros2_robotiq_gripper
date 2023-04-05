@@ -159,6 +159,24 @@
                 <geometry>
                     <mesh filename="package://robotiq_description/meshes/collision/left_finger_tip.stl" />
                 </geometry>
+                <surface>
+                    <friction>
+                    <ode>
+                        <mu1>100000.0</mu1>
+                        <mu2>100000.0</mu2>
+                    </ode>
+                    </friction>
+                    <contact>
+                    <ode>
+                        <kp>1e+5</kp>
+                        <kd>1</kd>
+                        <soft_cfm>0</soft_cfm>
+                        <soft_erp>0.2</soft_erp>
+                        <minDepth>0.002</minDepth>
+                        <maxVel>0</maxVel>
+                    </ode>
+                    </contact>
+                </surface>
             </collision>
             <inertial>
                 <origin xyz="-0.01456706 -0.0008 0.01649701" rpy="0 0 0" />
@@ -177,6 +195,24 @@
                 <geometry>
                     <mesh filename="package://robotiq_description/meshes/collision/right_finger_tip.stl" />
                 </geometry>
+                <surface>
+                    <friction>
+                    <ode>
+                        <mu1>100000.0</mu1>
+                        <mu2>100000.0</mu2>
+                    </ode>
+                    </friction>
+                    <contact>
+                    <ode>
+                        <kp>1e+5</kp>
+                        <kd>1</kd>
+                        <soft_cfm>0</soft_cfm>
+                        <soft_erp>0.2</soft_erp>
+                        <minDepth>0.002</minDepth>
+                        <maxVel>0</maxVel>
+                    </ode>
+                    </contact>
+                </surface>
             </collision>
             <inertial>
                 <origin xyz="0.01456706 5e-05 0.01649701" rpy="0 0 0" />
