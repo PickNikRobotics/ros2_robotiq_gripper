@@ -237,7 +237,7 @@ void RobotiqGripperInterface::updateStatus()
 {
   // Tell the gripper that we want to read its status.
   try{
-    sendCommand(read_command_)) 
+    sendCommand(read_command_);
   
     const auto response = readResponse(kReadResponseSize);
 
