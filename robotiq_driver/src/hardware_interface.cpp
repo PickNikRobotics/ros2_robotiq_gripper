@@ -116,7 +116,7 @@ RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo&
     gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
     gripper_interface_->setSpeed(gripper_speed * 0xFF);
     gripper_interface_->setForce(gripper_force * 0xFF);
-  } catch(const std::system_error &e) {
+  } catch(const std::runtime_error &e) {
     RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
   }
@@ -162,10 +162,11 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
   }
 
   // Activate the gripper.
-  gripper_interface_->deactivateGripper();
-  if (!gripper_interface_->activateGripper())
-  {
-    RCLCPP_FATAL(kLogger, "Failed to activate gripper.");
+  try{
+    gripper_interface_->deactivateGripper();
+    gripper_interface_->activateGripper();
+  } catch(const std::runtime_error &e){
+    RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
   }
 
@@ -202,6 +203,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
           last_io = now;
         } catch(std::runtime_error &e) {
           RCLCPP_ERROR(kLogger, e.what());
+          RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
         }
 
       }

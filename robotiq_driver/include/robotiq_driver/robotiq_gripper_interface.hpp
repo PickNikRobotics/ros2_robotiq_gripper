@@ -46,14 +46,14 @@ public:
   /**
    * @brief Activates the gripper.
    *
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    */
   void activateGripper();
 
   /**
    * @brief Deactivates the gripper.
    *
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    */
   void deactivateGripper();
 
@@ -67,11 +67,17 @@ public:
   /**
    * @brief Return the current position of the gripper.
    *
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    * 
    * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
    */
   uint8_t getGripperPosition();
+
+  /**
+   * @brief Returns true if the gripper is currently moving, false otherwise.
+   *
+   */
+  bool gripperIsMoving();
 
   /**
    * @brief Set the speed of the gripper.
@@ -123,7 +129,7 @@ private:
    * @brief read response from the gripper.
    *
    * @param num_bytes Number of bytes to be read from device port.
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    */
   std::vector<uint8_t> readResponse(size_t num_bytes);
 
@@ -131,14 +137,14 @@ private:
    * @brief Send a command to the gripper.
    *
    * @param cmd The command.
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    */
   void sendCommand(const std::vector<uint8_t>& cmd);
 
   /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.
    *
-   * @throw std::system_error on failure to successfully communicate with gripper port
+   * @throw std::runtime_error on failure to successfully communicate with gripper port
    */
   void updateStatus();
 
