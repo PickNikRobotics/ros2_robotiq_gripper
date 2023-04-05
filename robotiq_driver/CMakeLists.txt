@@ -5,6 +5,8 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(hardware_interface REQUIRED)
@@ -48,7 +50,7 @@ target_include_directories(gripper_interface_test PRIVATE include)
 ament_target_dependencies(gripper_interface_test serial)
 target_link_libraries(gripper_interface_test ${PROJECT_NAME})
 
-# # INSTALL
+# INSTALL
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}

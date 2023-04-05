@@ -111,10 +111,15 @@ RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo&
     }
   }
 
-  // Create the interface to the gripper.
-  gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
-  gripper_interface_->setSpeed(gripper_speed * 0xFF);
-  gripper_interface_->setForce(gripper_force * 0xFF);
+  try{
+    // Create the interface to the gripper.
+    gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
+    gripper_interface_->setSpeed(gripper_speed * 0xFF);
+    gripper_interface_->setForce(gripper_force * 0xFF);
+  } catch(const std::system_error &e) {
+    RCLCPP_FATAL(kLogger, e.what());
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }
@@ -164,36 +169,41 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
     return CallbackReturn::ERROR;
   }
 
-  RCLCPP_INFO(kLogger, "Successfully activated!");
+  RCLCPP_INFO(kLogger, "Robotiq Gripper successfully activated!");
 
   command_interface_is_running_ = true;
 
   command_interface_ = std::thread([this] {
     // Read from and write to the gripper at 100 Hz.
-    auto io_interval = std::chrono::milliseconds(10);
+    const auto io_interval = std::chrono::milliseconds(10);
     auto last_io = std::chrono::high_resolution_clock::now();
 
     while (command_interface_is_running_)
     {
-      auto now = std::chrono::high_resolution_clock::now();
+      const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval)
       {
-        // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
-        if (reactivate_gripper_async_cmd_.load())
-        {
-          this->gripper_interface_->deactivateGripper();
-          auto success = this->gripper_interface_->activateGripper();
-          reactivate_gripper_async_cmd_.store(false);
-          reactivate_gripper_async_response_.store(success);
+        try{
+          // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
+          if (reactivate_gripper_async_cmd_.load())
+          {
+            this->gripper_interface_->deactivateGripper();
+            this->gripper_interface_->activateGripper();
+            reactivate_gripper_async_cmd_.store(false);
+            reactivate_gripper_async_response_.store(true);
+          }
+
+          // Write the latest command to the gripper.
+          this->gripper_interface_->setGripperPosition(write_command_.load());
+
+          // Read the state of the gripper.
+          gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
+
+          last_io = now;
+        } catch(std::runtime_error &e) {
+          RCLCPP_ERROR(kLogger, e.what());
         }
 
-        // Write the latest command to the gripper.
-        this->gripper_interface_->setGripperPosition(write_command_.load());
-
-        // Read the state of the gripper.
-        gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
-
-        last_io = now;
       }
     }
   });

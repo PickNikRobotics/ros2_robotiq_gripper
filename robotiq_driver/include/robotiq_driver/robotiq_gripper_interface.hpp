@@ -46,14 +46,14 @@ public:
   /**
    * @brief Activates the gripper.
    *
-   * @return true The gripper was activated successfully.
-   * @return false The gripper was not activated.
+   * @throw std::system_error on failure to successfully communicate with gripper port
    */
-  bool activateGripper();
+  void activateGripper();
 
   /**
    * @brief Deactivates the gripper.
    *
+   * @throw std::system_error on failure to successfully communicate with gripper port
    */
   void deactivateGripper();
 
@@ -67,15 +67,11 @@ public:
   /**
    * @brief Return the current position of the gripper.
    *
+   * @throw std::system_error on failure to successfully communicate with gripper port
+   * 
    * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
    */
   uint8_t getGripperPosition();
-
-  /**
-   * @brief Returns true if the gripper is currently moving, false otherwise.
-   *
-   */
-  bool gripperIsMoving();
 
   /**
    * @brief Set the speed of the gripper.
@@ -108,7 +104,6 @@ public:
     RESET,
     IN_PROGRESS,
     COMPLETED,
-    ERROR
   };
 
   enum class ObjectDetectionStatus
@@ -120,22 +115,30 @@ public:
   };
 
 private:
+
   std::vector<uint8_t> createReadCommand(uint16_t first_register, uint8_t num_registers);
   std::vector<uint8_t> createWriteCommand(uint16_t first_register, const std::vector<uint16_t>& data);
+  
+  /**
+   * @brief read response from the gripper.
+   *
+   * @param num_bytes Number of bytes to be read from device port.
+   * @throw std::system_error on failure to successfully communicate with gripper port
+   */
   std::vector<uint8_t> readResponse(size_t num_bytes);
 
   /**
    * @brief Send a command to the gripper.
    *
    * @param cmd The command.
-   * @return true If the command was sent successfully.
-   * @return false If the command was not sent successfully.
+   * @throw std::system_error on failure to successfully communicate with gripper port
    */
-  bool sendCommand(const std::vector<uint8_t>& cmd);
+  void sendCommand(const std::vector<uint8_t>& cmd);
 
   /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.
    *
+   * @throw std::system_error on failure to successfully communicate with gripper port
    */
   void updateStatus();
 

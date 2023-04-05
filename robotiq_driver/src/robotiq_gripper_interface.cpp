@@ -30,6 +30,7 @@
 #include "robotiq_driver/crc.hpp"
 
 #include <iostream>
+#include <stdexcept>
 #include <thread>
 #include <chrono>
 
@@ -80,40 +81,49 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, ui
 {
   if (!port_.isOpen())
   {
-    std::cerr << "Failed to open gripper port.\n";
-    return;
+    throw std::system_error("Failed to open gripper port.");
   }
 }
 
-bool RobotiqGripperInterface::activateGripper()
+void RobotiqGripperInterface::activateGripper()
 {
-  auto cmd = createWriteCommand(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 }  // set rACT to 1, clear all
+  const auto cmd = createWriteCommand(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 }  // set rACT to 1, clear all
                                                                                     // other registers.
   );
-  if (!sendCommand(cmd)) {
-    return false;
-  }
 
-  readResponse(kWriteResponseSize);
+  try{
+    sendCommand(cmd);
+    readResponse(kWriteResponseSize)
 
-  updateStatus();
-  while (gripper_status_ == GripperStatus::IN_PROGRESS)
-  {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     updateStatus();
-  }
+    
+    if(gripper_status_ == GripperStatus::COMPLETED){
+      return;
+    }
 
-  return gripper_status_ == GripperStatus::COMPLETED;
+    while (gripper_status_ == GripperStatus::IN_PROGRESS)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+      updateStatus();
+    }
+  } catch(const std::system_error &e) {
+    // catch connection error and rethrow
+    std::cerr << "Failed to activate gripper";
+    throw;
+  }
 }
 
 void RobotiqGripperInterface::deactivateGripper()
 {
-  auto cmd = createWriteCommand(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
-  if (!sendCommand(cmd)) {
-    return;
+  const auto cmd = createWriteCommand(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
+  try{
+    sendCommand(cmd)
+    readResponse(kWriteResponseSize);
+  } catch(const) {
+    // catch connection error and rethrow
+    std::cerr << "Failed to deactivate gripper";
+    throw;
   }
-
-  readResponse(kWriteResponseSize);
 }
 
 void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
@@ -122,27 +132,31 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   uint8_t gripper_options_1 = 0x00;
   uint8_t gripper_options_2 = 0x00;
 
-  auto cmd = createWriteCommand(kActionRequestRegister,
+  const auto cmd = createWriteCommand(kActionRequestRegister,
                                 { uint16_t(action_register << 8 | gripper_options_1),
                                   uint16_t(gripper_options_2 << 8 | pos),
                                   uint16_t(commanded_gripper_speed_ << 8 | commanded_gripper_force_) });
-  if (!sendCommand(cmd)) {
-    return;
+  try{
+    sendCommand(cmd);
+    readResponse(kWriteResponseSize);
+  } catch(const std::system_error &e) {
+    // catch connection error and rethrow
+    std::cerr << "Failed to set gripper position\n";
+    throw;
   }
-
-  readResponse(kWriteResponseSize);
 }
 
 uint8_t RobotiqGripperInterface::getGripperPosition()
 {
-  updateStatus();
-  return gripper_position_;
-}
+  try{
+    updateStatus();
+  } catch(const std::system_error &e) {
+    // catch connection error and rethrow
+    std::cerr << "Failed to get gripper position\n";
+    throw;
+  }
 
-bool RobotiqGripperInterface::gripperIsMoving()
-{
-  updateStatus();
-  return object_detection_status_ == ObjectDetectionStatus::MOVING;
+  return gripper_position_;
 }
 
 std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_register, uint8_t num_registers)
@@ -202,80 +216,75 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
 
   if (num_bytes_read != num_bytes_requested)
   {
-    std::cerr << "Requested " << num_bytes_requested << " bytes, but only got " << num_bytes_read << ".\n";
+    throw std::system_error("Requested " + std::to_string(num_bytes_requested) 
+                    + " bytes, but only got " + std::to_string(num_bytes_read));
   }
 
   return response;
 }
 
-bool RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd) {
+void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd) {
   size_t num_bytes_written = port_.write(cmd);
   port_.flush();
   if (num_bytes_written != cmd.size())
   {
-    std::cerr << "Attempted to write " << cmd.size() << " bytes, but only wrote " << num_bytes_written << ".\n";
-    return false;
+    throw std::system_error("Attempted to write " + std::to_string(cmd.size()) 
+                + " bytes, but only wrote " + std::to_string(num_bytes_written);
   }
-  return true;
 }
 
 void RobotiqGripperInterface::updateStatus()
 {
   // Tell the gripper that we want to read its status.
-  if (!sendCommand(read_command_)) {
-    return;
+  try{
+    sendCommand(read_command_)) 
+  
+    const auto response = readResponse(kReadResponseSize);
+
+    // Process the response.
+    uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
+
+    // Activation status.
+    activation_status_ = ((gripper_status_byte & 0x01) == 0x00) ? ActivationStatus::RESET : ActivationStatus::ACTIVE;
+
+    // Action status.
+    action_status_ = ((gripper_status_byte & 0x08) == 0x00) ? ActionStatus::STOPPED : ActionStatus::MOVING;
+
+    // Gripper status.
+    switch ((gripper_status_byte & 0x30) >> 4)
+    {
+      case 0x00:
+        gripper_status_ = GripperStatus::RESET;
+        break;
+      case 0x01:
+        gripper_status_ = GripperStatus::IN_PROGRESS;
+        break;
+      case 0x03:
+        gripper_status_ = GripperStatus::COMPLETED;
+        break;
+    }
+
+    // Object detection status.
+    switch ((gripper_status_byte & 0xC0) >> 6)
+    {
+      case 0x00:
+        object_detection_status_ = ObjectDetectionStatus::MOVING;
+        break;
+      case 0x01:
+        object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_OPENING;
+        break;
+      case 0x02:
+        object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_CLOSING;
+        break;
+      case 0x03:
+        object_detection_status_ = ObjectDetectionStatus::AT_REQUESTED_POSITION;
+        break;
+    }
+
+    // Read the current gripper position.
+    gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
+  } catch(const std::system_error &e){
+    std::cerr << "Failed to update gripper status.\n";
+    throw;
   }
-
-  const auto response = readResponse(kReadResponseSize);
-
-  if(response.empty())
-  {
-    std::cerr << "Failed to receive gripper status. Please check gripper connection.\n";
-    // set gripper status to ERROR to prevent getting stuck in activateGripper loop
-    gripper_status_ = GripperStatus::ERROR;
-    return;
-  }
-
-  // Process the response.
-  uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
-
-  // Activation status.
-  activation_status_ = ((gripper_status_byte & 0x01) == 0x00) ? ActivationStatus::RESET : ActivationStatus::ACTIVE;
-
-  // Action status.
-  action_status_ = ((gripper_status_byte & 0x08) == 0x00) ? ActionStatus::STOPPED : ActionStatus::MOVING;
-
-  // Gripper status.
-  switch ((gripper_status_byte & 0x30) >> 4)
-  {
-    case 0x00:
-      gripper_status_ = GripperStatus::RESET;
-      break;
-    case 0x01:
-      gripper_status_ = GripperStatus::IN_PROGRESS;
-      break;
-    case 0x03:
-      gripper_status_ = GripperStatus::COMPLETED;
-      break;
-  }
-
-  // Object detection status.
-  switch ((gripper_status_byte & 0xC0) >> 6)
-  {
-    case 0x00:
-      object_detection_status_ = ObjectDetectionStatus::MOVING;
-      break;
-    case 0x01:
-      object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_OPENING;
-      break;
-    case 0x02:
-      object_detection_status_ = ObjectDetectionStatus::OBJECT_DETECTED_CLOSING;
-      break;
-    case 0x03:
-      object_detection_status_ = ObjectDetectionStatus::AT_REQUESTED_POSITION;
-      break;
-  }
-
-  // Read the current gripper position.
-  gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
 }
