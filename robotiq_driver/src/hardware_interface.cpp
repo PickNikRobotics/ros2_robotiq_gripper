@@ -50,8 +50,7 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
 {
 }
 
-hardware_interface::CallbackReturn
-RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
+hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
 {
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
   {
@@ -111,12 +110,15 @@ RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo&
     }
   }
 
-  try{
+  try
+  {
     // Create the interface to the gripper.
     gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
     gripper_interface_->setSpeed(gripper_speed * 0xFF);
     gripper_interface_->setForce(gripper_force * 0xFF);
-  } catch(const std::runtime_error &e) {
+  }
+  catch (const std::runtime_error& e)
+  {
     RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
   }
@@ -162,10 +164,13 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
   }
 
   // Activate the gripper.
-  try{
+  try
+  {
     gripper_interface_->deactivateGripper();
     gripper_interface_->activateGripper();
-  } catch(const std::runtime_error &e){
+  }
+  catch (const std::runtime_error& e)
+  {
     RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
   }
@@ -184,7 +189,8 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
       const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval)
       {
-        try{
+        try
+        {
           // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
           if (reactivate_gripper_async_cmd_.load())
           {
@@ -201,11 +207,12 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
           gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
 
           last_io = now;
-        } catch(std::runtime_error &e) {
+        }
+        catch (std::runtime_error& e)
+        {
           RCLCPP_ERROR(kLogger, e.what());
           RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
         }
-
       }
     }
   });

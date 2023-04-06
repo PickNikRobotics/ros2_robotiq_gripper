@@ -68,7 +68,7 @@ public:
    * @brief Return the current position of the gripper.
    *
    * @throw std::runtime_error on failure to successfully communicate with gripper port
-   * 
+   *
    * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
    */
   uint8_t getGripperPosition();
@@ -121,10 +121,9 @@ public:
   };
 
 private:
-
   std::vector<uint8_t> createReadCommand(uint16_t first_register, uint8_t num_registers);
   std::vector<uint8_t> createWriteCommand(uint16_t first_register, const std::vector<uint16_t>& data);
-  
+
   /**
    * @brief read response from the gripper.
    *
