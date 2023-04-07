@@ -81,8 +81,7 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, ui
 {
   if (!port_.isOpen())
   {
-    const auto error_msg = "Failed to open gripper port.";
-    THROW(serial::IOException, error_msg.c_str());
+    THROW(serial::IOException, "Failed to open gripper port.");
   }
 }
 
