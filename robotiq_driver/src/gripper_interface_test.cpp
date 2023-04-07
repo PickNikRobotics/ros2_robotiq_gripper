@@ -96,7 +96,7 @@ int main()
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     std::cout << e.what();
     return 1;
