@@ -177,14 +177,14 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
 
   RCLCPP_INFO(kLogger, "Robotiq Gripper successfully activated!");
 
-  command_interface_is_running_ = true;
+  command_interface_is_running_.store(true);
 
   command_interface_ = std::thread([this] {
     // Read from and write to the gripper at 100 Hz.
     const auto io_interval = std::chrono::milliseconds(10);
     auto last_io = std::chrono::high_resolution_clock::now();
 
-    while (command_interface_is_running_)
+    while (command_interface_is_running_.load())
     {
       const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval)
@@ -212,6 +212,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
         {
           RCLCPP_ERROR(kLogger, e.what());
           RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
+          command_interface_is_running_.store(false);
         }
       }
     }
@@ -223,11 +224,18 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
 hardware_interface::CallbackReturn
 RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/)
 {
-  command_interface_is_running_ = false;
+  command_interface_is_running_.store(false);
   command_interface_.join();
 
-  // Deactivate the gripper.
-  gripper_interface_->deactivateGripper();
+  try
+  {
+    gripper_interface_->deactivateGripper();
+  }
+  catch (const std::exception& e)
+  {
+    RCLCPP_ERROR(kLogger, e.what());
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }

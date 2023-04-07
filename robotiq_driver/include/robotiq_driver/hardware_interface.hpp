@@ -85,7 +85,7 @@ private:
   std::string com_port_;
 
   std::thread command_interface_;
-  bool command_interface_is_running_;
+  std::atomic<bool> command_interface_is_running_;
   std::atomic<uint8_t> write_command_;
   std::atomic<uint8_t> gripper_current_state_;
 
