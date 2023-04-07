@@ -37,6 +37,7 @@
 #include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include <serial/serial.h>
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
@@ -117,7 +118,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
     gripper_interface_->setSpeed(gripper_speed * 0xFF);
     gripper_interface_->setForce(gripper_force * 0xFF);
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
@@ -169,7 +170,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
     gripper_interface_->deactivateGripper();
     gripper_interface_->activateGripper();
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     RCLCPP_FATAL(kLogger, e.what());
     return CallbackReturn::ERROR;
@@ -208,7 +209,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
 
           last_io = now;
         }
-        catch (std::runtime_error& e)
+        catch (serial::IOException& e)
         {
           RCLCPP_ERROR(kLogger, e.what());
           RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");

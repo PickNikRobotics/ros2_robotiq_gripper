@@ -81,7 +81,7 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, ui
 {
   if (!port_.isOpen())
   {
-    throw std::runtime_error("Failed to open gripper port.");
+    throw serial::IOException("Failed to open gripper port.");
   }
 }
 
@@ -109,7 +109,7 @@ void RobotiqGripperInterface::activateGripper()
       updateStatus();
     }
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to activate gripper";
@@ -125,7 +125,7 @@ void RobotiqGripperInterface::deactivateGripper()
     sendCommand(cmd);
     readResponse(kWriteResponseSize);
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to activate gripper";
@@ -148,7 +148,7 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
     sendCommand(cmd);
     readResponse(kWriteResponseSize);
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to set gripper position\n";
@@ -162,7 +162,7 @@ uint8_t RobotiqGripperInterface::getGripperPosition()
   {
     updateStatus();
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
@@ -178,7 +178,7 @@ bool RobotiqGripperInterface::gripperIsMoving()
   {
     updateStatus();
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
@@ -245,8 +245,8 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
 
   if (num_bytes_read != num_bytes_requested)
   {
-    throw std::runtime_error("Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " +
-                             std::to_string(num_bytes_read));
+    throw serial::IOException("Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " +
+                              std::to_string(num_bytes_read));
   }
 
   return response;
@@ -258,8 +258,8 @@ void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd)
   port_.flush();
   if (num_bytes_written != cmd.size())
   {
-    throw std::runtime_error("Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
-                             std::to_string(num_bytes_written));
+    throw serial::IOException("Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
+                              std::to_string(num_bytes_written));
   }
 }
 
@@ -315,7 +315,7 @@ void RobotiqGripperInterface::updateStatus()
     // Read the current gripper position.
     gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
   }
-  catch (const std::runtime_error& e)
+  catch (const serial::IOException& e)
   {
     std::cerr << "Failed to update gripper status.\n";
     throw;
