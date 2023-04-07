@@ -81,7 +81,7 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, ui
 {
   if (!port_.isOpen())
   {
-    throw serial::IOException("Failed to open gripper port.");
+    THROW(serial::IOException, "Failed to open gripper port.");
   }
 }
 
@@ -245,8 +245,8 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
 
   if (num_bytes_read != num_bytes_requested)
   {
-    throw serial::IOException("Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " +
-                              std::to_string(num_bytes_read));
+    THROW(serial::IOException, "Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " +
+                                   std::to_string(num_bytes_read));
   }
 
   return response;
@@ -258,8 +258,8 @@ void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd)
   port_.flush();
   if (num_bytes_written != cmd.size())
   {
-    throw serial::IOException("Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
-                              std::to_string(num_bytes_written));
+    THROW(serial::IOException, "Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
+                                   std::to_string(num_bytes_written));
   }
 }
 
