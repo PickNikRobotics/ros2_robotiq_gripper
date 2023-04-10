@@ -120,7 +120,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
   }
   catch (const serial::IOException& e)
   {
-    RCLCPP_FATAL(kLogger, e.what());
+    RCLCPP_FATAL(kLogger, "Failed to open gripper port.");
     return CallbackReturn::ERROR;
   }
 
@@ -172,7 +172,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
   }
   catch (const serial::IOException& e)
   {
-    RCLCPP_FATAL(kLogger, e.what());
+    RCLCPP_FATAL(kLogger, "Failed to communicate with Gripper. Check Gripper connection.");
     return CallbackReturn::ERROR;
   }
 
@@ -211,7 +211,6 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
         }
         catch (serial::IOException& e)
         {
-          RCLCPP_ERROR(kLogger, e.what());
           RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
           command_interface_is_running_.store(false);
         }
@@ -234,7 +233,7 @@ RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*
   }
   catch (const std::exception& e)
   {
-    RCLCPP_ERROR(kLogger, e.what());
+    RCLCPP_ERROR(kLogger, "Failed to deactivate gripper. Check Gripper connection");
     return CallbackReturn::ERROR;
   }
 

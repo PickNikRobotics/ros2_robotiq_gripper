@@ -98,7 +98,7 @@ int main()
   }
   catch (const serial::IOException& e)
   {
-    std::cout << e.what();
+    std::cout << "Failed to communicating with the Gripper. Please check the Gripper connection";
     return 1;
   }
 
