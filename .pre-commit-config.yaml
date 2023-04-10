@@ -43,12 +43,10 @@ repos:
         args: ['--write-changes', '-L', 'atleast']  # Provide a comma-separated list of misspelled words that codespell should ignore (for example: '-L', 'word1,word2,word3').
         exclude: \.(svg|pyc|stl|dae|lock)$
 
-  - repo: local
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v14.0.6
     hooks:
       - id: clang-format
-        name: clang-format
-        description: Format files with ClangFormat.
-        entry: clang-format-10
-        language: system
         files: \.(c|cc|cxx|cpp|frag|glsl|h|hpp|hxx|ih|ispc|ipp|java|m|proto|vert)$
-        args: ['-fallback-style=none', '-i']
+        # -i arg is included by default by the hook
+        args: ["-fallback-style=none"]

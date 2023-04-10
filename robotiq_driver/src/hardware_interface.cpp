@@ -37,6 +37,7 @@
 #include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include <serial/serial.h>
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
@@ -50,8 +51,7 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
 {
 }
 
-hardware_interface::CallbackReturn
-RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
+hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
 {
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
   {
@@ -111,10 +111,18 @@ RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo&
     }
   }
 
-  // Create the interface to the gripper.
-  gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
-  gripper_interface_->setSpeed(gripper_speed * 0xFF);
-  gripper_interface_->setForce(gripper_force * 0xFF);
+  try
+  {
+    // Create the interface to the gripper.
+    gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
+    gripper_interface_->setSpeed(gripper_speed * 0xFF);
+    gripper_interface_->setForce(gripper_force * 0xFF);
+  }
+  catch (const serial::IOException& e)
+  {
+    RCLCPP_FATAL(kLogger, "Failed to open gripper port.");
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }
@@ -157,43 +165,55 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
   }
 
   // Activate the gripper.
-  gripper_interface_->deactivateGripper();
-  if (!gripper_interface_->activateGripper())
+  try
   {
-    RCLCPP_FATAL(kLogger, "Failed to activate gripper.");
+    gripper_interface_->deactivateGripper();
+    gripper_interface_->activateGripper();
+  }
+  catch (const serial::IOException& e)
+  {
+    RCLCPP_FATAL(kLogger, "Failed to communicate with Gripper. Check Gripper connection.");
     return CallbackReturn::ERROR;
   }
 
-  RCLCPP_INFO(kLogger, "Successfully activated!");
+  RCLCPP_INFO(kLogger, "Robotiq Gripper successfully activated!");
 
-  command_interface_is_running_ = true;
+  command_interface_is_running_.store(true);
 
   command_interface_ = std::thread([this] {
     // Read from and write to the gripper at 100 Hz.
-    auto io_interval = std::chrono::milliseconds(10);
+    const auto io_interval = std::chrono::milliseconds(10);
     auto last_io = std::chrono::high_resolution_clock::now();
 
-    while (command_interface_is_running_)
+    while (command_interface_is_running_.load())
     {
-      auto now = std::chrono::high_resolution_clock::now();
+      const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval)
       {
-        // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
-        if (reactivate_gripper_async_cmd_.load())
+        try
         {
-          this->gripper_interface_->deactivateGripper();
-          auto success = this->gripper_interface_->activateGripper();
-          reactivate_gripper_async_cmd_.store(false);
-          reactivate_gripper_async_response_.store(success);
+          // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
+          if (reactivate_gripper_async_cmd_.load())
+          {
+            this->gripper_interface_->deactivateGripper();
+            this->gripper_interface_->activateGripper();
+            reactivate_gripper_async_cmd_.store(false);
+            reactivate_gripper_async_response_.store(true);
+          }
+
+          // Write the latest command to the gripper.
+          this->gripper_interface_->setGripperPosition(write_command_.load());
+
+          // Read the state of the gripper.
+          gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
+
+          last_io = now;
         }
-
-        // Write the latest command to the gripper.
-        this->gripper_interface_->setGripperPosition(write_command_.load());
-
-        // Read the state of the gripper.
-        gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
-
-        last_io = now;
+        catch (serial::IOException& e)
+        {
+          RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
+          command_interface_is_running_.store(false);
+        }
       }
     }
   });
@@ -204,11 +224,18 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
 hardware_interface::CallbackReturn
 RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/)
 {
-  command_interface_is_running_ = false;
+  command_interface_is_running_.store(false);
   command_interface_.join();
 
-  // Deactivate the gripper.
-  gripper_interface_->deactivateGripper();
+  try
+  {
+    gripper_interface_->deactivateGripper();
+  }
+  catch (const std::exception& e)
+  {
+    RCLCPP_ERROR(kLogger, "Failed to deactivate gripper. Check Gripper connection");
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }
