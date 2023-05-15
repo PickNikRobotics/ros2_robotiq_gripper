@@ -28,7 +28,7 @@
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware or sim_ignition or sim_isaac}">
                     <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-                    <param name="gripper_closed_position">0.7929</param>
+                    <param name="gripper_closed_position">0.695</param>
                     <param name="COM_port">${com_port}</param>
                     <param name="gripper_speed_multiplier">1.0</param>
                     <param name="gripper_force_multiplier">0.5</param>
@@ -40,7 +40,7 @@
             <joint name="${prefix}finger_joint">
                 <command_interface name="position" />
                 <state_interface name="position">
-                    <param name="initial_value">0.7929</param>
+                    <param name="initial_value">0.695</param>
                 </state_interface>
                 <state_interface name="velocity"/>
             </joint>
