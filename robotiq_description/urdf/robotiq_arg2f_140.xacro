@@ -10,7 +10,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_description/meshes/visual/f2_140/robotiq_arg2f_base_link.stl" />
+          <mesh filename="package://robotiq_description/meshes/visual/2f_140/robotiq_arg2f_base_link.stl" />
         </geometry>
         <material name="">
           <color rgba="0.1 0.1 0.1 1" />
@@ -19,7 +19,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <mesh filename="package://robotiq_description/meshes/collision/f2_140/robotiq_arg2f_base_link.stl" />
+          <mesh filename="package://robotiq_description/meshes/collision/2f_140/robotiq_arg2f_base_link.stl" />
         </geometry>
       </collision>
     </link>
