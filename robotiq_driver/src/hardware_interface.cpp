@@ -211,7 +211,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
         }
         catch (serial::IOException& e)
         {
-          RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers.");
+          RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers. ERROR: %s", e.what());
           command_interface_is_running_.store(false);
         }
       }
