@@ -152,6 +152,11 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   {
     // catch connection error and rethrow
     std::cerr << "Failed to set gripper position\n";
+    if (port_.isOpen())
+    {
+      std::cerr << "Error caught while reading or writing to device. Connection is open, continuing to attempt communication with gripper.\n  ERROR: " << e.what();
+      return;
+    }
     throw;
   }
 }
