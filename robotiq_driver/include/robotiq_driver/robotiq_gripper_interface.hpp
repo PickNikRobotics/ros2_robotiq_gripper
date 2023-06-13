@@ -31,7 +31,13 @@
 #include <string>
 #include <vector>
 
-#include <serial/serial.h>
+// define this HAVE_STDINT_H to work with headers installed from libcxx-serial-dev
+// Possible bug or missing CMake configuration
+#ifndef HAVE_STDINT_H
+#define HAVE_STDINT_H
+#include <serial.h>
+#undef HAVE_STDINT_H
+#endif
 
 /**
  * @brief This class is responsible for communicating with the gripper via a serial port, and maintaining a record of

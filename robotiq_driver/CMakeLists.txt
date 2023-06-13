@@ -12,7 +12,7 @@ find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-find_package(serial REQUIRED)
+find_package(cxx-serial REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   ament_cmake
@@ -20,7 +20,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   pluginlib
   rclcpp
   rclcpp_lifecycle
-  serial
+  cxx-serial
 )
 
 add_library(
@@ -46,7 +46,7 @@ pluginlib_export_plugin_description_file(hardware_interface hardware_interface_p
 
 add_executable(gripper_interface_test src/gripper_interface_test.cpp)
 target_include_directories(gripper_interface_test PRIVATE include)
-ament_target_dependencies(gripper_interface_test serial)
+ament_target_dependencies(gripper_interface_test cxx-serial)
 target_link_libraries(gripper_interface_test ${PROJECT_NAME})
 
 # INSTALL
