@@ -35,8 +35,9 @@ target_include_directories(
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
+  ${SERIAL_INCLUDE_DIRS}
 )
-target_link_libraries(${PROJECT_NAME} atomic)
+target_link_libraries(${PROJECT_NAME} atomic ${SERIAL_LIBRARIES})
 ament_target_dependencies(
   ${PROJECT_NAME}
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
