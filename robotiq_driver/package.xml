@@ -15,7 +15,9 @@
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
-  <depend>serial</depend>
+  <!-- WARNING: cxx-serial is not a valid rosdep key -->
+  <!-- TODO: either release serial or point cxx-serial to libcxx-serial-dev -->
+  <depend>cxx-serial</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

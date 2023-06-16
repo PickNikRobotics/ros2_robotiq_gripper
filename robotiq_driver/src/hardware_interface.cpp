@@ -37,7 +37,14 @@
 #include "hardware_interface/actuator_interface.hpp"
 #include "hardware_interface/types/hardware_interface_type_values.hpp"
 #include "rclcpp/rclcpp.hpp"
-#include <serial/serial.h>
+
+// define this HAVE_STDINT_H to work with headers installed from libcxx-serial-dev
+// Possible bug or missing CMake configuration
+#ifndef HAVE_STDINT_H
+#define HAVE_STDINT_H
+#include <serial.h>
+#undef HAVE_STDINT_H
+#endif
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
