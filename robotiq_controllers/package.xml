@@ -4,10 +4,10 @@
   <name>robotiq_controllers</name>
   <version>0.0.0</version>
   <description>Controllers for the Robotiq gripper.</description>
-  <author>Cory Crean</author>
   <maintainer email="alex.moriarty@picknik.ai">Alex Moriarty</maintainer>
   <maintainer email="marq.rasmussen@picknik.ai">Marq Rasumessen</maintainer>
   <license>BSD-3-Clause</license>
+  <author>Cory Crean</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
