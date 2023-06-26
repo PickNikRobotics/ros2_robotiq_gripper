@@ -41,7 +41,7 @@
 class RobotiqGripperInterface
 {
 public:
-  RobotiqGripperInterface(const std::string& com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
+  RobotiqGripperInterface(const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
 
   /**
    * @brief Activates the gripper.
@@ -122,7 +122,9 @@ public:
 
 private:
   std::vector<uint8_t> createReadCommand(uint16_t first_register, uint8_t num_registers);
-  std::vector<uint8_t> createWriteCommand(uint16_t first_register, const std::vector<uint16_t>& data);
+  std::vector<uint8_t> createWriteCommand(
+    uint16_t first_register,
+    const std::vector<uint16_t> & data);
 
   /**
    * @brief read response from the gripper.
@@ -138,7 +140,7 @@ private:
    * @param cmd The command.
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  void sendCommand(const std::vector<uint8_t>& cmd);
+  void sendCommand(const std::vector<uint8_t> & cmd);
 
   /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.

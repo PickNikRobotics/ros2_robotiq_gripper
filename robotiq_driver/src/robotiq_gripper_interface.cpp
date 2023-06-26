@@ -72,45 +72,40 @@ static uint8_t getSecondByte(uint16_t val)
   return val & 0x00FF;
 }
 
-RobotiqGripperInterface::RobotiqGripperInterface(const std::string& com_port, uint8_t slave_id)
-  : port_(com_port, kBaudRate, serial::Timeout::simpleTimeout(kTimeoutMilliseconds))
+RobotiqGripperInterface::RobotiqGripperInterface(const std::string & com_port, uint8_t slave_id)
+: port_(com_port, kBaudRate, serial::Timeout::simpleTimeout(kTimeoutMilliseconds))
   , slave_id_(slave_id)
   , read_command_(createReadCommand(kFirstOutputRegister, kNumOutputRegisters))
   , commanded_gripper_speed_(0x80)
   , commanded_gripper_force_(0x80)
 {
-  if (!port_.isOpen())
-  {
+  if (!port_.isOpen()) {
     THROW(serial::IOException, "Failed to open gripper port.");
   }
 }
 
 void RobotiqGripperInterface::activateGripper()
 {
-  const auto cmd = createWriteCommand(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 }  // set rACT to 1, clear all
+  const auto cmd = createWriteCommand(
+    kActionRequestRegister, {0x0100, 0x0000, 0x0000}                                      // set rACT to 1, clear all
                                                                                           // other registers.
   );
 
-  try
-  {
+  try {
     sendCommand(cmd);
     readResponse(kWriteResponseSize);
 
     updateStatus();
 
-    if (gripper_status_ == GripperStatus::COMPLETED)
-    {
+    if (gripper_status_ == GripperStatus::COMPLETED) {
       return;
     }
 
-    while (gripper_status_ == GripperStatus::IN_PROGRESS)
-    {
+    while (gripper_status_ == GripperStatus::IN_PROGRESS) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       updateStatus();
     }
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to activate gripper";
     throw;
@@ -119,14 +114,11 @@ void RobotiqGripperInterface::activateGripper()
 
 void RobotiqGripperInterface::deactivateGripper()
 {
-  const auto cmd = createWriteCommand(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
-  try
-  {
+  const auto cmd = createWriteCommand(kActionRequestRegister, {0x0000, 0x0000, 0x0000});
+  try {
     sendCommand(cmd);
     readResponse(kWriteResponseSize);
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to activate gripper";
     throw;
@@ -140,22 +132,20 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   uint8_t gripper_options_2 = 0x00;
 
   const auto cmd =
-      createWriteCommand(kActionRequestRegister,
-                         { uint16_t(action_register << 8 | gripper_options_1), uint16_t(gripper_options_2 << 8 | pos),
-                           uint16_t(commanded_gripper_speed_ << 8 | commanded_gripper_force_) });
-  try
-  {
+    createWriteCommand(
+    kActionRequestRegister,
+    {uint16_t(action_register << 8 | gripper_options_1), uint16_t(gripper_options_2 << 8 | pos),
+      uint16_t(commanded_gripper_speed_ << 8 | commanded_gripper_force_)});
+  try {
     sendCommand(cmd);
     readResponse(kWriteResponseSize);
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to set gripper position\n";
-    if (port_.isOpen())
-    {
-      std::cerr << "Error caught while reading or writing to device. Connection is open, continuing to attempt "
-                   "communication with gripper.\n  ERROR: "
+    if (port_.isOpen()) {
+      std::cerr <<
+        "Error caught while reading or writing to device. Connection is open, continuing to attempt "
+        "communication with gripper.\n  ERROR: "
                 << e.what();
       return;
     }
@@ -165,12 +155,9 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
 
 uint8_t RobotiqGripperInterface::getGripperPosition()
 {
-  try
-  {
+  try {
     updateStatus();
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
     throw;
@@ -181,12 +168,9 @@ uint8_t RobotiqGripperInterface::getGripperPosition()
 
 bool RobotiqGripperInterface::gripperIsMoving()
 {
-  try
-  {
+  try {
     updateStatus();
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
     throw;
@@ -195,14 +179,16 @@ bool RobotiqGripperInterface::gripperIsMoving()
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
 }
 
-std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(uint16_t first_register, uint8_t num_registers)
+std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(
+  uint16_t first_register,
+  uint8_t num_registers)
 {
-  std::vector<uint8_t> cmd = { slave_id_,
-                               kReadFunctionCode,
-                               getFirstByte(first_register),
-                               getSecondByte(first_register),
-                               getFirstByte(num_registers),
-                               getSecondByte(num_registers) };
+  std::vector<uint8_t> cmd = {slave_id_,
+    kReadFunctionCode,
+    getFirstByte(first_register),
+    getSecondByte(first_register),
+    getFirstByte(num_registers),
+    getSecondByte(num_registers)};
   auto crc = computeCRC(cmd);
   cmd.push_back(getFirstByte(crc));
   cmd.push_back(getSecondByte(crc));
@@ -219,21 +205,21 @@ void RobotiqGripperInterface::setForce(uint8_t force)
   commanded_gripper_force_ = force;
 }
 
-std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(uint16_t first_register,
-                                                                 const std::vector<uint16_t>& data)
+std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(
+  uint16_t first_register,
+  const std::vector<uint16_t> & data)
 {
   uint16_t num_registers = data.size();
   uint8_t num_bytes = 2 * num_registers;
 
-  std::vector<uint8_t> cmd = { slave_id_,
-                               kWriteFunctionCode,
-                               getFirstByte(first_register),
-                               getSecondByte(first_register),
-                               getFirstByte(num_registers),
-                               getSecondByte(num_registers),
-                               num_bytes };
-  for (auto d : data)
-  {
+  std::vector<uint8_t> cmd = {slave_id_,
+    kWriteFunctionCode,
+    getFirstByte(first_register),
+    getSecondByte(first_register),
+    getFirstByte(num_registers),
+    getSecondByte(num_registers),
+    num_bytes};
+  for (auto d : data) {
     cmd.push_back(getFirstByte(d));
     cmd.push_back(getSecondByte(d));
   }
@@ -250,24 +236,24 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
   std::vector<uint8_t> response;
   size_t num_bytes_read = port_.read(response, num_bytes_requested);
 
-  if (num_bytes_read != num_bytes_requested)
-  {
+  if (num_bytes_read != num_bytes_requested) {
     const auto error_msg =
-        "Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " + std::to_string(num_bytes_read);
+      "Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " + std::to_string(
+      num_bytes_read);
     THROW(serial::IOException, error_msg.c_str());
   }
 
   return response;
 }
 
-void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd)
+void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t> & cmd)
 {
   size_t num_bytes_written = port_.write(cmd);
   port_.flush();
-  if (num_bytes_written != cmd.size())
-  {
-    const auto error_msg = "Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
-                           std::to_string(num_bytes_written);
+  if (num_bytes_written != cmd.size()) {
+    const auto error_msg = "Attempted to write " + std::to_string(cmd.size()) +
+      " bytes, but only wrote " +
+      std::to_string(num_bytes_written);
     THROW(serial::IOException, error_msg.c_str());
   }
 }
@@ -275,8 +261,7 @@ void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t>& cmd)
 void RobotiqGripperInterface::updateStatus()
 {
   // Tell the gripper that we want to read its status.
-  try
-  {
+  try {
     sendCommand(read_command_);
 
     const auto response = readResponse(kReadResponseSize);
@@ -285,14 +270,15 @@ void RobotiqGripperInterface::updateStatus()
     uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
 
     // Activation status.
-    activation_status_ = ((gripper_status_byte & 0x01) == 0x00) ? ActivationStatus::RESET : ActivationStatus::ACTIVE;
+    activation_status_ =
+      ((gripper_status_byte & 0x01) == 0x00) ? ActivationStatus::RESET : ActivationStatus::ACTIVE;
 
     // Action status.
-    action_status_ = ((gripper_status_byte & 0x08) == 0x00) ? ActionStatus::STOPPED : ActionStatus::MOVING;
+    action_status_ =
+      ((gripper_status_byte & 0x08) == 0x00) ? ActionStatus::STOPPED : ActionStatus::MOVING;
 
     // Gripper status.
-    switch ((gripper_status_byte & 0x30) >> 4)
-    {
+    switch ((gripper_status_byte & 0x30) >> 4) {
       case 0x00:
         gripper_status_ = GripperStatus::RESET;
         break;
@@ -305,8 +291,7 @@ void RobotiqGripperInterface::updateStatus()
     }
 
     // Object detection status.
-    switch ((gripper_status_byte & 0xC0) >> 6)
-    {
+    switch ((gripper_status_byte & 0xC0) >> 6) {
       case 0x00:
         object_detection_status_ = ObjectDetectionStatus::MOVING;
         break;
@@ -323,14 +308,12 @@ void RobotiqGripperInterface::updateStatus()
 
     // Read the current gripper position.
     gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     std::cerr << "Failed to update gripper status.\n";
-    if (port_.isOpen())
-    {
-      std::cerr << "Error caught while reading or writing to device. Connection is open, continuing to attempt "
-                   "communication with gripper.\n  ERROR: "
+    if (port_.isOpen()) {
+      std::cerr <<
+        "Error caught while reading or writing to device. Connection is open, continuing to attempt "
+        "communication with gripper.\n  ERROR: "
                 << e.what();
       return;
     }
