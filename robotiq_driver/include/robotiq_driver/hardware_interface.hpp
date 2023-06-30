@@ -29,6 +29,7 @@
 #pragma once
 
 #include <atomic>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>

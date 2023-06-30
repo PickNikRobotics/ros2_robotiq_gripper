@@ -182,7 +182,8 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
       const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval) {
         try {
-          // Re-activate the gripper (this can be used, for example, to re-run the auto-calibration).
+          // Re-activate the gripper
+          // (this can be used, for example, to re-run the auto-calibration).
           if (reactivate_gripper_async_cmd_.load()) {
             this->gripper_interface_->deactivateGripper();
             this->gripper_interface_->activateGripper();

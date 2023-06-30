@@ -41,7 +41,8 @@
 class RobotiqGripperInterface
 {
 public:
-  RobotiqGripperInterface(const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
+  explicit RobotiqGripperInterface(
+    const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
 
   /**
    * @brief Activates the gripper.
