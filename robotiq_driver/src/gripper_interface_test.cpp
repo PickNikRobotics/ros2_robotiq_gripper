@@ -27,17 +27,15 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
-#include <thread>
-
 #include <robotiq_driver/robotiq_gripper_interface.hpp>
+#include <thread>
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kSlaveID = 0x09;
 
 int main()
 {
-  try
-  {
+  try {
     RobotiqGripperInterface gripper(kComPort, kSlaveID);
 
     std::cout << "Deactivating gripper...\n";
@@ -50,29 +48,25 @@ int main()
 
     std::cout << "Closing gripper...\n";
     gripper.setGripperPosition(0xFF);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Half closing gripper...\n";
     gripper.setGripperPosition(0x80);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
@@ -81,8 +75,7 @@ int main()
 
     std::cout << "Closing gripper...\n";
     gripper.setGripperPosition(0xFF);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
@@ -91,13 +84,10 @@ int main()
 
     std::cout << "Opening gripper...\n";
     gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving())
-    {
+    while (gripper.gripperIsMoving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-  }
-  catch (const serial::IOException& e)
-  {
+  } catch (const serial::IOException & e) {
     std::cout << "Failed to communicating with the Gripper. Please check the Gripper connection";
     return 1;
   }

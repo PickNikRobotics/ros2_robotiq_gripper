@@ -29,7 +29,6 @@
 #pragma once
 
 #include "controller_interface/controller_interface.hpp"
-
 #include "std_srvs/srv/trigger.hpp"
 
 namespace robotiq_controllers
@@ -41,17 +40,19 @@ public:
 
   controller_interface::InterfaceConfiguration state_interface_configuration() const override;
 
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+  controller_interface::return_type update(
+    const rclcpp::Time & time, const rclcpp::Duration & period) override;
 
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
 
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
 
   CallbackReturn on_init() override;
 
 private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
+  bool reactivateGripper(
+    std_srvs::srv::Trigger::Request::SharedPtr req,
+    std_srvs::srv::Trigger::Response::SharedPtr resp);
 
   static constexpr double ASYNC_WAITING = 2.0;
   enum CommandInterfaces

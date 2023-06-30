@@ -1,6 +1,7 @@
-
-
 # ros2_robotiq_gripper
+
+This repository contains the ROS 2 driver, controller and description packages for working with a Robotiq Gripper.
+
 
 ## Build status
 
