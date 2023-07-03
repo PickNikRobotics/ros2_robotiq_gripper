@@ -29,7 +29,7 @@
 #include <iostream>
 #include <thread>
 
-#include <robotiq_driver/robotiq_gripper_interface.hpp>
+#include "robotiq_driver/robotiq_gripper_interface.hpp"
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kSlaveID = 0x09;
