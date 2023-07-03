@@ -36,6 +36,12 @@ repos:
     hooks:
       - id: black
 
+  - repo: https://github.com/pycqa/flake8
+    rev: 5.0.4
+    hooks:
+    - id: flake8
+      # configured in .flake8 file
+
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.5
     hooks:
