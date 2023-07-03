@@ -27,8 +27,9 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
-#include <robotiq_driver/robotiq_gripper_interface.hpp>
 #include <thread>
+
+#include <robotiq_driver/robotiq_gripper_interface.hpp>
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kSlaveID = 0x09;
