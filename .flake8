@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 88
+
+# Report all errors starting with E, F, W or C - or Bugbear's B590 rule, which is a "pragmatic" version of E501 (line too long)
+select = E,F,W,C,B590
+
+# Ignore W503 - Line break occurred before a binary operator - because this error is introduced by Black formatter.
+# Ignore E203 - whitespace before ':' - because Black includes spaces in formatting slice expressions.
+# Ignore E501 - line too long - in favor of B590, which is more forgiving of long strings and comments that would be silly to break up.
+extend-ignore = W503, E203, E501

@@ -41,7 +41,9 @@ def generate_launch_description():
     pkg_share = launch_ros.substitutions.FindPackageShare(
         package="robotiq_description"
     ).find("robotiq_description")
-    default_model_path = os.path.join(pkg_share, "urdf", "robotiq_2f_85_gripper.urdf.xacro")
+    default_model_path = os.path.join(
+        pkg_share, "urdf", "robotiq_2f_85_gripper.urdf.xacro"
+    )
     default_rviz_config_path = os.path.join(pkg_share, "rviz", "view_urdf.rviz")
 
     args = []
