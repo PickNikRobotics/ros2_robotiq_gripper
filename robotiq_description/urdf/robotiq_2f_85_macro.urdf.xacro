@@ -20,8 +20,8 @@
                 name="${name}" prefix="${prefix}"
                 sim_ignition="${sim_ignition}"
                 sim_isaac="${sim_isaac}"
-                use_fake_hardware="${use_fake_hardware}"
-                fake_sensor_commands="${fake_sensor_commands}"
+                use_mock_hardware="${use_fake_hardware}"
+                mock_sensor_commands="${fake_sensor_commands}"
                 com_port="${com_port}"/>
         </xacro:if>
 
