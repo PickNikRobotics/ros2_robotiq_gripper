@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>robotiq_description</name>
-  <version>0.0.0</version>
+  <version>0.0.1</version>
   <description>URDF and xacro description package for the Robotiq gripper.</description>
   <author>Cory Crean</author>
   <maintainer email="alex.moriarty@picknik.ai">Alex Moriarty</maintainer>
