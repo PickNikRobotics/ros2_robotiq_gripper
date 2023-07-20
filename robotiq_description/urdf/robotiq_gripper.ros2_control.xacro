@@ -6,8 +6,8 @@
         prefix
         sim_ignition:=false
         sim_isaac:=false
-        use_fake_hardware:=false
-        fake_sensor_commands:=false
+        use_mock_hardware:=false
+        mock_sensor_commands:=false
         com_port:=/dev/ttyUSB0">
 
         <ros2_control name="${name}" type="system">
@@ -21,12 +21,12 @@
                 <xacro:if value="${sim_ignition}">
                     <plugin>ign_ros2_control/IgnitionSystem</plugin>
                 </xacro:if>
-                <xacro:if value="${use_fake_hardware}">
+                <xacro:if value="${use_mock_hardware}">
                     <plugin>mock_components/GenericSystem</plugin>
-                    <param name="fake_sensor_commands">${fake_sensor_commands}</param>
+                    <param name="mock_sensor_commands">${mock_sensor_commands}</param>
                     <param name="state_following_offset">0.0</param>
                 </xacro:if>
-                <xacro:unless value="${use_fake_hardware or sim_ignition or sim_isaac}">
+                <xacro:unless value="${use_mock_hardware or sim_ignition or sim_isaac}">
                     <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
                     <param name="gripper_closed_position">0.7929</param>
                     <param name="COM_port">${com_port}</param>
@@ -42,17 +42,23 @@
                 <state_interface name="position">
                     <param name="initial_value">0.7929</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
             <!-- When simulating we need to include the rest of the gripper joints -->
-            <xacro:if value="${use_fake_hardware or sim_isaac or sim_ignition}">
+            <xacro:if value="${use_mock_hardware or sim_isaac or sim_ignition}">
                 <joint name="${prefix}robotiq_85_right_knuckle_joint">
                     <param name="mimic">${prefix}robotiq_85_left_knuckle_joint</param>
                     <param name="multiplier">-1</param>
                     <xacro:unless value="${sim_ignition}">
                         <command_interface name="position"/>
-                        <state_interface name="position"/>
-                        <state_interface name="velocity"/>
+                        <state_interface name="position">
+                            <param name="initial_value">-0.7929</param>
+                        </state_interface>
+                        <state_interface name="velocity">
+                            <param name="initial_value">0.0</param>
+                        </state_interface>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_left_inner_knuckle_joint">
@@ -60,8 +66,12 @@
                     <param name="multiplier">1</param>
                     <xacro:unless value="${sim_ignition}">
                         <command_interface name="position"/>
-                        <state_interface name="position"/>
-                        <state_interface name="velocity"/>
+                        <state_interface name="position">
+                            <param name="initial_value">0.7929</param>
+                        </state_interface>
+                        <state_interface name="velocity">
+                            <param name="initial_value">0.0</param>
+                        </state_interface>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_right_inner_knuckle_joint">
@@ -69,8 +79,12 @@
                     <param name="multiplier">-1</param>
                     <xacro:unless value="${sim_ignition}">
                         <command_interface name="position"/>
-                        <state_interface name="position"/>
-                        <state_interface name="velocity"/>
+                        <state_interface name="position">
+                            <param name="initial_value">-0.7929</param>
+                        </state_interface>
+                        <state_interface name="velocity">
+                            <param name="initial_value">0.0</param>
+                        </state_interface>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_left_finger_tip_joint">
@@ -78,8 +92,12 @@
                     <param name="multiplier">-1</param>
                     <xacro:unless value="${sim_ignition}">
                         <command_interface name="position"/>
-                        <state_interface name="position"/>
-                        <state_interface name="velocity"/>
+                        <state_interface name="position">
+                            <param name="initial_value">-0.7929</param>
+                        </state_interface>
+                        <state_interface name="velocity">
+                            <param name="initial_value">0.0</param>
+                        </state_interface>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_right_finger_tip_joint">
@@ -87,13 +105,17 @@
                     <param name="multiplier">1</param>
                     <xacro:unless value="${sim_ignition}">
                         <command_interface name="position"/>
-                        <state_interface name="position"/>
-                        <state_interface name="velocity"/>
+                        <state_interface name="position">
+                            <param name="initial_value">0.7929</param>
+                        </state_interface>
+                        <state_interface name="velocity">
+                            <param name="initial_value">0.0</param>
+                        </state_interface>
                     </xacro:unless>
                 </joint>
             </xacro:if>
 
-            <!-- Only add this with fake hardware mode -->
+            <!-- Only add this with mock hardware mode -->
             <xacro:unless value="${sim_ignition or sim_isaac}">
                 <gpio name="reactivate_gripper">
                     <command_interface name="reactivate_gripper_cmd" />
