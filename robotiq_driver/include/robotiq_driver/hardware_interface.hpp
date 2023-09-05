@@ -30,17 +30,20 @@
 
 #include <robotiq_driver/visibility_control.h>
 
-#include <atomic>
+#include <robotiq_driver/driver.hpp>
+#include <robotiq_driver/driver_factory.hpp>
+
 #include <hardware_interface/handle.hpp>
 #include <hardware_interface/hardware_info.hpp>
 #include <hardware_interface/system_interface.hpp>
 #include <hardware_interface/types/hardware_interface_return_values.hpp>
-#include <limits>
-#include <memory>
+
 #include <rclcpp/macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <robotiq_driver/driver.hpp>
-#include <robotiq_driver/driver_factory.hpp>
+
+#include <atomic>
+#include <limits>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -71,7 +74,7 @@ public:
    * parsed or CallbackReturn::ERROR if any error happens or data are missing.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
+  CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
 
   /**
    * Connect to the hardware.
@@ -80,7 +83,7 @@ public:
    * parsed or CallbackReturn::ERROR if any error happens or data are missing.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_configure(const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
 
   /**
    * This method exposes position and velocity of joints for reading.
@@ -100,7 +103,7 @@ public:
    * @returns CallbackReturn::SUCCESS or CallbackReturn::ERROR.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
 
   /**
    * This method is invoked when the hardware is disconnected.
@@ -108,21 +111,19 @@ public:
    * @returns CallbackReturn::SUCCESS or CallbackReturn::ERROR.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
   /**
    * Read data from the hardware.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type read(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
   /**
    * Write data to hardware.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type write(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 private:
   // Interface to send binary data to the hardware using the serial port.

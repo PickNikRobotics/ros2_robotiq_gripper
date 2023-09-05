@@ -26,16 +26,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <iostream>
 #include <robotiq_driver/default_driver.hpp>
+
 #include <thread>
+#include <iostream>
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kSlaveID = 0x09;
 
 int main()
 {
-  try {
+  try
+  {
     robotiq_driver::DefaultDriver gripper(kComPort, kSlaveID);
 
     std::cout << "Deactivating gripper...\n";
@@ -48,25 +50,29 @@ int main()
 
     std::cout << "Closing gripper...\n";
     gripper.set_gripper_position(0xFF);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Half closing gripper...\n";
     gripper.set_gripper_position(0x80);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
     gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
@@ -75,7 +81,8 @@ int main()
 
     std::cout << "Closing gripper...\n";
     gripper.set_gripper_position(0xFF);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
@@ -84,10 +91,13 @@ int main()
 
     std::cout << "Opening gripper...\n";
     gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving()) {
+    while (gripper.gripper_is_moving())
+    {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
-  } catch (const serial::IOException & e) {
+  }
+  catch (const serial::IOException& e)
+  {
     std::cout << "Failed to communicating with the Gripper. Please check the Gripper connection";
     return 1;
   }

@@ -46,6 +46,6 @@ namespace robotiq_driver
 class DriverFactory
 {
 public:
-  virtual std::unique_ptr<Driver> create(const hardware_interface::HardwareInfo & info) const = 0;
+  virtual std::unique_ptr<Driver> create(const hardware_interface::HardwareInfo& info) const = 0;
 };
 }  // namespace robotiq_driver

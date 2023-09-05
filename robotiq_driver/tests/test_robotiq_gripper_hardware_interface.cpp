@@ -29,17 +29,21 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <chrono>
+#include <robotiq_driver/default_driver_factory.hpp>
+#include <robotiq_driver/hardware_interface.hpp>
+
 #include <hardware_interface/loaned_command_interface.hpp>
 #include <hardware_interface/loaned_state_interface.hpp>
 #include <hardware_interface/resource_manager.hpp>
 #include <hardware_interface/types/lifecycle_state_names.hpp>
+
 #include <lifecycle_msgs/msg/state.hpp>
 #include <rclcpp_lifecycle/state.hpp>
-#include <robotiq_driver/default_driver_factory.hpp>
-#include <robotiq_driver/hardware_interface.hpp>
+
 #include <ros2_control_test_assets/components_urdfs.hpp>
 #include <ros2_control_test_assets/descriptions.hpp>
+
+#include <chrono>
 
 namespace robotiq_driver::test
 {
@@ -51,7 +55,7 @@ namespace robotiq_driver::test
 TEST(TestRobotiqGripperHardwareInterface, load_urdf)
 {
   std::string urdf_control_ =
-    R"(
+      R"(
          <ros2_control name="robotiq_driver_ros2_control" type="system">
            <hardware>
              <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
@@ -70,8 +74,7 @@ TEST(TestRobotiqGripperHardwareInterface, load_urdf)
          </ros2_control>
        )";
 
-  auto urdf =
-    ros2_control_test_assets::urdf_head + urdf_control_ + ros2_control_test_assets::urdf_tail;
+  auto urdf = ros2_control_test_assets::urdf_head + urdf_control_ + ros2_control_test_assets::urdf_tail;
   hardware_interface::ResourceManager rm(urdf);
 
   // Check interfaces

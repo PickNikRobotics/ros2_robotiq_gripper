@@ -26,18 +26,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <cmath>
-#include <rclcpp/logging.hpp>
-#include <robotiq_driver/default_driver.hpp>
 #include <robotiq_driver/default_driver_factory.hpp>
+#include <robotiq_driver/default_driver.hpp>
+
+#include <rclcpp/logging.hpp>
+
+#include <cmath>
 
 namespace robotiq_driver
 {
 
 const auto kLogger = rclcpp::get_logger("DefaultDriverFactory");
 
-std::unique_ptr<Driver> DefaultDriverFactory::create(
-  const hardware_interface::HardwareInfo & info) const
+std::unique_ptr<Driver> DefaultDriverFactory::create(const hardware_interface::HardwareInfo& info) const
 {
   double gripper_speed = stod(info.hardware_parameters.at("gripper_speed_multiplier"));
   double gripper_force = stod(info.hardware_parameters.at("gripper_force_multiplier"));
@@ -53,8 +54,7 @@ std::unique_ptr<Driver> DefaultDriverFactory::create(
   return driver;
 }
 
-std::unique_ptr<Driver> DefaultDriverFactory::create_driver(
-  const hardware_interface::HardwareInfo & info) const
+std::unique_ptr<Driver> DefaultDriverFactory::create_driver(const hardware_interface::HardwareInfo& info) const
 {
   std::string com_port = info.hardware_parameters.at("COM_port");
   return std::make_unique<DefaultDriver>(com_port);
