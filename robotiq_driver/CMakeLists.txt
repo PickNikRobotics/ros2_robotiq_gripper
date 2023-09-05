@@ -50,7 +50,9 @@ target_include_directories(gripper_interface_test PRIVATE include)
 ament_target_dependencies(gripper_interface_test serial)
 target_link_libraries(gripper_interface_test ${PROJECT_NAME})
 
+###############################################################################
 # INSTALL
+
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT export_${PROJECT_NAME}
@@ -75,26 +77,19 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+###############################################################################
+# TESTS
+
+# CTest module automatically creates a BUILD_TESTING option that selects
+# whether to enable testing support (ON by default).
+include(CTest)
 if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # comment the line when a copyright and license is added to all source files
-  set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # comment the line when this package is in a git repo and when
-  # a copyright and license is added to all source files
-  set(ament_cmake_cpplint_FOUND TRUE)
-  # the following skips uncrustify
-  # ament_uncrustify and ament_clang_format cannot both be satisfied
-  set(ament_cmake_uncrustify_FOUND TRUE)
-  # the following skips ament_flake8
-  # ament_flake8 and black fight over double or single quotes
-  # flake8 is run via pre-commit with a .flake8 configuration file
-  set(ament_cmake_flake8_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
+  add_subdirectory(tests)
 endif()
 
-## EXPORTS
+###############################################################################
+# EXPORTS
+
 ament_export_include_directories(
   include
 )
