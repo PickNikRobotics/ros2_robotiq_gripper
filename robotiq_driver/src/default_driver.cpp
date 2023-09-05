@@ -26,7 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "robotiq_driver/robotiq_gripper_interface.hpp"
+#include "robotiq_driver/default_driver.hpp"
 
 #include <chrono>
 #include <iostream>
@@ -35,6 +35,8 @@
 
 #include "robotiq_driver/crc.hpp"
 
+namespace robotiq_driver
+{
 constexpr int kBaudRate = 115200;
 constexpr auto kTimeoutMilliseconds = 1000;
 
@@ -67,10 +69,10 @@ static uint8_t getFirstByte(uint16_t val) { return (val & 0xFF00) >> 8; }
 
 static uint8_t getSecondByte(uint16_t val) { return val & 0x00FF; }
 
-RobotiqGripperInterface::RobotiqGripperInterface(const std::string & com_port, uint8_t slave_id)
+DefaultDriver::DefaultDriver(const std::string & com_port, uint8_t slave_id)
 : port_(com_port, kBaudRate, serial::Timeout::simpleTimeout(kTimeoutMilliseconds)),
   slave_id_(slave_id),
-  read_command_(createReadCommand(kFirstOutputRegister, kNumOutputRegisters)),
+  read_command_(create_read_command(kFirstOutputRegister, kNumOutputRegisters)),
   commanded_gripper_speed_(0x80),
   commanded_gripper_force_(0x80)
 {
@@ -79,18 +81,18 @@ RobotiqGripperInterface::RobotiqGripperInterface(const std::string & com_port, u
   }
 }
 
-void RobotiqGripperInterface::activateGripper()
+void DefaultDriver::activate()
 {
-  const auto cmd = createWriteCommand(
+  const auto cmd = create_write_command(
     kActionRequestRegister, {0x0100, 0x0000, 0x0000}  // set rACT to 1, clear all
                                                       // other registers.
   );
 
   try {
-    sendCommand(cmd);
-    readResponse(kWriteResponseSize);
+    send_command(cmd);
+    read_response(kWriteResponseSize);
 
-    updateStatus();
+    update_status();
 
     if (gripper_status_ == GripperStatus::COMPLETED) {
       return;
@@ -98,7 +100,7 @@ void RobotiqGripperInterface::activateGripper()
 
     while (gripper_status_ == GripperStatus::IN_PROGRESS) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      updateStatus();
+      update_status();
     }
   } catch (const serial::IOException & e) {
     // catch connection error and rethrow
@@ -107,12 +109,12 @@ void RobotiqGripperInterface::activateGripper()
   }
 }
 
-void RobotiqGripperInterface::deactivateGripper()
+void DefaultDriver::deactivate()
 {
-  const auto cmd = createWriteCommand(kActionRequestRegister, {0x0000, 0x0000, 0x0000});
+  const auto cmd = create_write_command(kActionRequestRegister, {0x0000, 0x0000, 0x0000});
   try {
-    sendCommand(cmd);
-    readResponse(kWriteResponseSize);
+    send_command(cmd);
+    read_response(kWriteResponseSize);
   } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to activate gripper";
@@ -120,19 +122,19 @@ void RobotiqGripperInterface::deactivateGripper()
   }
 }
 
-void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
+void DefaultDriver::set_gripper_position(uint8_t pos)
 {
   uint8_t action_register = 0x09;
   uint8_t gripper_options_1 = 0x00;
   uint8_t gripper_options_2 = 0x00;
 
-  const auto cmd = createWriteCommand(
+  const auto cmd = create_write_command(
     kActionRequestRegister,
     {uint16_t(action_register << 8 | gripper_options_1), uint16_t(gripper_options_2 << 8 | pos),
      uint16_t(commanded_gripper_speed_ << 8 | commanded_gripper_force_)});
   try {
-    sendCommand(cmd);
-    readResponse(kWriteResponseSize);
+    send_command(cmd);
+    read_response(kWriteResponseSize);
   } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to set gripper position\n";
@@ -147,10 +149,10 @@ void RobotiqGripperInterface::setGripperPosition(uint8_t pos)
   }
 }
 
-uint8_t RobotiqGripperInterface::getGripperPosition()
+uint8_t DefaultDriver::get_gripper_position()
 {
   try {
-    updateStatus();
+    update_status();
   } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
@@ -160,10 +162,10 @@ uint8_t RobotiqGripperInterface::getGripperPosition()
   return gripper_position_;
 }
 
-bool RobotiqGripperInterface::gripperIsMoving()
+bool DefaultDriver::gripper_is_moving()
 {
   try {
-    updateStatus();
+    update_status();
   } catch (const serial::IOException & e) {
     // catch connection error and rethrow
     std::cerr << "Failed to get gripper position\n";
@@ -173,7 +175,7 @@ bool RobotiqGripperInterface::gripperIsMoving()
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
 }
 
-std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(
+std::vector<uint8_t> DefaultDriver::create_read_command(
   uint16_t first_register, uint8_t num_registers)
 {
   std::vector<uint8_t> cmd = {
@@ -189,11 +191,11 @@ std::vector<uint8_t> RobotiqGripperInterface::createReadCommand(
   return cmd;
 }
 
-void RobotiqGripperInterface::setSpeed(uint8_t speed) { commanded_gripper_speed_ = speed; }
+void DefaultDriver::set_speed(uint8_t speed) { commanded_gripper_speed_ = speed; }
 
-void RobotiqGripperInterface::setForce(uint8_t force) { commanded_gripper_force_ = force; }
+void DefaultDriver::set_force(uint8_t force) { commanded_gripper_force_ = force; }
 
-std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(
+std::vector<uint8_t> DefaultDriver::create_write_command(
   uint16_t first_register, const std::vector<uint16_t> & data)
 {
   uint16_t num_registers = data.size();
@@ -219,7 +221,7 @@ std::vector<uint8_t> RobotiqGripperInterface::createWriteCommand(
   return cmd;
 }
 
-std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requested)
+std::vector<uint8_t> DefaultDriver::read_response(size_t num_bytes_requested)
 {
   std::vector<uint8_t> response;
   size_t num_bytes_read = port_.read(response, num_bytes_requested);
@@ -233,7 +235,7 @@ std::vector<uint8_t> RobotiqGripperInterface::readResponse(size_t num_bytes_requ
   return response;
 }
 
-void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t> & cmd)
+void DefaultDriver::send_command(const std::vector<uint8_t> & cmd)
 {
   size_t num_bytes_written = port_.write(cmd);
   port_.flush();
@@ -244,13 +246,13 @@ void RobotiqGripperInterface::sendCommand(const std::vector<uint8_t> & cmd)
   }
 }
 
-void RobotiqGripperInterface::updateStatus()
+void DefaultDriver::update_status()
 {
   // Tell the gripper that we want to read its status.
   try {
-    sendCommand(read_command_);
+    send_command(read_command_);
 
-    const auto response = readResponse(kReadResponseSize);
+    const auto response = read_response(kReadResponseSize);
 
     // Process the response.
     uint8_t gripper_status_byte = response[kResponseHeaderSize + kGripperStatusIndex];
@@ -306,3 +308,4 @@ void RobotiqGripperInterface::updateStatus()
     throw;
   }
 }
+}  // namespace robotiq_driver

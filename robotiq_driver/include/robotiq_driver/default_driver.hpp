@@ -30,6 +30,7 @@
 
 #include <serial/serial.h>
 
+#include <robotiq_driver/driver.hpp>
 #include <string>
 #include <vector>
 
@@ -38,32 +39,33 @@
  * the gripper's current state.
  *
  */
-class RobotiqGripperInterface
+namespace robotiq_driver
+{
+class DefaultDriver : public Driver
 {
 public:
-  explicit RobotiqGripperInterface(
-    const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
+  explicit DefaultDriver(const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
 
   /**
    * @brief Activates the gripper.
    *
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  void activateGripper();
+  void activate() override;
 
   /**
    * @brief Deactivates the gripper.
    *
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  void deactivateGripper();
+  void deactivate() override;
 
   /**
    * @brief Commands the gripper to move to the desired position.
    *
    * @param pos A value between 0x00 (fully open) and 0xFF (fully closed).
    */
-  void setGripperPosition(uint8_t pos);
+  void set_gripper_position(uint8_t pos) override;
 
   /**
    * @brief Return the current position of the gripper.
@@ -72,58 +74,31 @@ public:
    *
    * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
    */
-  uint8_t getGripperPosition();
+  uint8_t get_gripper_position() override;
 
   /**
    * @brief Returns true if the gripper is currently moving, false otherwise.
    *
    */
-  bool gripperIsMoving();
+  bool gripper_is_moving() override;
 
   /**
    * @brief Set the speed of the gripper.
    *
    * @param speed A value between 0x00 (stopped) and 0xFF (full speed).
    */
-  void setSpeed(uint8_t speed);
+  void set_speed(uint8_t speed) override;
 
   /**
    * @brief Set how forcefully the gripper opens or closes.
    *
    * @param force A value between 0x00 (no force) or 0xFF (maximum force).
    */
-  void setForce(uint8_t force);
-
-  enum class ActivationStatus
-  {
-    RESET,
-    ACTIVE
-  };
-
-  enum class ActionStatus
-  {
-    STOPPED,
-    MOVING
-  };
-
-  enum class GripperStatus
-  {
-    RESET,
-    IN_PROGRESS,
-    COMPLETED,
-  };
-
-  enum class ObjectDetectionStatus
-  {
-    MOVING,
-    OBJECT_DETECTED_OPENING,
-    OBJECT_DETECTED_CLOSING,
-    AT_REQUESTED_POSITION
-  };
+  void set_force(uint8_t force) override;
 
 private:
-  std::vector<uint8_t> createReadCommand(uint16_t first_register, uint8_t num_registers);
-  std::vector<uint8_t> createWriteCommand(
+  std::vector<uint8_t> create_read_command(uint16_t first_register, uint8_t num_registers);
+  std::vector<uint8_t> create_write_command(
     uint16_t first_register, const std::vector<uint16_t> & data);
 
   /**
@@ -132,7 +107,7 @@ private:
    * @param num_bytes Number of bytes to be read from device port.
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  std::vector<uint8_t> readResponse(size_t num_bytes);
+  std::vector<uint8_t> read_response(size_t num_bytes);
 
   /**
    * @brief Send a command to the gripper.
@@ -140,14 +115,14 @@ private:
    * @param cmd The command.
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  void sendCommand(const std::vector<uint8_t> & cmd);
+  void send_command(const std::vector<uint8_t> & cmd);
 
   /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.
    *
    * @throw serial::IOException on failure to successfully communicate with gripper port
    */
-  void updateStatus();
+  void update_status();
 
   serial::Serial port_;
   uint8_t slave_id_;
@@ -162,3 +137,4 @@ private:
   uint8_t commanded_gripper_speed_;
   uint8_t commanded_gripper_force_;
 };
+}  // namespace robotiq_driver

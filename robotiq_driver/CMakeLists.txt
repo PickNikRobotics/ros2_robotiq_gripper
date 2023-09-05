@@ -28,7 +28,8 @@ add_library(
   SHARED
   src/crc.cpp
   src/hardware_interface.cpp
-  src/robotiq_gripper_interface.cpp
+  src/default_driver.cpp
+  src/default_driver_factory.cpp
 )
 target_include_directories(
   ${PROJECT_NAME}

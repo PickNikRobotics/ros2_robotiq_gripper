@@ -28,20 +28,21 @@
 
 #pragma once
 
+#include <robotiq_driver/visibility_control.h>
+
 #include <atomic>
+#include <hardware_interface/handle.hpp>
+#include <hardware_interface/hardware_info.hpp>
+#include <hardware_interface/system_interface.hpp>
+#include <hardware_interface/types/hardware_interface_return_values.hpp>
 #include <limits>
 #include <memory>
+#include <rclcpp/macros.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <robotiq_driver/driver.hpp>
+#include <robotiq_driver/driver_factory.hpp>
 #include <string>
 #include <vector>
-
-#include "hardware_interface/handle.hpp"
-#include "hardware_interface/hardware_info.hpp"
-#include "hardware_interface/system_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "rclcpp/macros.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "robotiq_driver/robotiq_gripper_interface.hpp"
-#include "robotiq_driver/visibility_control.h"
 
 namespace robotiq_driver
 {
@@ -50,8 +51,17 @@ class RobotiqGripperHardwareInterface : public hardware_interface::SystemInterfa
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(RobotiqGripperHardwareInterface)
 
+  /**
+   * Default constructor.
+   */
   ROBOTIQ_DRIVER_PUBLIC
   RobotiqGripperHardwareInterface();
+
+  /**
+   * Constructor with a driver factory. This method is used for testing.
+   * @param driver_factory The driver that interact with the hardware.
+   */
+  explicit RobotiqGripperHardwareInterface(std::unique_ptr<DriverFactory> driver_factory);
 
   ROBOTIQ_DRIVER_PUBLIC
   CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
@@ -82,10 +92,14 @@ private:
   double gripper_position_;
   double gripper_velocity_;
   double gripper_position_command_;
-  std::unique_ptr<RobotiqGripperInterface> gripper_interface_;
+
+  // Interface to send binary data to the hardware using the serial port.
+  std::unique_ptr<Driver> driver_;
+
+  // Factory to create the driver during the initialization step.
+  std::unique_ptr<DriverFactory> driver_factory_;
 
   double gripper_closed_pos_;
-  std::string com_port_;
 
   std::thread command_interface_;
   std::atomic<bool> command_interface_is_running_;

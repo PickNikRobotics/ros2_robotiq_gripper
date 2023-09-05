@@ -27,9 +27,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <iostream>
+#include <robotiq_driver/default_driver.hpp>
 #include <thread>
-
-#include "robotiq_driver/robotiq_gripper_interface.hpp"
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kSlaveID = 0x09;
@@ -37,55 +36,55 @@ constexpr auto kSlaveID = 0x09;
 int main()
 {
   try {
-    RobotiqGripperInterface gripper(kComPort, kSlaveID);
+    robotiq_driver::DefaultDriver gripper(kComPort, kSlaveID);
 
     std::cout << "Deactivating gripper...\n";
-    gripper.deactivateGripper();
+    gripper.deactivate();
 
     std::cout << "Activating gripper...\n";
-    gripper.activateGripper();
+    gripper.activate();
 
     std::cout << "Gripper successfully activated.\n";
 
     std::cout << "Closing gripper...\n";
-    gripper.setGripperPosition(0xFF);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0xFF);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
-    gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0x00);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Half closing gripper...\n";
-    gripper.setGripperPosition(0x80);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0x80);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
-    gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0x00);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Decreasing gripper speed...\n";
-    gripper.setSpeed(0x0F);
+    gripper.set_speed(0x0F);
 
     std::cout << "Closing gripper...\n";
-    gripper.setGripperPosition(0xFF);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0xFF);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Increasing gripper speed...\n";
-    gripper.setSpeed(0xFF);
+    gripper.set_speed(0xFF);
 
     std::cout << "Opening gripper...\n";
-    gripper.setGripperPosition(0x00);
-    while (gripper.gripperIsMoving()) {
+    gripper.set_gripper_position(0x00);
+    while (gripper.gripper_is_moving()) {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   } catch (const serial::IOException & e) {

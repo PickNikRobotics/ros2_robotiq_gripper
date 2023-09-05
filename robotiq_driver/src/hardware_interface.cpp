@@ -26,19 +26,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "robotiq_driver/hardware_interface.hpp"
-
 #include <serial/serial.h>
 
 #include <chrono>
 #include <cmath>
+#include <hardware_interface/actuator_interface.hpp>
+#include <hardware_interface/types/hardware_interface_type_values.hpp>
 #include <limits>
 #include <memory>
+#include <rclcpp/rclcpp.hpp>
+#include <robotiq_driver/default_driver_factory.hpp>
+#include <robotiq_driver/hardware_interface.hpp>
 #include <vector>
-
-#include "hardware_interface/actuator_interface.hpp"
-#include "hardware_interface/types/hardware_interface_type_values.hpp"
-#include "rclcpp/rclcpp.hpp"
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
@@ -48,24 +47,29 @@ const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
 
 namespace robotiq_driver
 {
-RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface() {}
+RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
+{
+  driver_factory_ = std::make_unique<DefaultDriverFactory>();
+}
+
+// This constructor is use for testing only.
+RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface(
+  std::unique_ptr<DriverFactory> driver_factory)
+: driver_factory_{std::move(driver_factory)}
+{
+}
 
 hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
   const hardware_interface::HardwareInfo & info)
 {
+  RCLCPP_DEBUG(kLogger, "on_init");
+
   if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS) {
     return CallbackReturn::ERROR;
   }
 
   // Read parameters.
   gripper_closed_pos_ = stod(info_.hardware_parameters["gripper_closed_position"]);
-  com_port_ = info_.hardware_parameters["COM_port"];
-  double gripper_speed = stod(info_.hardware_parameters["gripper_speed_multiplier"]);
-  double gripper_force = stod(info_.hardware_parameters["gripper_force_multiplier"]);
-
-  // Speed and force must lie between 0.0 and 1.0.
-  gripper_speed = std::min(1.0, std::max(0.0, gripper_speed));
-  gripper_force = std::min(1.0, std::max(0.0, gripper_force));
 
   gripper_position_ = std::numeric_limits<double>::quiet_NaN();
   gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
@@ -110,10 +114,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
   }
 
   try {
-    // Create the interface to the gripper.
-    gripper_interface_ = std::make_unique<RobotiqGripperInterface>(com_port_);
-    gripper_interface_->setSpeed(gripper_speed * 0xFF);
-    gripper_interface_->setForce(gripper_force * 0xFF);
+    driver_ = driver_factory_->create(info_);
   } catch (const serial::IOException & e) {
     RCLCPP_FATAL(kLogger, "Failed to open gripper port.");
     return CallbackReturn::ERROR;
@@ -125,6 +126,8 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
 std::vector<hardware_interface::StateInterface>
 RobotiqGripperHardwareInterface::export_state_interfaces()
 {
+  RCLCPP_DEBUG(kLogger, "export_state_interfaces");
+
   std::vector<hardware_interface::StateInterface> state_interfaces;
 
   state_interfaces.emplace_back(hardware_interface::StateInterface(
@@ -138,6 +141,8 @@ RobotiqGripperHardwareInterface::export_state_interfaces()
 std::vector<hardware_interface::CommandInterface>
 RobotiqGripperHardwareInterface::export_command_interfaces()
 {
+  RCLCPP_DEBUG(kLogger, "export_command_interfaces");
+
   std::vector<hardware_interface::CommandInterface> command_interfaces;
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
@@ -153,6 +158,8 @@ RobotiqGripperHardwareInterface::export_command_interfaces()
 hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  RCLCPP_DEBUG(kLogger, "on_activate");
+
   // set some default values for joints
   if (std::isnan(gripper_position_)) {
     gripper_position_ = 0;
@@ -162,8 +169,8 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
 
   // Activate the gripper.
   try {
-    gripper_interface_->deactivateGripper();
-    gripper_interface_->activateGripper();
+    driver_->deactivate();
+    driver_->activate();
   } catch (const serial::IOException & e) {
     RCLCPP_FATAL(kLogger, "Failed to communicate with Gripper. Check Gripper connection.");
     return CallbackReturn::ERROR;
@@ -185,17 +192,17 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
           // Re-activate the gripper
           // (this can be used, for example, to re-run the auto-calibration).
           if (reactivate_gripper_async_cmd_.load()) {
-            this->gripper_interface_->deactivateGripper();
-            this->gripper_interface_->activateGripper();
+            this->driver_->deactivate();
+            this->driver_->activate();
             reactivate_gripper_async_cmd_.store(false);
             reactivate_gripper_async_response_.store(true);
           }
 
           // Write the latest command to the gripper.
-          this->gripper_interface_->setGripperPosition(write_command_.load());
+          this->driver_->set_gripper_position(write_command_.load());
 
           // Read the state of the gripper.
-          gripper_current_state_.store(this->gripper_interface_->getGripperPosition());
+          gripper_current_state_.store(this->driver_->get_gripper_position());
 
           last_io = now;
         } catch (serial::IOException & e) {
@@ -213,11 +220,13 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
 hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_deactivate(
   const rclcpp_lifecycle::State & /*previous_state*/)
 {
+  RCLCPP_DEBUG(kLogger, "on_deactivate");
+
   command_interface_is_running_.store(false);
   command_interface_.join();
 
   try {
-    gripper_interface_->deactivateGripper();
+    driver_->deactivate();
   } catch (const std::exception & e) {
     RCLCPP_ERROR(kLogger, "Failed to deactivate gripper. Check Gripper connection");
     return CallbackReturn::ERROR;
