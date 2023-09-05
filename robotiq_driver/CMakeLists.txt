@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 3.8)
-project(robotiq_driver)
+cmake_minimum_required(VERSION 3.22.1)
+project(robotiq_driver VERSION 0.1.0 LANGUAGES CXX)
+
+# This module provides installation directories as per the GNU coding standards.
+include(GNUInstallDirs)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -21,23 +24,25 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
   serial
 )
 
+# Robotiq driver library.
+
 add_library(
-  ${PROJECT_NAME}
+  robotiq_driver
   SHARED
   src/crc.cpp
   src/hardware_interface.cpp
   src/default_driver.cpp
   src/default_driver_factory.cpp
 )
+target_link_libraries(robotiq_driver atomic)
 target_include_directories(
-  ${PROJECT_NAME}
+  robotiq_driver
   PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-target_link_libraries(${PROJECT_NAME} atomic)
 ament_target_dependencies(
-  ${PROJECT_NAME}
+  robotiq_driver
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
@@ -52,7 +57,7 @@ pluginlib_export_plugin_description_file(hardware_interface hardware_interface_p
 add_executable(gripper_interface_test src/gripper_interface_test.cpp)
 target_include_directories(gripper_interface_test PRIVATE include)
 ament_target_dependencies(gripper_interface_test serial)
-target_link_libraries(gripper_interface_test ${PROJECT_NAME})
+target_link_libraries(gripper_interface_test robotiq_driver)
 
 ###############################################################################
 # EXPORTS
@@ -62,7 +67,7 @@ target_link_libraries(gripper_interface_test ${PROJECT_NAME})
 # Without this a client cannot find this library.
 # It can take an arbitrary list of targets named as EXPORT in an install call.
 ament_export_targets(
-  export_${PROJECT_NAME}
+  robotiq_driver_targets # Must match the EXPORT label below in the install section.
 )
 # Help downstream packages to find transitive dependencies i.e. export all
 # dependencies required by a package to use this library.
@@ -78,34 +83,31 @@ ament_export_include_directories(
 )
 # Tell downstream packages our libraries to link against.
 ament_export_libraries(
-  ${PROJECT_NAME}
+  robotiq_driver
 )
 
 ###############################################################################
 # INSTALL
 
 install(
-  TARGETS ${PROJECT_NAME}
-  EXPORT export_${PROJECT_NAME}
-  ARCHIVE DESTINATION lib/${PROJECT_NAME}
-  LIBRARY DESTINATION lib
-  RUNTIME DESTINATION bin
+  TARGETS robotiq_driver
+  EXPORT robotiq_driver_targets
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}      # lib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}      # lib
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}      # bin
+  INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # include
 )
 install(
   TARGETS gripper_interface_test
-  DESTINATION lib/${PROJECT_NAME}
-)
-install(
-  DIRECTORY include/
-  DESTINATION include
+  DESTINATION lib/robotiq_driver
 )
 install(
   DIRECTORY config
-  DESTINATION share/${PROJECT_NAME}
+  DESTINATION share/robotiq_driver
 )
 install(
   DIRECTORY launch
-  DESTINATION share/${PROJECT_NAME}
+  DESTINATION share/robotiq_driver
 )
 
 ###############################################################################
@@ -117,5 +119,15 @@ include(CTest)
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
+
+###############################################################################
+# LINTERS
+
+add_custom_target(format
+    COMMAND clang-format -i `git ls-files *.hpp *.cpp`
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
+add_custom_target(tidy
+    COMMAND clang-tidy -p ${CMAKE_BINARY_DIR} `git ls-files *.cpp`
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 ament_package()
