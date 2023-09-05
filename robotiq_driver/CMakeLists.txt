@@ -5,8 +5,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
-# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
@@ -43,12 +41,45 @@ ament_target_dependencies(
   ${THIS_PACKAGE_INCLUDE_DEPENDS}
 )
 
+###############################################################################
+# PLUGINS
+
 pluginlib_export_plugin_description_file(hardware_interface hardware_interface_plugin.xml)
+
+###############################################################################
+# ADDITIONAL OPTIONAL EXECUTABLES
 
 add_executable(gripper_interface_test src/gripper_interface_test.cpp)
 target_include_directories(gripper_interface_test PRIVATE include)
 ament_target_dependencies(gripper_interface_test serial)
 target_link_libraries(gripper_interface_test ${PROJECT_NAME})
+
+###############################################################################
+# EXPORTS
+
+# This is necessary to allow this library’s clients to use the syntax
+# target_link_libraries(client <pkg>::<target_name>)
+# Without this a client cannot find this library.
+# It can take an arbitrary list of targets named as EXPORT in an install call.
+ament_export_targets(
+  export_${PROJECT_NAME}
+)
+# Help downstream packages to find transitive dependencies i.e. export all
+# dependencies required by a package to use this library.
+# When a package calls find_package(epick_driver), CMake looks for a file
+# called epick_driverConfig.cmake which sets up everything another project
+# would need to depend on this one.
+ament_export_dependencies(
+  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+)
+# Tell downstream packages where to find our headers.
+ament_export_include_directories(
+  include
+)
+# Tell downstream packages our libraries to link against.
+ament_export_libraries(
+  ${PROJECT_NAME}
+)
 
 ###############################################################################
 # INSTALL
@@ -86,21 +117,5 @@ include(CTest)
 if(BUILD_TESTING)
   add_subdirectory(tests)
 endif()
-
-###############################################################################
-# EXPORTS
-
-ament_export_include_directories(
-  include
-)
-ament_export_libraries(
-  ${PROJECT_NAME}
-)
-ament_export_targets(
-  export_${PROJECT_NAME}
-)
-ament_export_dependencies(
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
-)
 
 ament_package()
