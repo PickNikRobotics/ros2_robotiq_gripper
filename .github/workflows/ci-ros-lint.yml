@@ -9,19 +9,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          linter: [cppcheck, copyright, lint_cmake]
+        linter: [cppcheck, copyright, lint_cmake]
     steps:
-    - uses: actions/checkout@v3
-    - uses: ros-tooling/setup-ros@0.6.2
-    - uses: ros-tooling/action-ros-lint@v0.1
-      with:
-        distribution: rolling
-        linter: ${{ matrix.linter }}
-        package-name:
-          robotiq_driver
-          robotiq_controllers
-          robotiq_description
-
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@0.6.2
+      - uses: ros-tooling/action-ros-lint@v0.1
+        with:
+          distribution: rolling
+          linter: ${{ matrix.linter }}
+          package-name: robotiq_driver
+            robotiq_controllers
+            robotiq_description
 
   ament_lint_100:
     name: ament_${{ matrix.linter }}
@@ -29,17 +27,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-          linter: [cpplint]
+        linter: [cpplint]
     steps:
-    - uses: actions/checkout@v3
-    - uses: ros-tooling/setup-ros@0.6.2
-    - uses: ros-tooling/action-ros-lint@v0.1
-      with:
-        distribution: rolling
-        linter: cpplint
-        arguments: "--linelength=100 --filter=-whitespace/newline"
-        package-name:
-          robotiq_driver
-          robotiq_controllers
-          robotiq_description
-          ros2_robotiq_gripper
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@0.6.2
+      - uses: ros-tooling/action-ros-lint@v0.1
+        with:
+          distribution: rolling
+          linter: cpplint
+          arguments: "--linelength=100 --filter=-whitespace/newline"
+          package-name: robotiq_driver
+            robotiq_controllers
+            robotiq_description
