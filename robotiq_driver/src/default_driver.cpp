@@ -82,10 +82,6 @@ DefaultDriver::DefaultDriver(const std::string& com_port, uint8_t slave_id)
   , commanded_gripper_speed_(0x80)
   , commanded_gripper_force_(0x80)
 {
-  if (!port_.isOpen())
-  {
-    THROW(serial::IOException, "Failed to open gripper port.");
-  }
 }
 
 bool DefaultDriver::connect()
