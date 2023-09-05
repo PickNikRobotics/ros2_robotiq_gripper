@@ -123,6 +123,30 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
   return CallbackReturn::SUCCESS;
 }
 
+rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn
+RobotiqGripperHardwareInterface::on_configure(const rclcpp_lifecycle::State & previous_state)
+{
+  RCLCPP_DEBUG(kLogger, "on_configure");
+  try {
+    if (
+      hardware_interface::SystemInterface::on_configure(previous_state) !=
+      CallbackReturn::SUCCESS) {
+      return CallbackReturn::ERROR;
+    }
+
+    // Open the serial port and handshake.
+    bool connected = driver_->connect();
+    if (!connected) {
+      RCLCPP_ERROR(kLogger, "Cannot connect to the Robotiq gripper");
+      return CallbackReturn::ERROR;
+    }
+  } catch (const std::exception & e) {
+    RCLCPP_ERROR(kLogger, "Cannot configure the Robotiq gripper: %s", e.what());
+    return CallbackReturn::ERROR;
+  }
+  return CallbackReturn::SUCCESS;
+}
+
 std::vector<hardware_interface::StateInterface>
 RobotiqGripperHardwareInterface::export_state_interfaces()
 {
@@ -178,14 +202,14 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
 
   RCLCPP_INFO(kLogger, "Robotiq Gripper successfully activated!");
 
-  command_interface_is_running_.store(true);
+  communication_thread_is_running_.store(true);
 
-  command_interface_ = std::thread([this] {
+  communication_thread_ = std::thread([this] {
     // Read from and write to the gripper at 100 Hz.
     const auto io_interval = std::chrono::milliseconds(10);
     auto last_io = std::chrono::high_resolution_clock::now();
 
-    while (command_interface_is_running_.load()) {
+    while (communication_thread_is_running_.load()) {
       const auto now = std::chrono::high_resolution_clock::now();
       if (now - last_io > io_interval) {
         try {
@@ -208,7 +232,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_activate(
         } catch (serial::IOException & e) {
           RCLCPP_ERROR(
             kLogger, "Check Robotiq Gripper connection and restart drivers. ERROR: %s", e.what());
-          command_interface_is_running_.store(false);
+          communication_thread_is_running_.store(false);
         }
       }
     }
@@ -222,8 +246,8 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_deactivat
 {
   RCLCPP_DEBUG(kLogger, "on_deactivate");
 
-  command_interface_is_running_.store(false);
-  command_interface_.join();
+  communication_thread_is_running_.store(false);
+  communication_thread_.join();
 
   try {
     driver_->deactivate();

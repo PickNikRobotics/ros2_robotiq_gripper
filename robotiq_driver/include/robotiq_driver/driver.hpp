@@ -65,6 +65,12 @@ public:
     AT_REQUESTED_POSITION
   };
 
+  /** Connect to the gripper serial connection. */
+  virtual bool connect() = 0;
+
+  /** Disconnect from the gripper serial connection. */
+  virtual void disconnect() = 0;
+
   /**
    * @brief Activates the gripper.
    * @throw serial::IOException on failure to successfully communicate with gripper port

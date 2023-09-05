@@ -81,6 +81,14 @@ DefaultDriver::DefaultDriver(const std::string & com_port, uint8_t slave_id)
   }
 }
 
+bool DefaultDriver::connect()
+{
+  port_.open();
+  return port_.isOpen();
+}
+
+void DefaultDriver::disconnect() { port_.close(); }
+
 void DefaultDriver::activate()
 {
   const auto cmd = create_write_command(

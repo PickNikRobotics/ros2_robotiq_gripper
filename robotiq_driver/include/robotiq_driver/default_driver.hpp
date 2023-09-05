@@ -46,6 +46,9 @@ class DefaultDriver : public Driver
 public:
   explicit DefaultDriver(const std::string & com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
 
+  bool connect() override;
+  void disconnect() override;
+
   /**
    * @brief Activates the gripper.
    *
