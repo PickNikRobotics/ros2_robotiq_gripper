@@ -21,6 +21,15 @@
   <exec_depend>gripper_controllers</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
 
+  <!-- Check code against style conventions using clang-format. -->
+  <test_depend>ament_clang_format</test_depend>
+  <!-- Check code against style conventions using clang-tidy. -->
+  <test_depend>ament_clang_tidy</test_depend>
+  <!-- Check every source file contains copyright reference. -->
+  <test_depend>ament_cmake_copyright</test_depend>
+  <!-- Lint CMake code using cmakelint. -->
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <!-- This package will provide automatic linting capabilities. -->
   <test_depend>ament_lint_auto</test_depend>
   <!-- The list of commonly used linters in the ament build system in CMake. -->
   <test_depend>ament_lint_common</test_depend>
