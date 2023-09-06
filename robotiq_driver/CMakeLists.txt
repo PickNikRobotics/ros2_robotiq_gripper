@@ -14,6 +14,7 @@ find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(serial REQUIRED)
+find_package(ros2_control_test_assets)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   ament_cmake
