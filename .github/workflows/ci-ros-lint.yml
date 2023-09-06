@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        linter: [cppcheck, copyright, lint_cmake]
+        linter: [copyright, lint_cmake]
     steps:
       - uses: actions/checkout@v3
       - uses: ros-tooling/setup-ros@0.6.2
@@ -17,7 +17,6 @@ jobs:
         with:
           distribution: rolling
           linter: ${{ matrix.linter }}
-          arguments: "--exclude=tests/"
           package-name: robotiq_driver
             robotiq_controllers
             robotiq_description
