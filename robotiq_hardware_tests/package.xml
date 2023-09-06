@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robotiq_hardware_tests</name>
+  <version>0.0.1</version>
+  <description>ROS2 driver for the Robotiq gripper.</description>
+  <maintainer email="giovanni.remigi@picknik.ai">Giovanni Remigi</maintainer>
+  <license>BSD</license>
+  <author>Giovanni Remigi</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>launch</depend>
+  <depend>launch_ros</depend>
+  <depend>robotiq_driver</depend>
+
+  <!-- Check code against style conventions using clang-format. -->
+  <test_depend>ament_clang_format</test_depend>
+  <!-- Check code against style conventions using clang-tidy. -->
+  <test_depend>ament_clang_tidy</test_depend>
+  <!-- Check every source file contains copyright reference. -->
+  <test_depend>ament_cmake_copyright</test_depend>
+  <!-- Lint CMake code using cmakelint. -->
+  <test_depend>ament_cmake_lint_cmake</test_depend>
+  <!-- The auto-magic functions for ease to use of the ament linters in CMake. -->
+  <test_depend>ament_lint_auto</test_depend>
+  <!-- The list of commonly used linters in the ament build system in CMake. -->
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
