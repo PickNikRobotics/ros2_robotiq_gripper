@@ -31,8 +31,6 @@
 #include <stdexcept>
 #include <thread>
 
-#include <serial/serial.h>
-
 #include "robotiq_driver/data_utils.hpp"
 #include "robotiq_driver/default_driver.hpp"
 #include <robotiq_driver/crc_utils.hpp>
@@ -246,7 +244,7 @@ std::vector<uint8_t> DefaultDriver::read_response(size_t num_bytes_requested)
   {
     response = serial_->read(num_bytes_requested);
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
     throw DriverException{ std::string{ "Failed to read response: " } + e.what() };
   }

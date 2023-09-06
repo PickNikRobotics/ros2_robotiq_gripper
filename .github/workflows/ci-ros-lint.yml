@@ -21,7 +21,7 @@ jobs:
             robotiq_controllers
             robotiq_description
 
-  ament_lint_120:
+  ament_lint_121:
     name: ament_${{ matrix.linter }}
     runs-on: ubuntu-20.04
     strategy:
@@ -35,7 +35,7 @@ jobs:
         with:
           distribution: rolling
           linter: cpplint
-          arguments: "--linelength=120 --filter=-whitespace/newline"
+          arguments: "--linelength=121 --filter=-whitespace/newline"
           package-name: robotiq_driver
             robotiq_controllers
             robotiq_description

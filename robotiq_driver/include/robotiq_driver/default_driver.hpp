@@ -28,12 +28,13 @@
 
 #pragma once
 
-#include <robotiq_driver/driver.hpp>
-#include <robotiq_driver/serial.hpp>
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include <robotiq_driver/driver.hpp>
+#include <robotiq_driver/serial.hpp>
+
 /**
  * @brief This class is responsible for communicating with the gripper via a serial port, and maintaining a record of
  * the gripper's current state.

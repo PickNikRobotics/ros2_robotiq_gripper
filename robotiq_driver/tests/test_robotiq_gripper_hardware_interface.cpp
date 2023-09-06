@@ -29,6 +29,8 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+#include <chrono>
+
 #include <robotiq_driver/default_driver_factory.hpp>
 #include <robotiq_driver/hardware_interface.hpp>
 
@@ -42,8 +44,6 @@
 
 #include <ros2_control_test_assets/components_urdfs.hpp>
 #include <ros2_control_test_assets/descriptions.hpp>
-
-#include <chrono>
 
 namespace robotiq_driver::test
 {

@@ -28,9 +28,9 @@
 
 #pragma once
 
-#include <robotiq_driver/driver.hpp>
-
 #include <gmock/gmock.h>
+
+#include <robotiq_driver/driver.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 

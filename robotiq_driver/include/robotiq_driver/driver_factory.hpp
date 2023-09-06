@@ -28,8 +28,10 @@
 
 #pragma once
 
-#include <hardware_interface/hardware_info.hpp>
 #include <memory>
+
+#include <hardware_interface/hardware_info.hpp>
+
 #include <robotiq_driver/driver.hpp>
 
 namespace robotiq_driver

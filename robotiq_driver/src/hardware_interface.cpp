@@ -26,21 +26,19 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <chrono>
+#include <cmath>
+#include <limits>
+#include <memory>
+#include <vector>
+
 #include <robotiq_driver/default_driver_factory.hpp>
 #include <robotiq_driver/hardware_interface.hpp>
 
 #include <hardware_interface/actuator_interface.hpp>
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
 
-#include <serial/serial.h>
-
 #include <rclcpp/rclcpp.hpp>
-
-#include <chrono>
-#include <cmath>
-#include <limits>
-#include <memory>
-#include <vector>
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
@@ -120,7 +118,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
   {
     driver_ = driver_factory_->create(info_);
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
     RCLCPP_FATAL(kLogger, "Failed to create a driver: %s", e.what());
     return CallbackReturn::ERROR;
@@ -205,7 +203,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
     driver_->deactivate();
     driver_->activate();
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
     RCLCPP_FATAL(kLogger, "Failed to communicate with Gripper. Check Gripper connection.");
     return CallbackReturn::ERROR;
@@ -245,7 +243,7 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
 
           last_io = now;
         }
-        catch (serial::IOException& e)
+        catch (std::exception& e)
         {
           RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers. ERROR: %s", e.what());
           communication_thread_is_running_.store(false);

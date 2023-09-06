@@ -28,11 +28,11 @@
 
 #pragma once
 
+#include <memory>
+
 #include <robotiq_driver/serial.hpp>
 
 #include <hardware_interface/hardware_info.hpp>
-
-#include <memory>
 
 namespace robotiq_driver
 {

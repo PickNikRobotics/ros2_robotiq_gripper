@@ -26,14 +26,14 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cmath>
+
 #include <robotiq_driver/default_driver_factory.hpp>
 #include <robotiq_driver/default_driver.hpp>
 #include <robotiq_driver/default_serial.hpp>
 #include <robotiq_driver/default_serial_factory.hpp>
 
 #include <rclcpp/logging.hpp>
-
-#include <cmath>
 
 namespace robotiq_driver
 {

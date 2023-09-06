@@ -28,9 +28,12 @@
 
 #pragma once
 
-#include "robotiq_driver/serial.hpp"
-
 #include <gmock/gmock.h>
+
+#include <string>
+#include <vector>
+
+#include "robotiq_driver/serial.hpp"
 
 namespace robotiq_driver::test
 {

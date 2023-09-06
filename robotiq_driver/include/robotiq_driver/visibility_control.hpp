@@ -19,8 +19,8 @@
  * library cannot have, but the consuming code must have inorder to link.
  */
 
-#ifndef ROBOTIQ_DRIVER__VISIBILITY_CONTROL_H_
-#define ROBOTIQ_DRIVER__VISIBILITY_CONTROL_H_
+#ifndef ROBOTIQ_DRIVER__VISIBILITY_CONTROL_HPP_
+#define ROBOTIQ_DRIVER__VISIBILITY_CONTROL_HPP_
 
 // This logic was borrowed (then namespaced) from the examples on the gcc wiki:
 //     https://gcc.gnu.org/wiki/Visibility
@@ -53,4 +53,4 @@
 #define ROBOTIQ_DRIVER_PUBLIC_TYPE
 #endif
 
-#endif  // ROBOTIQ_DRIVER__VISIBILITY_CONTROL_H_
+#endif  // ROBOTIQ_DRIVER__VISIBILITY_CONTROL_HPP_

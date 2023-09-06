@@ -26,11 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <robotiq_driver/data_utils.hpp>
-
 #include <array>
 #include <string>
 #include <vector>
+
+#include <robotiq_driver/data_utils.hpp>
 
 namespace robotiq_driver::data_utils
 {

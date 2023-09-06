@@ -26,13 +26,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <robotiq_driver/default_driver.hpp>
-#include <robotiq_driver/default_serial.hpp>
-
 #include <chrono>
 #include <thread>
 #include <iostream>
 #include <memory>
+
+#include <robotiq_driver/default_driver.hpp>
+#include <robotiq_driver/default_serial.hpp>
 
 constexpr auto kComPort = "/dev/ttyUSB0";
 constexpr auto kBaudRate = 115200;
@@ -40,7 +40,8 @@ constexpr auto kTimeout = 0.5;
 
 constexpr auto kSlaveAddress = 0x09;
 
-using namespace robotiq_driver;
+using robotiq_driver::DefaultDriver;
+using robotiq_driver::DefaultSerial;
 
 int main()
 {

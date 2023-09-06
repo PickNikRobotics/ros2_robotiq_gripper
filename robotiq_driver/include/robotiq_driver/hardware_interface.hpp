@@ -28,6 +28,12 @@
 
 #pragma once
 
+#include <atomic>
+#include <limits>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include <robotiq_driver/visibility_control.hpp>
 
 #include <robotiq_driver/driver.hpp>
@@ -40,12 +46,6 @@
 
 #include <rclcpp/macros.hpp>
 #include <rclcpp/rclcpp.hpp>
-
-#include <atomic>
-#include <limits>
-#include <memory>
-#include <string>
-#include <vector>
 
 namespace robotiq_driver
 {

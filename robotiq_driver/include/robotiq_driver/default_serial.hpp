@@ -28,10 +28,13 @@
 
 #pragma once
 
-#include <robotiq_driver/serial.hpp>
-#include <memory>
-
 #include <serial/serial.h>
+
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <robotiq_driver/serial.hpp>
 
 namespace serial
 {
