@@ -15,6 +15,9 @@
   <depend>robotiq_driver</depend>
   <depend>robotiq_controllers</depend>
 
+  <exec_depend>gripper_controllers</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>

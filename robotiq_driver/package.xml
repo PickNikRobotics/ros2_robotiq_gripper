@@ -18,9 +18,6 @@
   <depend>rclcpp_lifecycle</depend>
   <depend>serial</depend>
 
-  <exec_depend>gripper_controllers</exec_depend>
-  <exec_depend>joint_state_broadcaster</exec_depend>
-
   <!-- Check code against style conventions using clang-format. -->
   <test_depend>ament_clang_format</test_depend>
   <!-- Check code against style conventions using clang-tidy. -->
