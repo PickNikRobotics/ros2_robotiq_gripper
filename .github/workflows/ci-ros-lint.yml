@@ -17,6 +17,7 @@ jobs:
         with:
           distribution: rolling
           linter: ${{ matrix.linter }}
+          arguments: "--exclude=tests/"
           package-name: robotiq_driver
             robotiq_controllers
             robotiq_description
