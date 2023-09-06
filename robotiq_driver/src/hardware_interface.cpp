@@ -122,7 +122,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
   }
   catch (const serial::IOException& e)
   {
-    RCLCPP_FATAL(kLogger, "Failed to open gripper port.");
+    RCLCPP_FATAL(kLogger, "Failed to create a driver: %s", e.what());
     return CallbackReturn::ERROR;
   }
 

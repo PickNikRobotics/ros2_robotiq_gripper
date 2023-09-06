@@ -65,6 +65,8 @@ public:
     AT_REQUESTED_POSITION
   };
 
+  virtual void set_slave_address(uint8_t slave_address) = 0;
+
   /** Connect to the gripper serial connection. */
   virtual bool connect() = 0;
 

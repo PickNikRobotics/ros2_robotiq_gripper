@@ -29,7 +29,9 @@
 #pragma once
 
 #include <robotiq_driver/driver.hpp>
-#include <serial/serial.h>
+#include <robotiq_driver/serial.hpp>
+
+#include <memory>
 #include <string>
 #include <vector>
 /**
@@ -42,37 +44,28 @@ namespace robotiq_driver
 class DefaultDriver : public Driver
 {
 public:
-  explicit DefaultDriver(const std::string& com_port = "/dev/ttyUSB0", uint8_t slave_id = 0x09);
+  explicit DefaultDriver(std::unique_ptr<Serial> serial);
 
   bool connect() override;
   void disconnect() override;
 
-  /**
-   * @brief Activates the gripper.
-   *
-   * @throw serial::IOException on failure to successfully communicate with gripper port
-   */
+  void set_slave_address(uint8_t slave_address) override;
+
+  /** Activate the gripper with the specified operation mode and parameters. */
   void activate() override;
 
-  /**
-   * @brief Deactivates the gripper.
-   *
-   * @throw serial::IOException on failure to successfully communicate with gripper port
-   */
+  /** Deactivate the gripper. */
   void deactivate() override;
 
   /**
    * @brief Commands the gripper to move to the desired position.
-   *
    * @param pos A value between 0x00 (fully open) and 0xFF (fully closed).
    */
   void set_gripper_position(uint8_t pos) override;
 
   /**
    * @brief Return the current position of the gripper.
-   *
    * @throw serial::IOException on failure to successfully communicate with gripper port
-   *
    * @return uint8_t A value between 0x00 (fully open) and 0xFF (fully closed).
    */
   uint8_t get_gripper_position() override;
@@ -85,14 +78,12 @@ public:
 
   /**
    * @brief Set the speed of the gripper.
-   *
    * @param speed A value between 0x00 (stopped) and 0xFF (full speed).
    */
   void set_speed(uint8_t speed) override;
 
   /**
    * @brief Set how forcefully the gripper opens or closes.
-   *
    * @param force A value between 0x00 (no force) or 0xFF (maximum force).
    */
   void set_force(uint8_t force) override;
@@ -124,9 +115,8 @@ private:
    */
   void update_status();
 
-  serial::Serial port_;
-  uint8_t slave_id_;
-  std::vector<uint8_t> read_command_;
+  std::unique_ptr<Serial> serial_ = nullptr;
+  uint8_t slave_address_;
 
   ActivationStatus activation_status_;
   ActionStatus action_status_;

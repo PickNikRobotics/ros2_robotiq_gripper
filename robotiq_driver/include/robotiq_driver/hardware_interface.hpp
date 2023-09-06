@@ -28,7 +28,7 @@
 
 #pragma once
 
-#include <robotiq_driver/visibility_control.h>
+#include <robotiq_driver/visibility_control.hpp>
 
 #include <robotiq_driver/driver.hpp>
 #include <robotiq_driver/driver_factory.hpp>

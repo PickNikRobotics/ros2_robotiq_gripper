@@ -28,6 +28,8 @@
 
 #include <robotiq_driver/default_driver_factory.hpp>
 #include <robotiq_driver/default_driver.hpp>
+#include <robotiq_driver/default_serial.hpp>
+#include <robotiq_driver/default_serial_factory.hpp>
 
 #include <rclcpp/logging.hpp>
 
@@ -35,19 +37,41 @@
 
 namespace robotiq_driver
 {
+constexpr auto kSlaveAddressParamName = "slave_address";
+constexpr uint8_t kSlaveAddressParamDefault = 0x09;
+
+constexpr auto kGripperSpeedMultiplierParamName = "gripper_speed_multiplier";
+constexpr double kGripperSpeedMultiplierParamDefault = 1.0;
+
+constexpr auto kGripperForceMultiplierParamName = "gripper_force_multiplier";
+constexpr double kGripperForceMultiplierParamDefault = 1.0;
 
 const auto kLogger = rclcpp::get_logger("DefaultDriverFactory");
 
 std::unique_ptr<Driver> DefaultDriverFactory::create(const hardware_interface::HardwareInfo& info) const
 {
-  double gripper_speed = stod(info.hardware_parameters.at("gripper_speed_multiplier"));
-  double gripper_force = stod(info.hardware_parameters.at("gripper_force_multiplier"));
+  RCLCPP_INFO(kLogger, "Reading %s...", kSlaveAddressParamName);
+  // Convert base-16 address stored as a string (for example, "0x9") into an integer
+  const uint8_t slave_address =
+      info.hardware_parameters.count(kSlaveAddressParamName) ?
+          static_cast<uint8_t>(std::stoul(info.hardware_parameters.at(kSlaveAddressParamName), nullptr, 16)) :
+          kSlaveAddressParamDefault;
+  RCLCPP_INFO(kLogger, "%s: %d", kSlaveAddressParamName, slave_address);
 
-  // Speed and force must lie between 0.0 and 1.0.
-  gripper_speed = std::min(1.0, std::max(0.0, gripper_speed));
-  gripper_force = std::min(1.0, std::max(0.0, gripper_force));
+  RCLCPP_INFO(kLogger, "Reading %s...", kGripperSpeedMultiplierParamName);
+  double gripper_speed = info.hardware_parameters.count(kGripperSpeedMultiplierParamName) ?
+                             std::clamp(stod(info.hardware_parameters.at(kGripperSpeedMultiplierParamName)), 0.0, 1.0) :
+                             kGripperSpeedMultiplierParamDefault;
+  RCLCPP_INFO(kLogger, "%s: %fs", kGripperSpeedMultiplierParamName, gripper_speed);
+
+  RCLCPP_INFO(kLogger, "Reading %s...", kGripperForceMultiplierParamName);
+  double gripper_force = info.hardware_parameters.count(kGripperForceMultiplierParamName) ?
+                             std::clamp(stod(info.hardware_parameters.at(kGripperForceMultiplierParamName)), 0.0, 1.0) :
+                             kGripperForceMultiplierParamDefault;
+  RCLCPP_INFO(kLogger, "%s: %fs", kGripperForceMultiplierParamName, gripper_force);
 
   auto driver = create_driver(info);
+  driver->set_slave_address(slave_address);
   driver->set_speed(gripper_speed * 0xFF);
   driver->set_force(gripper_force * 0xFF);
 
@@ -56,7 +80,7 @@ std::unique_ptr<Driver> DefaultDriverFactory::create(const hardware_interface::H
 
 std::unique_ptr<Driver> DefaultDriverFactory::create_driver(const hardware_interface::HardwareInfo& info) const
 {
-  std::string com_port = info.hardware_parameters.at("COM_port");
-  return std::make_unique<DefaultDriver>(com_port);
+  auto serial = DefaultSerialFactory().create(info);
+  return std::make_unique<DefaultDriver>(std::move(serial));
 }
 }  // namespace robotiq_driver

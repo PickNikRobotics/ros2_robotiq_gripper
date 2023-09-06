@@ -27,76 +27,90 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <robotiq_driver/default_driver.hpp>
+#include <robotiq_driver/default_serial.hpp>
 
+#include <chrono>
 #include <thread>
 #include <iostream>
+#include <memory>
 
 constexpr auto kComPort = "/dev/ttyUSB0";
-constexpr auto kSlaveID = 0x09;
+constexpr auto kBaudRate = 115200;
+constexpr auto kTimeout = 0.5;
+
+constexpr auto kSlaveAddress = 0x09;
+
+using namespace robotiq_driver;
 
 int main()
 {
   try
   {
-    robotiq_driver::DefaultDriver gripper(kComPort, kSlaveID);
+    auto serial = std::make_unique<DefaultSerial>();
+    serial->set_port(kComPort);
+    serial->set_baudrate(kBaudRate);
+    serial->set_timeout(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::duration<double>(kTimeout)));
+
+    auto driver = std::make_unique<DefaultDriver>(std::move(serial));
+    driver->set_slave_address(kSlaveAddress);
 
     std::cout << "Deactivating gripper...\n";
-    gripper.deactivate();
+    driver->deactivate();
 
     std::cout << "Activating gripper...\n";
-    gripper.activate();
+    driver->activate();
 
     std::cout << "Gripper successfully activated.\n";
 
     std::cout << "Closing gripper...\n";
-    gripper.set_gripper_position(0xFF);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0xFF);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
-    gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0x00);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Half closing gripper...\n";
-    gripper.set_gripper_position(0x80);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0x80);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Opening gripper...\n";
-    gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0x00);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Decreasing gripper speed...\n";
-    gripper.set_speed(0x0F);
+    driver->set_speed(0x0F);
 
     std::cout << "Closing gripper...\n";
-    gripper.set_gripper_position(0xFF);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0xFF);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
 
     std::cout << "Increasing gripper speed...\n";
-    gripper.set_speed(0xFF);
+    driver->set_speed(0xFF);
 
     std::cout << "Opening gripper...\n";
-    gripper.set_gripper_position(0x00);
-    while (gripper.gripper_is_moving())
+    driver->set_gripper_position(0x00);
+    while (driver->gripper_is_moving())
     {
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
-  catch (const serial::IOException& e)
+  catch (...)
   {
     std::cout << "Failed to communicating with the Gripper. Please check the Gripper connection";
     return 1;

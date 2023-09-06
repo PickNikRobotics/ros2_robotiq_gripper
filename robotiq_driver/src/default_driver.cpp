@@ -26,23 +26,28 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "robotiq_driver/default_driver.hpp"
-
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 #include <thread>
 
-#include "robotiq_driver/crc.hpp"
+#include <serial/serial.h>
+
+#include "robotiq_driver/data_utils.hpp"
+#include "robotiq_driver/default_driver.hpp"
+#include <robotiq_driver/crc_utils.hpp>
+#include <robotiq_driver/driver_exception.hpp>
+
+#include <rclcpp/rclcpp.hpp>
 
 namespace robotiq_driver
 {
-constexpr int kBaudRate = 115200;
-constexpr auto kTimeoutMilliseconds = 1000;
+const auto kLogger = rclcpp::get_logger("DefaultDriver");
 
 constexpr uint8_t kReadFunctionCode = 0x03;
 constexpr uint16_t kFirstOutputRegister = 0x07D0;
 constexpr uint16_t kNumOutputRegisters = 0x0006;
+
 // The response to a read request consists of:
 //   slave ID (1 byte)
 //   function code (1 byte)
@@ -53,6 +58,7 @@ constexpr int kReadResponseSize = 2 * kNumOutputRegisters + 5;
 
 constexpr uint8_t kWriteFunctionCode = 0x10;
 constexpr uint16_t kActionRequestRegister = 0x03E8;
+
 // The response to a write command consists of:
 //   slave ID (1 byte)
 //   function code (1 byte)
@@ -65,41 +71,33 @@ constexpr size_t kResponseHeaderSize = 3;
 constexpr size_t kGripperStatusIndex = 0;
 constexpr size_t kPositionIndex = 4;
 
-static uint8_t getFirstByte(uint16_t val)
-{
-  return (val & 0xFF00) >> 8;
-}
-
-static uint8_t getSecondByte(uint16_t val)
-{
-  return val & 0x00FF;
-}
-
-DefaultDriver::DefaultDriver(const std::string& com_port, uint8_t slave_id)
-  : port_(com_port, kBaudRate, serial::Timeout::simpleTimeout(kTimeoutMilliseconds))
-  , slave_id_(slave_id)
-  , read_command_(create_read_command(kFirstOutputRegister, kNumOutputRegisters))
-  , commanded_gripper_speed_(0x80)
-  , commanded_gripper_force_(0x80)
+DefaultDriver::DefaultDriver(std::unique_ptr<Serial> serial)
+  : serial_{ std::move(serial) }, commanded_gripper_speed_(0x80), commanded_gripper_force_(0x80)
 {
 }
 
 bool DefaultDriver::connect()
 {
-  port_.open();
-  return port_.isOpen();
+  serial_->open();
+  return serial_->is_open();
 }
 
 void DefaultDriver::disconnect()
 {
-  port_.close();
+  serial_->close();
+}
+
+void DefaultDriver::set_slave_address(uint8_t slave_address)
+{
+  slave_address_ = slave_address;
 }
 
 void DefaultDriver::activate()
 {
-  const auto cmd = create_write_command(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 }  // set rACT to 1, clear all
-                                                                                            // other registers.
-  );
+  RCLCPP_INFO(kLogger, "Activate...");
+
+  // set rACT to 1, clear all ther registers.
+  const auto cmd = create_write_command(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 });
 
   try
   {
@@ -119,27 +117,25 @@ void DefaultDriver::activate()
       update_status();
     }
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
-    // catch connection error and rethrow
-    std::cerr << "Failed to activate gripper";
-    throw;
+    throw DriverException{ std::string{ "Failed to activate the gripper: " } + e.what() };
   }
 }
 
 void DefaultDriver::deactivate()
 {
+  RCLCPP_INFO(kLogger, "Dectivate...");
+
   const auto cmd = create_write_command(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
   try
   {
     send_command(cmd);
     read_response(kWriteResponseSize);
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
-    // catch connection error and rethrow
-    std::cerr << "Failed to activate gripper";
-    throw;
+    throw DriverException{ std::string{ "Failed to deactivate the gripper: " } + e.what() };
   }
 }
 
@@ -158,19 +154,9 @@ void DefaultDriver::set_gripper_position(uint8_t pos)
     send_command(cmd);
     read_response(kWriteResponseSize);
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
-    // catch connection error and rethrow
-    std::cerr << "Failed to set gripper position\n";
-    if (port_.isOpen())
-    {
-      std::cerr << "Error caught while reading or writing to device. Connection is open, "
-                   "continuing to attempt "
-                   "communication with gripper.\n  ERROR: "
-                << e.what();
-      return;
-    }
-    throw;
+    throw DriverException{ std::string{ "Failed to set gripper position: " } + e.what() };
   }
 }
 
@@ -180,11 +166,9 @@ uint8_t DefaultDriver::get_gripper_position()
   {
     update_status();
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
-    // catch connection error and rethrow
-    std::cerr << "Failed to get gripper position\n";
-    throw;
+    throw DriverException{ std::string{ "Failed to get gripper position: " } + e.what() };
   }
 
   return gripper_position_;
@@ -196,11 +180,9 @@ bool DefaultDriver::gripper_is_moving()
   {
     update_status();
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
-    // catch connection error and rethrow
-    std::cerr << "Failed to get gripper position\n";
-    throw;
+    throw DriverException{ std::string{ "Failed to get gripper status: " } + e.what() };
   }
 
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
@@ -208,15 +190,15 @@ bool DefaultDriver::gripper_is_moving()
 
 std::vector<uint8_t> DefaultDriver::create_read_command(uint16_t first_register, uint8_t num_registers)
 {
-  std::vector<uint8_t> cmd = { slave_id_,
+  std::vector<uint8_t> cmd = { slave_address_,
                                kReadFunctionCode,
-                               getFirstByte(first_register),
-                               getSecondByte(first_register),
-                               getFirstByte(num_registers),
-                               getSecondByte(num_registers) };
-  auto crc = computeCRC(cmd);
-  cmd.push_back(getFirstByte(crc));
-  cmd.push_back(getSecondByte(crc));
+                               data_utils::get_msb(first_register),
+                               data_utils::get_lsb(first_register),
+                               data_utils::get_msb(num_registers),
+                               data_utils::get_lsb(num_registers) };
+  auto crc = crc_utils::compute_crc(cmd);
+  cmd.push_back(data_utils::get_msb(crc));
+  cmd.push_back(data_utils::get_lsb(crc));
   return cmd;
 }
 
@@ -235,22 +217,22 @@ std::vector<uint8_t> DefaultDriver::create_write_command(uint16_t first_register
   uint16_t num_registers = data.size();
   uint8_t num_bytes = 2 * num_registers;
 
-  std::vector<uint8_t> cmd = { slave_id_,
+  std::vector<uint8_t> cmd = { slave_address_,
                                kWriteFunctionCode,
-                               getFirstByte(first_register),
-                               getSecondByte(first_register),
-                               getFirstByte(num_registers),
-                               getSecondByte(num_registers),
+                               data_utils::get_msb(first_register),
+                               data_utils::get_lsb(first_register),
+                               data_utils::get_msb(num_registers),
+                               data_utils::get_lsb(num_registers),
                                num_bytes };
   for (auto d : data)
   {
-    cmd.push_back(getFirstByte(d));
-    cmd.push_back(getSecondByte(d));
+    cmd.push_back(data_utils::get_msb(d));
+    cmd.push_back(data_utils::get_lsb(d));
   }
 
-  auto crc = computeCRC(cmd);
-  cmd.push_back(getFirstByte(crc));
-  cmd.push_back(getSecondByte(crc));
+  auto crc = crc_utils::compute_crc(cmd);
+  cmd.push_back(data_utils::get_msb(crc));
+  cmd.push_back(data_utils::get_lsb(crc));
 
   return cmd;
 }
@@ -258,28 +240,22 @@ std::vector<uint8_t> DefaultDriver::create_write_command(uint16_t first_register
 std::vector<uint8_t> DefaultDriver::read_response(size_t num_bytes_requested)
 {
   std::vector<uint8_t> response;
-  size_t num_bytes_read = port_.read(response, num_bytes_requested);
+  response.reserve(num_bytes_requested);
 
-  if (num_bytes_read != num_bytes_requested)
+  try
   {
-    const auto error_msg =
-        "Requested " + std::to_string(num_bytes_requested) + " bytes, but only got " + std::to_string(num_bytes_read);
-    THROW(serial::IOException, error_msg.c_str());
+    response = serial_->read(num_bytes_requested);
   }
-
+  catch (const serial::IOException& e)
+  {
+    throw DriverException{ std::string{ "Failed to read reponse: " } + e.what() };
+  }
   return response;
 }
 
 void DefaultDriver::send_command(const std::vector<uint8_t>& cmd)
 {
-  size_t num_bytes_written = port_.write(cmd);
-  port_.flush();
-  if (num_bytes_written != cmd.size())
-  {
-    const auto error_msg = "Attempted to write " + std::to_string(cmd.size()) + " bytes, but only wrote " +
-                           std::to_string(num_bytes_written);
-    THROW(serial::IOException, error_msg.c_str());
-  }
+  serial_->write(cmd);
 }
 
 void DefaultDriver::update_status()
@@ -287,7 +263,8 @@ void DefaultDriver::update_status()
   // Tell the gripper that we want to read its status.
   try
   {
-    send_command(read_command_);
+    const auto read_command = create_read_command(kFirstOutputRegister, kNumOutputRegisters);
+    send_command(read_command);
 
     const auto response = read_response(kReadResponseSize);
 
@@ -334,10 +311,10 @@ void DefaultDriver::update_status()
     // Read the current gripper position.
     gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
   }
-  catch (const serial::IOException& e)
+  catch (const std::exception& e)
   {
     std::cerr << "Failed to update gripper status.\n";
-    if (port_.isOpen())
+    if (serial_->is_open())
     {
       std::cerr << "Error caught while reading or writing to device. Connection is open, "
                    "continuing to attempt "
