@@ -110,9 +110,9 @@ int main()
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
-  catch (...)
+  catch (std::exception e)
   {
-    std::cout << "Failed to communicating with the Gripper. Please check the Gripper connection";
+    std::cout << "Failed to communicating with the gripper: " << e.what();
     return 1;
   }
 

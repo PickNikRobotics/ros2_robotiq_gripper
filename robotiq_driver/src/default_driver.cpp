@@ -186,6 +186,16 @@ bool DefaultDriver::gripper_is_moving()
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
 }
 
+void DefaultDriver::set_speed(uint8_t speed)
+{
+  commanded_gripper_speed_ = speed;
+}
+
+void DefaultDriver::set_force(uint8_t force)
+{
+  commanded_gripper_force_ = force;
+}
+
 std::vector<uint8_t> DefaultDriver::create_read_command(uint16_t first_register, uint8_t num_registers)
 {
   std::vector<uint8_t> cmd = { slave_address_,
@@ -198,16 +208,6 @@ std::vector<uint8_t> DefaultDriver::create_read_command(uint16_t first_register,
   cmd.push_back(data_utils::get_msb(crc));
   cmd.push_back(data_utils::get_lsb(crc));
   return cmd;
-}
-
-void DefaultDriver::set_speed(uint8_t speed)
-{
-  commanded_gripper_speed_ = speed;
-}
-
-void DefaultDriver::set_force(uint8_t force)
-{
-  commanded_gripper_force_ = force;
 }
 
 std::vector<uint8_t> DefaultDriver::create_write_command(uint16_t first_register, const std::vector<uint16_t>& data)
