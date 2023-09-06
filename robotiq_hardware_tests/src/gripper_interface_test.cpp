@@ -110,7 +110,7 @@ int main()
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
   }
-  catch (std::exception e)
+  catch (const std::exception& e)
   {
     std::cout << "Failed to communicating with the gripper: " << e.what() << std::endl;
     return 1;
