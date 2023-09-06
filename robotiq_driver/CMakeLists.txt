@@ -114,14 +114,6 @@ install(
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}      # bin
   INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR} # include
 )
-install(
-  DIRECTORY config
-  DESTINATION share/robotiq_driver
-)
-install(
-  DIRECTORY launch
-  DESTINATION share/robotiq_driver
-)
 
 ###############################################################################
 # TESTS

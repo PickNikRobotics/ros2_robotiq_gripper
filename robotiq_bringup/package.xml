@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>robotiq_bringup</name>
+  <version>0.0.1</version>
+  <description>
+    Bringup package for the Robotiq gripper for testing purposes.
+  </description>
+  <maintainer email="giovanni.remigi@picknik.ai">Giovanni Remigi</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>robotiq_description</depend>
+  <depend>robotiq_driver</depend>
+  <depend>robotiq_controllers</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
