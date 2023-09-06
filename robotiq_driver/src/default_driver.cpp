@@ -96,7 +96,7 @@ void DefaultDriver::activate()
 {
   RCLCPP_INFO(kLogger, "Activate...");
 
-  // set rACT to 1, clear all ther registers.
+  // set rACT to 1, clear all other registers.
   const auto cmd = create_write_command(kActionRequestRegister, { 0x0100, 0x0000, 0x0000 });
 
   try
@@ -125,7 +125,7 @@ void DefaultDriver::activate()
 
 void DefaultDriver::deactivate()
 {
-  RCLCPP_INFO(kLogger, "Dectivate...");
+  RCLCPP_INFO(kLogger, "Deactivate...");
 
   const auto cmd = create_write_command(kActionRequestRegister, { 0x0000, 0x0000, 0x0000 });
   try
@@ -248,7 +248,7 @@ std::vector<uint8_t> DefaultDriver::read_response(size_t num_bytes_requested)
   }
   catch (const serial::IOException& e)
   {
-    throw DriverException{ std::string{ "Failed to read reponse: " } + e.what() };
+    throw DriverException{ std::string{ "Failed to read response: " } + e.what() };
   }
   return response;
 }
