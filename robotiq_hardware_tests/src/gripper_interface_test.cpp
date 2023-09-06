@@ -112,7 +112,7 @@ int main()
   }
   catch (std::exception e)
   {
-    std::cout << "Failed to communicating with the gripper: " << e.what();
+    std::cout << "Failed to communicating with the gripper: " << e.what() << std::endl;
     return 1;
   }
 
