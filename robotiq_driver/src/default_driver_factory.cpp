@@ -32,11 +32,14 @@
 #include <robotiq_driver/default_driver.hpp>
 #include <robotiq_driver/default_serial.hpp>
 #include <robotiq_driver/default_serial_factory.hpp>
+#include <robotiq_driver/fake/fake_driver.hpp>
 
 #include <rclcpp/logging.hpp>
 
 namespace robotiq_driver
 {
+const auto kLogger = rclcpp::get_logger("DefaultDriverFactory");
+
 constexpr auto kSlaveAddressParamName = "slave_address";
 constexpr uint8_t kSlaveAddressParamDefault = 0x09;
 
@@ -46,7 +49,8 @@ constexpr double kGripperSpeedMultiplierParamDefault = 1.0;
 constexpr auto kGripperForceMultiplierParamName = "gripper_force_multiplier";
 constexpr double kGripperForceMultiplierParamDefault = 1.0;
 
-const auto kLogger = rclcpp::get_logger("DefaultDriverFactory");
+constexpr auto kUseDummyParamName = "use_dummy";
+constexpr auto kUseDummyParamDefault = "false";
 
 std::unique_ptr<Driver> DefaultDriverFactory::create(const hardware_interface::HardwareInfo& info) const
 {
@@ -80,7 +84,17 @@ std::unique_ptr<Driver> DefaultDriverFactory::create(const hardware_interface::H
 
 std::unique_ptr<Driver> DefaultDriverFactory::create_driver(const hardware_interface::HardwareInfo& info) const
 {
-  auto serial = DefaultSerialFactory().create(info);
-  return std::make_unique<DefaultDriver>(std::move(serial));
+  // We give the user an option to startup a dummy gripper for testing purposes.
+  if (info.hardware_parameters.count(kUseDummyParamName) &&
+      info.hardware_parameters.at(kUseDummyParamName) != kUseDummyParamDefault)
+  {
+    RCLCPP_INFO(kLogger, "You are connected to a dummy driver, not a real hardware.");
+    return std::make_unique<FakeDriver>();
+  }
+  else
+  {
+    auto serial = DefaultSerialFactory().create(info);
+    return std::make_unique<DefaultDriver>(std::move(serial));
+  }
 }
 }  // namespace robotiq_driver

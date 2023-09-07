@@ -31,6 +31,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
 add_library(
   robotiq_driver
   SHARED
+  include/robotiq_driver/fake/fake_driver.hpp
   include/robotiq_driver/crc_utils.hpp
   include/robotiq_driver/data_utils.hpp
   include/robotiq_driver/default_driver.hpp
@@ -49,6 +50,7 @@ add_library(
   src/hardware_interface.cpp
   src/default_driver.cpp
   src/default_driver_factory.cpp
+  src/fake/fake_driver.cpp
   src/default_serial.cpp
   src/default_serial_factory.cpp
 )

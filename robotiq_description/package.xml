@@ -20,10 +20,7 @@
   <exec_depend>xacro</exec_depend>
 
   <exec_depend>ros2_control</exec_depend>
-  <exec_depend>robotiq_driver</exec_depend>
-
   <exec_depend>ros2_controllers</exec_depend>
-  <exec_depend>robotiq_controllers</exec_depend>
 
   <exec_depend>gripper_controllers</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
