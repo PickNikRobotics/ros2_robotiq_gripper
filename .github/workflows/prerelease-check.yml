@@ -18,7 +18,6 @@ on:
         default: "main"
         type: choice
         options:
-          - galactic
           - humble
           - iron
           - master
