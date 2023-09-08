@@ -17,7 +17,7 @@ on:
       branch:
         description: "Chose branch for distro"
         required: true
-        default: "master"
+        default: "main"
         type: choice
         options:
           - foxy
