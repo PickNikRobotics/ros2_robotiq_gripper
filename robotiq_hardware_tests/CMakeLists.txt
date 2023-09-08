@@ -31,9 +31,6 @@ add_executable(full_test
     src/command_line_utility.hpp
     src/command_line_utility.cpp
 )
-target_include_directories(full_test
-     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(full_test robotiq_driver::robotiq_driver)
 ament_target_dependencies(full_test robotiq_driver)
 
 ament_package()
