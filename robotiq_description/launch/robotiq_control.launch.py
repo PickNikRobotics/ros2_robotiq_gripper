@@ -49,10 +49,6 @@ def generate_launch_description():
         description_pkg_share, "rviz", "view_urdf.rviz"
     )
 
-    pkg_share = launch_ros.substitutions.FindPackageShare(
-        package="robotiq_driver"
-    ).find("robotiq_driver")
-
     args = []
     args.append(
         launch.actions.DeclareLaunchArgument(
@@ -70,9 +66,7 @@ def generate_launch_description():
     )
     args.append(
         launch.actions.DeclareLaunchArgument(
-            name="launch_rviz",
-            default_value="false",
-            description="Launch RViz?"
+            name="launch_rviz", default_value="false", description="Launch RViz?"
         )
     )
 
