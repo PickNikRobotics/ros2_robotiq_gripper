@@ -60,6 +60,9 @@ public:
   ROBOTIQ_DRIVER_PUBLIC
   RobotiqGripperHardwareInterface();
 
+  ROBOTIQ_DRIVER_PUBLIC
+  ~RobotiqGripperHardwareInterface();
+
   /**
    * Constructor with a driver factory. This method is used for testing.
    * @param driver_factory The driver that interact with the hardware.
@@ -135,6 +138,7 @@ private:
   // We use a thread to read/write to the driver so that we dont block the hardware_interface read/write.
   std::thread communication_thread_;
   std::atomic<bool> communication_thread_is_running_;
+  void background_task();
 
   double gripper_closed_pos_;
 

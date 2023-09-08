@@ -40,17 +40,28 @@
 
 #include <rclcpp/rclcpp.hpp>
 
+const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
+
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
 constexpr uint8_t kGripperRange = kGripperMaxPos - kGripperMinPos;
 
-const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
+constexpr auto kGripperCommsLoopPeriod = std::chrono::milliseconds{ 10 };
 
 namespace robotiq_driver
 {
 RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface()
 {
   driver_factory_ = std::make_unique<DefaultDriverFactory>();
+}
+
+RobotiqGripperHardwareInterface::~RobotiqGripperHardwareInterface()
+{
+  communication_thread_is_running_.store(false);
+  if (communication_thread_.joinable())
+  {
+    communication_thread_.join();
+  }
 }
 
 // This constructor is use for testing only.
@@ -202,56 +213,17 @@ RobotiqGripperHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*pr
   {
     driver_->deactivate();
     driver_->activate();
+
+    communication_thread_is_running_.store(true);
+    communication_thread_ = std::thread([this] { this->background_task(); });
   }
   catch (const std::exception& e)
   {
-    RCLCPP_FATAL(kLogger, "Failed to communicate with Gripper. Check Gripper connection.");
+    RCLCPP_FATAL(kLogger, "Failed to communicate with the Robotiq gripper: %s", e.what());
     return CallbackReturn::ERROR;
   }
 
   RCLCPP_INFO(kLogger, "Robotiq Gripper successfully activated!");
-
-  communication_thread_is_running_.store(true);
-
-  communication_thread_ = std::thread([this] {
-    // Read from and write to the gripper at 100 Hz.
-    const auto io_interval = std::chrono::milliseconds(10);
-    auto last_io = std::chrono::high_resolution_clock::now();
-
-    while (communication_thread_is_running_.load())
-    {
-      const auto now = std::chrono::high_resolution_clock::now();
-      if (now - last_io > io_interval)
-      {
-        try
-        {
-          // Re-activate the gripper
-          // (this can be used, for example, to re-run the auto-calibration).
-          if (reactivate_gripper_async_cmd_.load())
-          {
-            this->driver_->deactivate();
-            this->driver_->activate();
-            reactivate_gripper_async_cmd_.store(false);
-            reactivate_gripper_async_response_.store(true);
-          }
-
-          // Write the latest command to the gripper.
-          this->driver_->set_gripper_position(write_command_.load());
-
-          // Read the state of the gripper.
-          gripper_current_state_.store(this->driver_->get_gripper_position());
-
-          last_io = now;
-        }
-        catch (std::exception& e)
-        {
-          RCLCPP_ERROR(kLogger, "Check Robotiq Gripper connection and restart drivers. ERROR: %s", e.what());
-          communication_thread_is_running_.store(false);
-        }
-      }
-    }
-  });
-
   return CallbackReturn::SUCCESS;
 }
 
@@ -262,6 +234,10 @@ RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*
 
   communication_thread_is_running_.store(false);
   communication_thread_.join();
+  if (communication_thread_.joinable())
+  {
+    communication_thread_.join();
+  }
 
   try
   {
@@ -269,10 +245,10 @@ RobotiqGripperHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*
   }
   catch (const std::exception& e)
   {
-    RCLCPP_ERROR(kLogger, "Failed to deactivate gripper. Check Gripper connection");
+    RCLCPP_ERROR(kLogger, "Failed to deactivate the Robotiq gripper: %s", e.what());
     return CallbackReturn::ERROR;
   }
-
+  RCLCPP_INFO(kLogger, "Robotiq Gripper successfully deactivated!");
   return CallbackReturn::SUCCESS;
 }
 
@@ -305,6 +281,37 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write(const rcl
   write_command_.store(uint8_t(gripper_pos));
 
   return hardware_interface::return_type::OK;
+}
+
+void RobotiqGripperHardwareInterface::background_task()
+{
+  while (communication_thread_is_running_.load())
+  {
+    try
+    {
+      // Re-activate the gripper
+      // (this can be used, for example, to re-run the auto-calibration).
+      if (reactivate_gripper_async_cmd_.load())
+      {
+        this->driver_->deactivate();
+        this->driver_->activate();
+        reactivate_gripper_async_cmd_.store(false);
+        reactivate_gripper_async_response_.store(true);
+      }
+
+      // Write the latest command to the gripper.
+      this->driver_->set_gripper_position(write_command_.load());
+
+      // Read the state of the gripper.
+      gripper_current_state_.store(this->driver_->get_gripper_position());
+    }
+    catch (std::exception& e)
+    {
+      RCLCPP_ERROR(kLogger, "Error: %s", e.what());
+    }
+
+    std::this_thread::sleep_for(kGripperCommsLoopPeriod);
+  }
 }
 
 }  // namespace robotiq_driver

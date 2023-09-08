@@ -90,24 +90,18 @@ public:
   void set_force(uint8_t force) override;
 
 private:
+  /**
+   * With this command we send a request and wait for a response of given size.
+   * Behind the scene, if the response is not received, the software makes an attempt
+   * to resend the command up to 5 times before returning an empty response.
+   * @param request The command request.
+   * @param response_size The response expected size.
+   * @return The response or an empty vector if an en error occurred.
+   */
+  std::vector<uint8_t> send(const std::vector<uint8_t>& request, size_t response_size) const;
+
   std::vector<uint8_t> create_read_command(uint16_t first_register, uint8_t num_registers);
   std::vector<uint8_t> create_write_command(uint16_t first_register, const std::vector<uint16_t>& data);
-
-  /**
-   * @brief read response from the gripper.
-   *
-   * @param num_bytes Number of bytes to be read from device port.
-   * @throw serial::IOException on failure to successfully communicate with gripper port
-   */
-  std::vector<uint8_t> read_response(size_t num_bytes);
-
-  /**
-   * @brief Send a command to the gripper.
-   *
-   * @param cmd The command.
-   * @throw serial::IOException on failure to successfully communicate with gripper port
-   */
-  void send_command(const std::vector<uint8_t>& cmd);
 
   /**
    * @brief Read the current status of the gripper, and update member variables as appropriate.
