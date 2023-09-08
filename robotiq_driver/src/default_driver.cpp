@@ -138,23 +138,15 @@ void DefaultDriver::activate()
     throw DriverException{ "Failed to activate the gripper." };
   }
 
-  try
+  update_status();
+  if (gripper_status_ == GripperStatus::COMPLETED)
   {
-    update_status();
-    if (gripper_status_ == GripperStatus::COMPLETED)
-    {
-      return;
-    }
-
-    while (gripper_status_ == GripperStatus::IN_PROGRESS)
-    {
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      update_status();
-    }
+    return;
   }
-  catch (const std::exception& e)
+  while (gripper_status_ == GripperStatus::IN_PROGRESS)
   {
-    throw DriverException{ std::string{ "Failed to activate the gripper: " } + e.what() };
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    update_status();
   }
 }
 
@@ -190,29 +182,13 @@ void DefaultDriver::set_gripper_position(uint8_t pos)
 
 uint8_t DefaultDriver::get_gripper_position()
 {
-  try
-  {
-    update_status();
-  }
-  catch (const std::exception& e)
-  {
-    throw DriverException{ std::string{ "Failed to get gripper position: " } + e.what() };
-  }
-
+  update_status();
   return gripper_position_;
 }
 
 bool DefaultDriver::gripper_is_moving()
 {
-  try
-  {
-    update_status();
-  }
-  catch (const std::exception& e)
-  {
-    throw DriverException{ std::string{ "Failed to get gripper status: " } + e.what() };
-  }
-
+  update_status();
   return object_detection_status_ == ObjectDetectionStatus::MOVING;
 }
 
