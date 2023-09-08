@@ -9,7 +9,6 @@ on:
         default: "rolling"
         type: choice
         options:
-          - foxy
           - galactic
           - humble
           - iron
