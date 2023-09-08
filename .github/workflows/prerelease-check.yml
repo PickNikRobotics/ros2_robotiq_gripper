@@ -9,7 +9,6 @@ on:
         default: "rolling"
         type: choice
         options:
-          - galactic
           - humble
           - iron
           - rolling
