@@ -48,3 +48,14 @@ target_include_directories(test_default_driver_factory
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(test_default_driver_factory robotiq_driver)
+
+###############################################################################
+# test_crc_utils
+
+ament_add_gmock(test_crc_utils
+    test_crc_utils.cpp
+)
+target_include_directories(test_crc_utils
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}
+)
+target_link_libraries(test_crc_utils robotiq_driver)
