@@ -25,19 +25,34 @@
 // CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
-
 #include <gtest/gtest.h>
-#include <robotiq_driver/crc_utils.hpp>
+#include <robotiq_driver/data_utils.hpp>
 
 namespace robotiq_driver::test
 {
-TEST(TestCrcUtils, calculate_crc)
+TEST(TestDataUtils, uint8_t_to_hex)
 {
-  ASSERT_EQ(crc_utils::compute_crc({ 0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6 }), 0x97DA);
-  ASSERT_EQ(crc_utils::compute_crc({ 0xE2, 0x12, 0xF1, 0xFF, 0x00, 0xD2 }), 0x2D0B);
-  ASSERT_EQ(crc_utils::compute_crc({ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }), 0x0194);
-  ASSERT_EQ(crc_utils::compute_crc({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), 0x001B);
-  ASSERT_EQ(crc_utils::compute_crc({ 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 }), 0x374B);
-  ASSERT_EQ(crc_utils::compute_crc({ 0x80, 0x00, 0x00, 0x03 }), 0x69E5);
+  ASSERT_EQ(data_utils::to_hex(std::vector<uint8_t>{ 255, 121, 56, 33, 125, 60 }), "FF 79 38 21 7D 3C");
+}
+
+TEST(TestDataUtils, uint16_t_to_hex)
+{
+  ASSERT_EQ(data_utils::to_hex(std::vector<uint16_t>{ 1169, 58544, 14917, 42884, 36112, 16512, 33207, 62584, 30418 }),
+            "0491 E4B0 3A45 A784 8D10 4080 81B7 F478 76D2");
+}
+
+TEST(TestDataUtils, to_binary_string)
+{
+  ASSERT_EQ(data_utils::to_binary_string(155), "10011011");
+}
+
+TEST(TestDataUtils, get_msb)
+{
+  ASSERT_EQ(data_utils::get_msb(0x14A2), 0x14);
+}
+
+TEST(TestDataUtils, get_lsb)
+{
+  ASSERT_EQ(data_utils::get_lsb(0x14A2), 0xA2);
 }
 }  // namespace robotiq_driver::test

@@ -78,7 +78,7 @@ std::string to_hex(const std::vector<uint16_t>& bytes)
 
 std::string to_binary_string(const uint8_t byte)
 {
-  std::string result = "0x";
+  std::string result = "";
   for (int i = 7; i >= 0; --i)
   {
     result += ((byte >> i) & 1) ? '1' : '0';
