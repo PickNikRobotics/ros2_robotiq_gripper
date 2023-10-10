@@ -28,7 +28,7 @@
         <link name="${prefix}robotiq_85_base_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/robotiq_base.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/robotiq_base.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -46,7 +46,7 @@
         <link name="${prefix}robotiq_85_left_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/left_knuckle.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/left_knuckle.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -64,7 +64,7 @@
         <link name="${prefix}robotiq_85_right_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/right_knuckle.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/right_knuckle.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -82,7 +82,7 @@
         <link name="${prefix}robotiq_85_left_finger_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/left_finger.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/left_finger.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -100,7 +100,7 @@
         <link name="${prefix}robotiq_85_right_finger_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/right_finger.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/right_finger.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -118,7 +118,7 @@
         <link name="${prefix}robotiq_85_left_inner_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/left_inner_knuckle.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/left_inner_knuckle.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -136,7 +136,7 @@
         <link name="${prefix}robotiq_85_right_inner_knuckle_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/right_inner_knuckle.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/right_inner_knuckle.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -154,7 +154,7 @@
         <link name="${prefix}robotiq_85_left_finger_tip_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/left_finger_tip.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/left_finger_tip.dae" />
                 </geometry>
             </visual>
             <collision>
@@ -190,7 +190,7 @@
         <link name="${prefix}robotiq_85_right_finger_tip_link">
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find robotiq_description)/meshes/visual/right_finger_tip.dae" />
+                    <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_85/right_finger_tip.dae" />
                 </geometry>
             </visual>
             <collision>

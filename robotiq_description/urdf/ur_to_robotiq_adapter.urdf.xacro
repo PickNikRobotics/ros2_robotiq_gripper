@@ -13,7 +13,7 @@
         <visual>
           <origin xyz="0 0 0" rpy="0 0 0" />
           <geometry>
-            <mesh filename="package://robotiq_description/meshes/visual/ur_to_robotiq_adapter.dae"/>
+            <mesh filename="package://robotiq_description/meshes/visual/2f_85/ur_to_robotiq_adapter.dae"/>
           </geometry>
         </visual>
         <collision>
