@@ -25,6 +25,14 @@
                 com_port="${com_port}"/>
         </xacro:if>
 
+        <!-- this is a temporary link to rotate the 2f-140 gripper to match the 2f-85 -->
+        <link name="${prefix}robotiq_base_link"/>
+        <joint name="${prefix}robotiq_base_joint" type="fixed">
+          <parent link="${parent}" />
+          <child link="${prefix}robotiq_base_link" />
+          <origin xyz="0 0 0" rpy="0 0 ${pi/2}" />
+        </joint>
+
         <link name="${prefix}robotiq_140_base_link">
         <inertial>
           <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
@@ -48,7 +56,7 @@
         </collision>
       </link>
       <joint name="${prefix}robotiq_140_base_joint" type="fixed">
-          <parent link="${parent}" />
+          <parent link="${prefix}robotiq_base_link" />
           <child link="${prefix}robotiq_140_base_link" />
           <xacro:insert_block name="origin" />
       </joint>
