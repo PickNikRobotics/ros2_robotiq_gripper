@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_gripper">
+  <xacro:macro name="robotiq_gripper" params="
+        name
+        prefix
+        parent
+        *origin
+        sim_ignition:=false
+        sim_isaac:=false
+        use_fake_hardware:=false
+        fake_sensor_commands:=false
+        include_ros2_control:=true
+        com_port:=/dev/ttyUSB0">
+
+        <!-- ros2 control include -->
+        <xacro:include filename="$(find robotiq_description)/urdf/2f_140.ros2_control.xacro" />
+        <!-- if we are simulating or directly communicating with the gripper we need a ros2 control instance -->
+        <xacro:if value="${include_ros2_control}">
+            <xacro:robotiq_gripper_ros2_control
+                name="${name}" prefix="${prefix}"
+                sim_ignition="${sim_ignition}"
+                sim_isaac="${sim_isaac}"
+                use_fake_hardware="${use_fake_hardware}"
+                fake_sensor_commands="${fake_sensor_commands}"
+                com_port="${com_port}"/>
+        </xacro:if>
+
+        <link name="${prefix}robotiq_140_base_link">
+        <inertial>
+          <origin xyz="8.625E-08 -4.6583E-06 0.03145" rpy="0 0 0" />
+          <mass value="0.22652" />
+          <inertia ixx="0.00020005" ixy="-4.2442E-10" ixz="-2.9069E-10" iyy="0.00017832" iyz="-3.4402E-08" izz="0.00013478" />
+        </inertial>
+        <visual>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_140/robotiq_2f_140_base_link.stl" />
+          </geometry>
+          <material name="">
+            <color rgba="0.1 0.1 0.1 1" />
+          </material>
+        </visual>
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0" />
+          <geometry>
+            <mesh filename="file://$(find robotiq_description)/meshes/collision/2f_140/robotiq_2f_140_base_link.stl" />
+          </geometry>
+        </collision>
+      </link>
+      <joint name="${prefix}robotiq_140_base_joint" type="fixed">
+          <parent link="${parent}" />
+          <child link="${prefix}robotiq_140_base_link" />
+          <xacro:insert_block name="origin" />
+      </joint>
+
+      <!-- Include the finger xacros and run them -->
+      <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_140.xacro" />
+      <xacro:finger_links prefix="${prefix}" fingerprefix="left" stroke="140"/>
+      <xacro:finger_links prefix="${prefix}" fingerprefix="right" stroke="140"/>
+      <xacro:finger_joint prefix="${prefix}"/>
+      <xacro:right_outer_knuckle_joint prefix="${prefix}"/>
+    </xacro:macro>
+</robot>
