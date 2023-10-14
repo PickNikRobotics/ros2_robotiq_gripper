@@ -19,6 +19,7 @@
                     <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
                     <param name="joint_commands_topic">${isaac_joint_commands}</param>
                     <param name="joint_states_topic">${isaac_joint_states}</param>
+                    <param name="trigger_joint_command_threshold">0.02</param>
                 </xacro:if>
                 <xacro:if value="${sim_ignition}">
                     <plugin>ign_ros2_control/IgnitionSystem</plugin>
