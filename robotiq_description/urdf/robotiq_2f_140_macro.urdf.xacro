@@ -7,6 +7,8 @@
         *origin
         sim_ignition:=false
         sim_isaac:=false
+        isaac_joint_commands:=/isaac_joint_commands
+        isaac_joint_states:=/isaac_joint_states
         use_fake_hardware:=false
         fake_sensor_commands:=false
         include_ros2_control:=true
@@ -20,6 +22,8 @@
                 name="${name}" prefix="${prefix}"
                 sim_ignition="${sim_ignition}"
                 sim_isaac="${sim_isaac}"
+                isaac_joint_commands="${isaac_joint_commands}"
+                isaac_joint_states="${isaac_joint_states}"
                 use_fake_hardware="${use_fake_hardware}"
                 fake_sensor_commands="${fake_sensor_commands}"
                 com_port="${com_port}"/>

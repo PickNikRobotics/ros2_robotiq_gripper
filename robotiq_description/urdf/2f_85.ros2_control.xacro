@@ -6,6 +6,8 @@
         prefix
         sim_ignition:=false
         sim_isaac:=false
+        isaac_joint_commands:=/isaac_joint_commands
+        isaac_joint_states:=/isaac_joint_states
         use_fake_hardware:=false
         fake_sensor_commands:=false
         com_port:=/dev/ttyUSB0">
@@ -15,8 +17,8 @@
             <hardware>
                 <xacro:if value="${sim_isaac}">
                     <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
-                    <param name="joint_commands_topic">/isaac_joint_commands</param>
-                    <param name="joint_states_topic">/isaac_joint_states</param>
+                    <param name="joint_commands_topic">${isaac_joint_commands}</param>
+                    <param name="joint_states_topic">${isaac_joint_states}</param>
                 </xacro:if>
                 <xacro:if value="${sim_ignition}">
                     <plugin>ign_ros2_control/IgnitionSystem</plugin>
