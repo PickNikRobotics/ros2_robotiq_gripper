@@ -1,7 +1,7 @@
 # See https://docs.ros.org/en/foxy/How-To-Guides/Ament-CMake-Documentation.html
 
 cmake_minimum_required(VERSION 3.8)
-project(robotiq_hardware_tests VERSION 0.0.1 LANGUAGES CXX)
+project(robotiq_hardware_tests LANGUAGES CXX)
 
 # This module provides installation directories as per the GNU coding standards.
 include(GNUInstallDirs)
