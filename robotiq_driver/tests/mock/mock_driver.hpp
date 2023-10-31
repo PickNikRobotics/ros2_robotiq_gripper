@@ -28,37 +28,26 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <gmock/gmock.h>
 
-namespace robotiq_controllers
+#include <robotiq_driver/driver.hpp>
+
+#include <rclcpp/rclcpp.hpp>
+
+namespace robotiq_driver::test
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+class MockDriver : public robotiq_driver::Driver
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  MOCK_METHOD(bool, connect, (), (override));
+  MOCK_METHOD(void, disconnect, (), (override));
+  MOCK_METHOD(void, activate, (), (override));
+  MOCK_METHOD(void, deactivate, (), (override));
+  MOCK_METHOD(void, set_slave_address, (uint8_t slave_address), (override));
+  MOCK_METHOD(void, set_gripper_position, (uint8_t position), (override));
+  MOCK_METHOD(uint8_t, get_gripper_position, (), (override));
+  MOCK_METHOD(bool, gripper_is_moving, (), (override));
+  MOCK_METHOD(void, set_speed, (uint8_t speed), (override));
+  MOCK_METHOD(void, set_force, (uint8_t force), (override));
 };
-}  // namespace robotiq_controllers
+}  // namespace robotiq_driver::test

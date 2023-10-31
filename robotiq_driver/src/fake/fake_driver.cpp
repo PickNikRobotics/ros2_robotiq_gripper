@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,39 +26,70 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include <robotiq_driver/fake/fake_driver.hpp>
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <rclcpp/logging.hpp>
 
-namespace robotiq_controllers
+namespace robotiq_driver
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+const auto kLogger = rclcpp::get_logger("FakeDriver");
+
+void FakeDriver::set_slave_address(uint8_t slave_address)
 {
-public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  slave_address_ = slave_address;
+  RCLCPP_INFO(kLogger, "slave_address set to: %d", slave_address);
+}
 
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
+bool FakeDriver::connect()
+{
+  connected_ = true;
+  RCLCPP_INFO(kLogger, "Gripper connected.");
+  return true;
+}
 
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+void FakeDriver::disconnect()
+{
+  RCLCPP_INFO(kLogger, "Gripper disconnected.");
+  connected_ = false;
+}
 
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+void FakeDriver::activate()
+{
+  RCLCPP_INFO(kLogger, "Gripper activated.");
+  activated_ = true;
+}
 
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+void FakeDriver::deactivate()
+{
+  RCLCPP_INFO(kLogger, "Gripper deactivated.");
+  activated_ = false;
+}
 
-  CallbackReturn on_init() override;
+void FakeDriver::set_gripper_position(uint8_t position)
+{
+  position_ = position;
+}
 
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
+uint8_t FakeDriver::get_gripper_position()
+{
+  return position_;
+}
 
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
+bool FakeDriver::gripper_is_moving()
+{
+  return gripper_is_moving_;
+}
 
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
-};
-}  // namespace robotiq_controllers
+void FakeDriver::set_speed(uint8_t speed)
+{
+  RCLCPP_INFO(kLogger, "Set gripper speed.");
+  speed_ = speed;
+}
+
+void FakeDriver::set_force(uint8_t force)
+{
+  RCLCPP_INFO(kLogger, "Set gripper force.");
+  force_ = force;
+}
+
+}  // namespace robotiq_driver

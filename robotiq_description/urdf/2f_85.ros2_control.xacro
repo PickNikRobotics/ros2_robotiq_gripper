@@ -13,6 +13,10 @@
         <ros2_control name="${name}" type="system">
             <!-- Plugins -->
             <hardware>
+
+                <!-- Set use_dummy to true to connect to a dummy driver for testing purposes. -->
+                <param name="use_dummy">false</param>
+
                 <xacro:if value="${sim_isaac}">
                     <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
                     <param name="joint_commands_topic">/isaac_joint_commands</param>

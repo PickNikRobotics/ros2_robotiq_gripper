@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,49 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <serial/serial.h>
 
-namespace robotiq_controllers
+#include <memory>
+#include <string>
+#include <vector>
+
+#include <robotiq_driver/serial.hpp>
+
+namespace serial
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+class Serial;
+}
+
+namespace robotiq_driver
+{
+class DefaultSerial : public Serial
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  /**
+   * Creates a Serial object to send and receive bytes to and from the serial
+   * port.
+   */
+  DefaultSerial();
 
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
+  void open() override;
 
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
+  [[nodiscard]] bool is_open() const override;
 
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
+  void close() override;
 
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+  [[nodiscard]] std::vector<uint8_t> read(size_t size = 1) override;
+  void write(const std::vector<uint8_t>& data) override;
 
-  CallbackReturn on_init() override;
+  void set_port(const std::string& port) override;
+  [[nodiscard]] std::string get_port() const override;
+
+  void set_timeout(std::chrono::milliseconds timeout_ms) override;
+  [[nodiscard]] std::chrono::milliseconds get_timeout() const override;
+
+  void set_baudrate(uint32_t baudrate) override;
+  [[nodiscard]] uint32_t get_baudrate() const override;
 
 private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  std::unique_ptr<serial::Serial> serial_ = nullptr;
 };
-}  // namespace robotiq_controllers
+}  // namespace robotiq_driver

@@ -4,31 +4,27 @@ on:
   workflow_dispatch:
     inputs:
       ros_distro:
-        description: 'Chose ROS distribution'
+        description: "Chose ROS distribution"
         required: true
-        default: 'rolling'
+        default: "rolling"
         type: choice
         options:
-        - foxy
-        - galactic
-        - humble
-        - iron
-        - rolling
+          - humble
+          - iron
+          - rolling
       branch:
-        description: 'Chose branch for distro'
+        description: "Chose branch for distro"
         required: true
-        default: 'master'
+        default: "main"
         type: choice
         options:
-        - foxy
-        - galactic
-        - humble
-        - iron
-        - master
+          - humble
+          - iron
+          - master
 
 jobs:
   pre_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
         with:

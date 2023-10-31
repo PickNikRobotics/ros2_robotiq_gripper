@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,39 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <exception>
+#include <string>
+#include <sstream>
 
-namespace robotiq_controllers
+namespace robotiq_driver
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+/**
+ * This is a custom exception thrown by the Driver.
+ */
+class DriverException : public std::exception
 {
+  std::string what_;
+
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
+  explicit DriverException(const std::string& description)
   {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
+    std::stringstream ss;
+    ss << "DriverException: " << description << ".";
+    what_ = ss.str();
+  }
 
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  DriverException(const DriverException& other) : what_(other.what_)
+  {
+  }
+
+  ~DriverException() override = default;
+
+  // Disable copy constructors
+  DriverException& operator=(const DriverException&) = delete;
+
+  [[nodiscard]] const char* what() const throw() override
+  {
+    return what_.c_str();
+  }
 };
-}  // namespace robotiq_controllers
+}  // namespace robotiq_driver

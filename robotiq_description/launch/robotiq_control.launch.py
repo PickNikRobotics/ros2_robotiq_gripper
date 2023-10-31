@@ -33,6 +33,7 @@ from launch.substitutions import (
     LaunchConfiguration,
     PathJoinSubstitution,
 )
+from launch.conditions import IfCondition
 import launch_ros
 import os
 
@@ -48,10 +49,6 @@ def generate_launch_description():
         description_pkg_share, "rviz", "view_urdf.rviz"
     )
 
-    pkg_share = launch_ros.substitutions.FindPackageShare(
-        package="robotiq_driver"
-    ).find("robotiq_driver")
-
     args = []
     args.append(
         launch.actions.DeclareLaunchArgument(
@@ -65,6 +62,11 @@ def generate_launch_description():
             name="rvizconfig",
             default_value=default_rviz_config_path,
             description="Absolute path to rviz config file",
+        )
+    )
+    args.append(
+        launch.actions.DeclareLaunchArgument(
+            name="launch_rviz", default_value="false", description="Launch RViz?"
         )
     )
 
@@ -85,7 +87,7 @@ def generate_launch_description():
 
     update_rate_config_file = PathJoinSubstitution(
         [
-            pkg_share,
+            description_pkg_share,
             "config",
             "robotiq_update_rate.yaml",
         ]
@@ -93,7 +95,7 @@ def generate_launch_description():
 
     controllers_file = "robotiq_controllers.yaml"
     initial_joint_controllers = PathJoinSubstitution(
-        [pkg_share, "config", controllers_file]
+        [description_pkg_share, "config", controllers_file]
     )
 
     control_node = launch_ros.actions.Node(
@@ -118,6 +120,7 @@ def generate_launch_description():
         name="rviz2",
         output="log",
         arguments=["-d", LaunchConfiguration("rvizconfig")],
+        condition=IfCondition(LaunchConfiguration("launch_rviz")),
     )
 
     joint_state_broadcaster_spawner = launch_ros.actions.Node(

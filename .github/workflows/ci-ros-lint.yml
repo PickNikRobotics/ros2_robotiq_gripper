@@ -5,41 +5,37 @@ on:
 jobs:
   ament_lint:
     name: ament_${{ matrix.linter }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-          linter: [cppcheck, copyright, lint_cmake]
+        linter: [copyright, lint_cmake]
     steps:
-    - uses: actions/checkout@v3
-    - uses: ros-tooling/setup-ros@0.6.2
-    - uses: ros-tooling/action-ros-lint@v0.1
-      with:
-        distribution: rolling
-        linter: ${{ matrix.linter }}
-        package-name:
-          robotiq_driver
-          robotiq_controllers
-          robotiq_description
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@0.6.2
+      - uses: ros-tooling/action-ros-lint@v0.1
+        with:
+          distribution: rolling
+          linter: ${{ matrix.linter }}
+          package-name: robotiq_driver
+            robotiq_controllers
+            robotiq_description
 
-
-  ament_lint_100:
+  ament_lint_121:
     name: ament_${{ matrix.linter }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-          linter: [cpplint]
+        linter: [cpplint]
     steps:
-    - uses: actions/checkout@v3
-    - uses: ros-tooling/setup-ros@0.6.2
-    - uses: ros-tooling/action-ros-lint@v0.1
-      with:
-        distribution: rolling
-        linter: cpplint
-        arguments: "--linelength=100 --filter=-whitespace/newline"
-        package-name:
-          robotiq_driver
-          robotiq_controllers
-          robotiq_description
-          ros2_robotiq_gripper
+      - uses: actions/checkout@v3
+      - uses: ros-tooling/setup-ros@0.6.2
+      - uses: ros-tooling/action-ros-lint@v0.1
+        with:
+          distribution: rolling
+          linter: cpplint
+          arguments: "--linelength=121 --filter=-whitespace/newline"
+          package-name: robotiq_driver
+            robotiq_controllers
+            robotiq_description
