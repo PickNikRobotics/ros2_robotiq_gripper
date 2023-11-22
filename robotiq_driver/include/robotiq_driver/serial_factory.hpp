@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,28 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <memory>
 
-namespace robotiq_controllers
+#include <robotiq_driver/serial.hpp>
+
+#include <hardware_interface/hardware_info.hpp>
+
+namespace robotiq_driver
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+/**
+ * This factory is used to create and configure a Serial interface
+ * implementation that is used by the driver to interact with the hardware.
+ * A factory is used to keep the code cleaner but also to simplify testing.
+ * With a factory, we can test that the parameters read by the hardware
+ * interface are correctly parsed and passed down to the serial interface.
+ * A factory can also be mocked to return different implementation of the
+ * serial interface (or mocks) that do not require interaction with the real
+ * hardware.
+ */
+class SerialFactory
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  virtual std::unique_ptr<Serial> create(const hardware_interface::HardwareInfo& info) const = 0;
 };
-}  // namespace robotiq_controllers
+
+}  // namespace robotiq_driver

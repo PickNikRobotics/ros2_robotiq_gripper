@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,28 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <gmock/gmock.h>
 
-namespace robotiq_controllers
+#include <string>
+#include <vector>
+
+#include "robotiq_driver/serial.hpp"
+
+namespace robotiq_driver::test
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+class MockSerial : public robotiq_driver::Serial
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  MOCK_METHOD(void, open, (), (override));
+  MOCK_METHOD(bool, is_open, (), (override, const));
+  MOCK_METHOD(void, close, (), (override));
+  MOCK_METHOD(std::vector<uint8_t>, read, (size_t size), (override));
+  MOCK_METHOD(void, write, (const std::vector<uint8_t>& buffer), (override));
+  MOCK_METHOD(void, set_port, (const std::string& port), (override));
+  MOCK_METHOD(std::string, get_port, (), (override, const));
+  MOCK_METHOD(void, set_timeout, (std::chrono::milliseconds timeout), (override));
+  MOCK_METHOD(std::chrono::milliseconds, get_timeout, (), (override, const));
+  MOCK_METHOD(void, set_baudrate, (uint32_t baudrate), (override));
+  MOCK_METHOD(uint32_t, get_baudrate, (), (override, const));
 };
-}  // namespace robotiq_controllers
+}  // namespace robotiq_driver::test

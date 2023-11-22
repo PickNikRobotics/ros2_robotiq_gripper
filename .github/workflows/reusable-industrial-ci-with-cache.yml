@@ -6,51 +6,50 @@ on:
   workflow_call:
     inputs:
       ref_for_scheduled_build:
-        description: 'Reference on which the repo should be checkout for scheduled build. Usually is this name of a branch or a tag.'
-        default: ''
+        description: "Reference on which the repo should be checkout for scheduled build. Usually is this name of a branch or a tag."
+        default: ""
         required: false
         type: string
 
       upstream_workspace:
-        description: 'UPSTREAM_WORKSPACE variable for industrial_ci. Usually path to local .repos file.'
+        description: "UPSTREAM_WORKSPACE variable for industrial_ci. Usually path to local .repos file."
         required: true
         type: string
       ros_distro:
-        description: 'ROS_DISTRO variable for industrial_ci'
+        description: "ROS_DISTRO variable for industrial_ci"
         required: true
         type: string
       ros_repo:
         description: 'ROS_REPO to run for industrial_ci. Possible values: "main", "testing"'
-        default: 'main'
+        default: "main"
         required: false
         type: string
       os_code_name:
-        description: 'OS_CODE_NAME variable for industrial_ci'
-        default: ''
+        description: "OS_CODE_NAME variable for industrial_ci"
+        default: ""
         required: false
         type: string
       before_install_upstream_dependencies:
-        description: 'BEFORE_INSTALL_UPSTREAM_DEPENDENCIES variable for industrial_ci'
-        default: ''
+        description: "BEFORE_INSTALL_UPSTREAM_DEPENDENCIES variable for industrial_ci"
+        default: ""
         required: false
         type: string
 
       ccache_dir:
         description: 'Local path to store cache (from "github.workspace"). For standard industrial_ci configuration do not have to be changed'
-        default: '.ccache'
+        default: ".ccache"
         required: false
         type: string
       basedir:
         description: 'Local path to workspace base directory to cache (from "github.workspace"). For standard industrial_ci configuration do not have to be changed'
-        default: '.work'
+        default: ".work"
         required: false
         type: string
-
 
 jobs:
   reusable_industrial_ci_with_cache:
     name: ${{ inputs.ros_distro }} ${{ inputs.ros_repo }} ${{ inputs.os_code_name }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       CCACHE_DIR: ${{ github.workspace }}/${{ inputs.ccache_dir }}
       BASEDIR: ${{ github.workspace }}/${{ inputs.basedir }}
@@ -80,7 +79,7 @@ jobs:
           restore-keys: |
             ccache-${{ env.CACHE_PREFIX }}-${{ github.sha }}
             ccache-${{ env.CACHE_PREFIX }}
-      - uses: 'ros-industrial/industrial_ci@master'
+      - uses: "ros-industrial/industrial_ci@master"
         env:
           UPSTREAM_WORKSPACE: ${{ inputs.upstream_workspace }}
           ROS_DISTRO: ${{ inputs.ros_distro }}

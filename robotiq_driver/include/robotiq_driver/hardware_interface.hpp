@@ -34,14 +34,18 @@
 #include <string>
 #include <vector>
 
-#include "hardware_interface/handle.hpp"
-#include "hardware_interface/hardware_info.hpp"
-#include "hardware_interface/system_interface.hpp"
-#include "hardware_interface/types/hardware_interface_return_values.hpp"
-#include "rclcpp/macros.hpp"
-#include "rclcpp/rclcpp.hpp"
-#include "robotiq_driver/robotiq_gripper_interface.hpp"
-#include "robotiq_driver/visibility_control.h"
+#include <robotiq_driver/visibility_control.hpp>
+
+#include <robotiq_driver/driver.hpp>
+#include <robotiq_driver/driver_factory.hpp>
+
+#include <hardware_interface/handle.hpp>
+#include <hardware_interface/hardware_info.hpp>
+#include <hardware_interface/system_interface.hpp>
+#include <hardware_interface/types/hardware_interface_return_values.hpp>
+
+#include <rclcpp/macros.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 namespace robotiq_driver
 {
@@ -50,45 +54,100 @@ class RobotiqGripperHardwareInterface : public hardware_interface::SystemInterfa
 public:
   RCLCPP_SHARED_PTR_DEFINITIONS(RobotiqGripperHardwareInterface)
 
+  /**
+   * Default constructor.
+   */
   ROBOTIQ_DRIVER_PUBLIC
   RobotiqGripperHardwareInterface();
 
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_init(const hardware_interface::HardwareInfo & info) override;
+  ~RobotiqGripperHardwareInterface();
 
+  /**
+   * Constructor with a driver factory. This method is used for testing.
+   * @param driver_factory The driver that interact with the hardware.
+   */
+  explicit RobotiqGripperHardwareInterface(std::unique_ptr<DriverFactory> driver_factory);
+
+  /**
+   * Initialization of the hardware interface from data parsed from the
+   * robot's URDF.
+   * @param hardware_info Structure with data from URDF.
+   * @returns CallbackReturn::SUCCESS if required data are provided and can be
+   * parsed or CallbackReturn::ERROR if any error happens or data are missing.
+   */
+  ROBOTIQ_DRIVER_PUBLIC
+  CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
+
+  /**
+   * Connect to the hardware.
+   * @param previous_state The previous state.
+   * @returns CallbackReturn::SUCCESS if required data are provided and can be
+   * parsed or CallbackReturn::ERROR if any error happens or data are missing.
+   */
+  ROBOTIQ_DRIVER_PUBLIC
+  CallbackReturn on_configure(const rclcpp_lifecycle::State& previous_state) override;
+
+  /**
+   * This method exposes position and velocity of joints for reading.
+   */
   ROBOTIQ_DRIVER_PUBLIC
   std::vector<hardware_interface::StateInterface> export_state_interfaces() override;
 
+  /**
+   * This method exposes the joints targets for writing.
+   */
   ROBOTIQ_DRIVER_PUBLIC
   std::vector<hardware_interface::CommandInterface> export_command_interfaces() override;
 
+  /**
+   * This method is invoked when the hardware is connected.
+   * @param previous_state Unconfigured, Inactive, Active or Finalized.
+   * @returns CallbackReturn::SUCCESS or CallbackReturn::ERROR.
+   */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_activate(const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
 
+  /**
+   * This method is invoked when the hardware is disconnected.
+   * @param previous_state Unconfigured, Inactive, Active or Finalized.
+   * @returns CallbackReturn::SUCCESS or CallbackReturn::ERROR.
+   */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State & previous_state) override;
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
 
+  /**
+   * Read data from the hardware.
+   */
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type read(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
+  /**
+   * Write data to hardware.
+   */
   ROBOTIQ_DRIVER_PUBLIC
-  hardware_interface::return_type write(
-    const rclcpp::Time & time, const rclcpp::Duration & period) override;
+  hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
 private:
+  // Interface to send binary data to the hardware using the serial port.
+  std::unique_ptr<Driver> driver_;
+
+  // Factory to create the driver during the initialization step.
+  std::unique_ptr<DriverFactory> driver_factory_;
+
+  // We use a thread to read/write to the driver so that we dont block the hardware_interface read/write.
+  std::thread communication_thread_;
+  std::atomic<bool> communication_thread_is_running_;
+  void background_task();
+
+  double gripper_closed_pos_;
+
   static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
 
   double gripper_position_;
   double gripper_velocity_;
   double gripper_position_command_;
-  std::unique_ptr<RobotiqGripperInterface> gripper_interface_;
 
-  double gripper_closed_pos_;
-  std::string com_port_;
-
-  std::thread command_interface_;
-  std::atomic<bool> command_interface_is_running_;
   std::atomic<uint8_t> write_command_;
   std::atomic<uint8_t> gripper_current_state_;
 

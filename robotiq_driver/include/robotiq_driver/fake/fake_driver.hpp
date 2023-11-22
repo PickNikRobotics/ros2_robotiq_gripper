@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,43 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <robotiq_driver/driver.hpp>
 
-namespace robotiq_controllers
+namespace robotiq_driver
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+/**
+ * This is a fake driver that can be used for testing interactions with the
+ * hardware interface or the controller without being connected to the real
+ * hardware. At the moment the fake driver is very basic but it can be
+ * improved to behave as close as possible to the real hardware.
+ * To use this driver you have to enable the following parameter in your
+ * hardware interface configuration in the robot URDF.
+ *
+ * <!-- Set use_dummy to true to connect to a dummy driver. -->
+ * <param name="use_dummy">true</param>
+ */
+class FakeDriver : public Driver
 {
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
+  void set_slave_address(uint8_t slave_address) override;
+  bool connect() override;
+  void disconnect() override;
+  void activate() override;
+  void deactivate() override;
+  void set_gripper_position(uint8_t position) override;
+  uint8_t get_gripper_position() override;
+  bool gripper_is_moving() override;
+  void set_speed(uint8_t speed) override;
+  void set_force(uint8_t force) override;
 
 private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  uint8_t slave_address_ = 0x00;
+  bool connected_ = false;
+  bool activated_ = false;
+  uint8_t position_ = 0;
+  bool gripper_is_moving_ = false;
+  uint8_t speed_ = 0;
+  uint8_t force_ = 0;
 };
-}  // namespace robotiq_controllers
+
+}  // namespace robotiq_driver

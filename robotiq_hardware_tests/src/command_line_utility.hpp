@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,37 +28,46 @@
 
 #pragma once
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <functional>
+#include <map>
+#include <set>
+#include <string>
+#include <variant>
 
-namespace robotiq_controllers
+/**
+ *  Class to parse the command line.
+ */
+class CommandLineUtility
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
-{
+  using LambdaWithValue = std::function<void(const char*)>;
+  using LambdaWithoutValue = std::function<void()>;
+  using ParameterHandler = std::variant<LambdaWithValue, LambdaWithoutValue>;
+
 public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
+  /**
+   * Assign to each command parameter a lambda function to handle it.
+   * @param parameter The parameter to handle.
+   * @param handler The lambda function to handle the parameter value.
+   * @param isMandatory True if the parameter is mandatory, else otherwise.
+   */
+  void registerHandler(const std::string& parameter, ParameterHandler handler, bool isMandatory = false);
 
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
+  /**
+   * Parse the command line and read all parameters.
+   * @param argc The number of tokens in the command line.
+   * @param argv The list of tokens.
+   * @return True if the parsing is successful.
+   */
+  bool parse(int argc, char* argv[]);
 
 private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
+  // Map that associates a lambda function to each parameter to process the expected value.
+  std::map<std::string, ParameterHandler> handlers;
 
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
+  // Store all mandatory parameters.
+  std::set<std::string> mandatoryParams;
 
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+  // Store the parameters which are parsed in the command line. If a parameter is mandatory,
+  // but cannot be found in the received  parameters, then print an error.
+  std::set<std::string> receivedParams;
 };
-}  // namespace robotiq_controllers

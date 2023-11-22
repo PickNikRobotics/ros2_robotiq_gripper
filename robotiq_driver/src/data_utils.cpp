@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,39 +26,74 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include <array>
+#include <string>
+#include <vector>
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include <robotiq_driver/data_utils.hpp>
 
-namespace robotiq_controllers
+namespace robotiq_driver::data_utils
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
-{
-public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
+constexpr std::array<char, 16> vChars = {
+  '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
-}  // namespace robotiq_controllers
+
+std::string to_hex(const std::vector<uint8_t>& bytes)
+{
+  std::string hex;
+  for (auto it = std::begin(bytes); it != std::end(bytes); ++it)
+  {
+    if (it != bytes.begin())
+    {
+      hex += " ";
+    }
+    hex += "";
+    uint8_t ch = *it;
+    hex += vChars[((ch >> 4) & 0xF)];
+    hex += vChars[(ch & 0xF)];
+  }
+
+  return hex;
+}
+
+std::string to_hex(const std::vector<uint16_t>& bytes)
+{
+  std::string hex;
+  for (auto it = std::begin(bytes); it != std::end(bytes); ++it)
+  {
+    if (it != bytes.begin())
+    {
+      hex += " ";
+    }
+    hex += "";
+    uint16_t ch = *it;
+    hex += vChars[((ch >> 12) & 0xF)];
+    hex += vChars[((ch >> 8) & 0xF)];
+    hex += vChars[((ch >> 4) & 0xF)];
+    hex += vChars[(ch & 0xF)];
+  }
+
+  return hex;
+}
+
+std::string to_binary_string(const uint8_t byte)
+{
+  std::string result = "";
+  for (int i = 7; i >= 0; --i)
+  {
+    result += ((byte >> i) & 1) ? '1' : '0';
+  }
+  return result;
+}
+
+uint8_t get_msb(uint16_t value)
+{
+  return static_cast<uint8_t>(value >> 8) & 0xFF;
+}
+
+uint8_t get_lsb(uint16_t value)
+{
+  return static_cast<uint8_t>(value & 0xFF);
+}
+
+}  // namespace robotiq_driver::data_utils

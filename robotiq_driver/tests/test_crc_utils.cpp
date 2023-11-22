@@ -26,39 +26,18 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include <gtest/gtest.h>
+#include <robotiq_driver/crc_utils.hpp>
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
-
-namespace robotiq_controllers
+namespace robotiq_driver::test
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
+TEST(TestCrcUtils, calculate_crc)
 {
-public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
-  {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
-
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
-};
-}  // namespace robotiq_controllers
+  ASSERT_EQ(crc_utils::compute_crc({ 0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6 }), 0x97DA);
+  ASSERT_EQ(crc_utils::compute_crc({ 0xE2, 0x12, 0xF1, 0xFF, 0x00, 0xD2 }), 0x2D0B);
+  ASSERT_EQ(crc_utils::compute_crc({ 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF }), 0x0194);
+  ASSERT_EQ(crc_utils::compute_crc({ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }), 0x001B);
+  ASSERT_EQ(crc_utils::compute_crc({ 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39 }), 0x374B);
+  ASSERT_EQ(crc_utils::compute_crc({ 0x80, 0x00, 0x00, 0x03 }), 0x69E5);
+}
+}  // namespace robotiq_driver::test

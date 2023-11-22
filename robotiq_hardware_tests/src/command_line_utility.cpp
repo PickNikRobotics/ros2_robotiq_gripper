@@ -1,4 +1,4 @@
-// Copyright (c) 2022 PickNik, Inc.
+// Copyright (c) 2023 PickNik, Inc.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,39 +26,62 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include <iostream>
 
-#include "controller_interface/controller_interface.hpp"
-#include "std_srvs/srv/trigger.hpp"
+#include "command_line_utility.hpp"
 
-namespace robotiq_controllers
+void CommandLineUtility::registerHandler(const std::string& parameter, ParameterHandler handler, bool isMandatory)
 {
-class RobotiqActivationController : public controller_interface::ControllerInterface
-{
-public:
-  controller_interface::InterfaceConfiguration command_interface_configuration() const override;
-
-  controller_interface::InterfaceConfiguration state_interface_configuration() const override;
-
-  controller_interface::return_type update(const rclcpp::Time& time, const rclcpp::Duration& period) override;
-
-  CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
-
-  CallbackReturn on_init() override;
-
-private:
-  bool reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr req,
-                         std_srvs::srv::Trigger::Response::SharedPtr resp);
-
-  static constexpr double ASYNC_WAITING = 2.0;
-  enum CommandInterfaces
+  handlers[parameter] = handler;
+  if (isMandatory)
   {
-    REACTIVATE_GRIPPER_CMD,
-    REACTIVATE_GRIPPER_RESPONSE
-  };
+    mandatoryParams.insert(parameter);
+  }
+}
 
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr reactivate_gripper_srv_;
-};
-}  // namespace robotiq_controllers
+bool CommandLineUtility::parse(int argc, char* argv[])
+{
+  for (int i = 1; i < argc; i++)
+  {
+    auto it = handlers.find(argv[i]);
+    if (it != handlers.end())
+    {
+      receivedParams.insert(it->first);
+
+      if (std::holds_alternative<LambdaWithValue>(it->second))
+      {
+        auto& handler = std::get<LambdaWithValue>(it->second);
+        i++;
+        if (i < argc)
+        {
+          handler(argv[i]);
+        }
+        else
+        {
+          std::cerr << it->first << " requires a value.\n";
+        }
+      }
+      else if (std::holds_alternative<LambdaWithoutValue>(it->second))
+      {
+        auto& handler = std::get<LambdaWithoutValue>(it->second);
+        handler();
+      }
+    }
+    else
+    {
+      std::cerr << "Unknown argument: " << argv[i] << "\n";
+      return false;
+    }
+  }
+
+  for (const auto& param : mandatoryParams)
+  {
+    if (receivedParams.find(param) == receivedParams.end())
+    {
+      std::cerr << "Missing mandatory argument: " << param << "\n";
+      return false;
+    }
+  }
+
+  return true;
+}
