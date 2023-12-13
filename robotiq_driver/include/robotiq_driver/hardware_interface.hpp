@@ -128,7 +128,7 @@ public:
   ROBOTIQ_DRIVER_PUBLIC
   hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
-private:
+protected:
   // Interface to send binary data to the hardware using the serial port.
   std::unique_ptr<Driver> driver_;
 
