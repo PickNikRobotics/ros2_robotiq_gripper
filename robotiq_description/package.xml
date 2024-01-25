@@ -6,8 +6,8 @@
   <description>URDF and xacro description package for the Robotiq gripper.</description>
   <author>Cory Crean</author>
   <maintainer email="alex.moriarty@picknik.ai">Alex Moriarty</maintainer>
-  <maintainer email="marq.rasmussen@picknik.ai">Marq Rasumessen</maintainer>
-  <license>BSD</license>
+  <maintainer email="marq.rasmussen@picknik.ai">Marq Rasmussen</maintainer>
+  <license>BSD 3-Clause</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
