@@ -149,11 +149,15 @@ protected:
   double gripper_position_command_;
 
   std::atomic<uint8_t> write_command_;
+  std::atomic<uint8_t> write_force_multiplier_;
+  std::atomic<uint8_t> write_speed_multiplier_;
   std::atomic<uint8_t> gripper_current_state_;
 
   double reactivate_gripper_cmd_;
   std::atomic<bool> reactivate_gripper_async_cmd_;
   double reactivate_gripper_response_;
+  double gripper_force_multiplier_;
+  double gripper_speed_multiplier_;
   std::atomic<std::optional<bool>> reactivate_gripper_async_response_;
 };
 
