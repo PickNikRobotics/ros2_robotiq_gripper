@@ -189,16 +189,16 @@ std::vector<hardware_interface::CommandInterface> RobotiqGripperHardwareInterfac
       info_.joints[0].name, hardware_interface::HW_IF_POSITION, &gripper_position_command_));
 
   command_interfaces.emplace_back(
-      hardware_interface::CommandInterface("multipliers", "gripper_speed_multiplier", &gripper_speed_multiplier_));
-  gripper_speed_multiplier_ = info_.hardware_parameters.count("gripper_speed_multiplier") ?
-                                  info_.hardware_parameters.count("gripper_speed_multiplier") :
-                                  1.0;
+      hardware_interface::CommandInterface(info_.joints[0].name, "gripper_speed", &gripper_speed_));
+  gripper_speed_ = info_.hardware_parameters.count("gripper_speed_multiplier") ?
+                       info_.hardware_parameters.count("gripper_speed_multiplier") :
+                       1.0;
 
   command_interfaces.emplace_back(
-      hardware_interface::CommandInterface("multipliers", "gripper_force_multiplier", &gripper_force_multiplier_));
-  gripper_force_multiplier_ = info_.hardware_parameters.count("gripper_force_multiplier") ?
-                                  info_.hardware_parameters.count("gripper_force_multiplier") :
-                                  1.0;
+      hardware_interface::CommandInterface(info_.joints[0].name, "gripper_effort", &gripper_force_));
+  gripper_force_ = info_.hardware_parameters.count("gripper_force_multiplier") ?
+                       info_.hardware_parameters.count("gripper_force_multiplier") :
+                       1.0;
 
   command_interfaces.emplace_back(
       hardware_interface::CommandInterface("reactivate_gripper", "reactivate_gripper_cmd", &reactivate_gripper_cmd_));
@@ -292,10 +292,9 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write(const rcl
   double gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * kGripperRange + kGripperMinPos;
   gripper_pos = std::max(std::min(gripper_pos, 255.0), 0.0);
   write_command_.store(uint8_t(gripper_pos));
-  gripper_speed_multiplier_ = std::clamp(gripper_speed_multiplier_, 0.0, 1.0);
-  write_speed_multiplier_.store(uint8_t(gripper_speed_multiplier_ * 0xFF));
-  gripper_force_multiplier_ = std::clamp(gripper_force_multiplier_, 0.0, 1.0);
-  write_force_multiplier_.store(uint8_t(gripper_force_multiplier_ * 0xFF));
+  // TODO these values do not have the correct units
+  write_speed_multiplier_.store(uint8_t(gripper_speed_ * 0xFF));
+  write_force_multiplier_.store(uint8_t(gripper_force_ * 0xFF));
 
   return hardware_interface::return_type::OK;
 }
@@ -319,7 +318,7 @@ void RobotiqGripperHardwareInterface::background_task()
       // Write the latest command to the gripper.
       this->driver_->set_gripper_position(write_command_.load());
       this->driver_->set_speed(write_speed_multiplier_.load());
-      this->driver_->set_force(write_force_multiplier_);
+      this->driver_->set_force(write_force_multiplier_.load());
 
       // Read the state of the gripper.
       gripper_current_state_.store(this->driver_->get_gripper_position());

@@ -156,8 +156,8 @@ protected:
   double reactivate_gripper_cmd_;
   std::atomic<bool> reactivate_gripper_async_cmd_;
   double reactivate_gripper_response_;
-  double gripper_force_multiplier_;
-  double gripper_speed_multiplier_;
+  double gripper_force_;
+  double gripper_speed_;
   std::atomic<std::optional<bool>> reactivate_gripper_async_response_;
 };
 
