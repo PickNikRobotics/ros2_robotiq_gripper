@@ -149,8 +149,8 @@ protected:
   double gripper_position_command_;
 
   std::atomic<uint8_t> write_command_;
-  std::atomic<uint8_t> write_force_multiplier_;
-  std::atomic<uint8_t> write_speed_multiplier_;
+  std::atomic<uint8_t> write_force_;
+  std::atomic<uint8_t> write_speed_;
   std::atomic<uint8_t> gripper_current_state_;
 
   double reactivate_gripper_cmd_;
