@@ -44,8 +44,8 @@ const auto kLogger = rclcpp::get_logger("RobotiqGripperHardwareInterface");
 
 constexpr uint8_t kGripperMinPos = 3;
 constexpr uint8_t kGripperMaxPos = 230;
-constexpr double kGripperMaxSpeed = 0.150; //mm/s
-constexpr double kGripperMaxforce = 235; // N
+constexpr double kGripperMaxSpeed = 0.150;  // mm/s
+constexpr double kGripperMaxforce = 235;    // N
 constexpr uint8_t kGripperRange = kGripperMaxPos - kGripperMinPos;
 
 constexpr auto kGripperCommsLoopPeriod = std::chrono::milliseconds{ 10 };
@@ -294,9 +294,9 @@ hardware_interface::return_type RobotiqGripperHardwareInterface::write(const rcl
   double gripper_pos = (gripper_position_command_ / gripper_closed_pos_) * kGripperRange + kGripperMinPos;
   gripper_pos = std::max(std::min(gripper_pos, 255.0), 0.0);
   write_command_.store(uint8_t(gripper_pos));
-  gripper_speed_ = kGripperMaxSpeed*std::clamp(fabs(gripper_speed_)/kGripperMaxSpeed, 0.0, 1.0);
+  gripper_speed_ = kGripperMaxSpeed * std::clamp(fabs(gripper_speed_) / kGripperMaxSpeed, 0.0, 1.0);
   write_speed_.store(uint8_t(gripper_speed_ * 0xFF));
-  gripper_force_ = kGripperMaxforce*std::clamp(fabs(gripper_force_)/kGripperMaxforce, 0.0, 1.0);
+  gripper_force_ = kGripperMaxforce * std::clamp(fabs(gripper_force_) / kGripperMaxforce, 0.0, 1.0);
   write_force_.store(uint8_t(gripper_force_ * 0xFF));
 
   return hardware_interface::return_type::OK;
