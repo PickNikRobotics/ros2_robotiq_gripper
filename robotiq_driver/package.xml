@@ -5,8 +5,8 @@
   <version>0.0.1</version>
   <description>ROS2 driver package for the Robotiq gripper.</description>
   <maintainer email="alex.moriarty@picknik.ai">Alex Moriarty</maintainer>
-  <maintainer email="marq.rasmussen@picknik.ai">Marq Rasumessen</maintainer>
-  <license>BSD</license>
+  <maintainer email="marq.rasmussen@picknik.ai">Marq Rasmussen</maintainer>
+  <license>BSD 3-Clause</license>
   <author>Cory Crean</author>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
