@@ -191,13 +191,13 @@ std::vector<hardware_interface::CommandInterface> RobotiqGripperHardwareInterfac
       info_.joints[0].name, hardware_interface::HW_IF_POSITION, &gripper_position_command_));
 
   command_interfaces.emplace_back(
-      hardware_interface::CommandInterface(info_.joints[0].name, "gripper_speed", &gripper_speed_));
+      hardware_interface::CommandInterface(info_.joints[0].name, "set_gripper_max_velocity", &gripper_speed_));
   gripper_speed_ = info_.hardware_parameters.count("gripper_speed_multiplier") ?
                        info_.hardware_parameters.count("gripper_speed_multiplier") :
                        1.0;
 
   command_interfaces.emplace_back(
-      hardware_interface::CommandInterface(info_.joints[0].name, "gripper_effort", &gripper_force_));
+      hardware_interface::CommandInterface(info_.joints[0].name, "set_gripper_max_effort", &gripper_force_));
   gripper_force_ = info_.hardware_parameters.count("gripper_force_multiplier") ?
                        info_.hardware_parameters.count("gripper_force_multiplier") :
                        1.0;
