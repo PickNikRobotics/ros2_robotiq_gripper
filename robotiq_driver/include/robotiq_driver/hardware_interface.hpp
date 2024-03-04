@@ -140,24 +140,24 @@ protected:
   std::atomic<bool> communication_thread_is_running_;
   void background_task();
 
-  double gripper_closed_pos_;
+  double gripper_closed_pos_ = 0.0;
 
   static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
 
-  double gripper_position_;
-  double gripper_velocity_;
-  double gripper_position_command_;
+  double gripper_position_ = 0.0;
+  double gripper_velocity_ = 0.0;
+  double gripper_position_command_ = 0.0;
 
   std::atomic<uint8_t> write_command_;
   std::atomic<uint8_t> write_force_;
   std::atomic<uint8_t> write_speed_;
   std::atomic<uint8_t> gripper_current_state_;
 
-  double reactivate_gripper_cmd_;
+  double reactivate_gripper_cmd_ = 0.0;
   std::atomic<bool> reactivate_gripper_async_cmd_;
-  double reactivate_gripper_response_;
-  double gripper_force_;
-  double gripper_speed_;
+  double reactivate_gripper_response_ = 0.0;
+  double gripper_force_ = 0.0;
+  double gripper_speed_ = 0.0;
   std::atomic<std::optional<bool>> reactivate_gripper_async_response_;
 };
 
