@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
-  <xacro:macro name="ur_to_robotiq" params="prefix connected_to rotation:=^|${0.0}">
+  <xacro:macro name="ur_to_robotiq" params="prefix parent child rotation:=^|${0.0}">
 
     <joint name="${prefix}ur_to_robotiq_joint" type="fixed">
       <!-- The parent link must be read from the robot model it is attached to. -->
-      <parent link="${connected_to}"/>
+      <parent link="${parent}"/>
       <child link="${prefix}ur_to_robotiq_link"/>
       <origin xyz="0 0 0" rpy="0 0 ${rotation}"/>
     </joint>
@@ -31,11 +31,11 @@
 
     <joint name="${prefix}gripper_side_joint" type="fixed">
       <parent link="${prefix}ur_to_robotiq_link"/>
-      <child link="${prefix}gripper_mount_link"/>
+      <child link="${child}"/>
       <!-- <origin xyz="0 0 0.011" rpy="0 ${-pi/2} ${pi/2}"/> -->
       <origin xyz="0 0 0.011" rpy="0 0 0"/>
     </joint>
-    <link name="${prefix}gripper_mount_link"/>
+    <link name="${child}"/>
 
   </xacro:macro>
 </robot>
