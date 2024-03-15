@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="robotiq_2f_85_gripper">
+
+  <xacro:arg name="prefix" default="" />
+  <xacro:arg name="description_package" default="robotiq_description" />
+
+  <xacro:property name="description_package" value="$(arg description_package)"/>
+  
+  <xacro:include filename="$(find ${description_package})/srdf/robotiq_2f_85_macro.srdf.xacro"/>
+  <xacro:robotiq_2f_85_srdf prefix="$(arg prefix)"/>
+
+</robot>

@@ -15,6 +15,7 @@ install(
     meshes
     rviz
     urdf
+    srdf
   DESTINATION
     share/${PROJECT_NAME}
 )
