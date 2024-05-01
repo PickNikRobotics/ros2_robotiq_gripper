@@ -33,4 +33,11 @@ add_executable(full_test
 )
 ament_target_dependencies(full_test robotiq_driver)
 
+install(
+  TARGETS
+    full_test
+  DESTINATION
+    lib/${PROJECT_NAME}
+)
+
 ament_package()
