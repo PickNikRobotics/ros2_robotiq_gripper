@@ -36,7 +36,7 @@
 
 #include "command_line_utility.hpp"
 
-constexpr auto kComPort = "/dev/ttyUSB0";
+constexpr auto kComPort = "/tmp/ttyUR";
 constexpr auto kBaudRate = 115200;
 constexpr auto kTimeout = 1;
 constexpr auto kSlaveAddress = 0x09;
