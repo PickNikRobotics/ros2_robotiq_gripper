@@ -50,35 +50,30 @@
             <xacro:if value="${use_fake_hardware or sim_isaac or sim_gazebo}">
                 <joint name="${prefix}left_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}left_inner_finger_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}right_outer_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}right_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}right_inner_finger_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>

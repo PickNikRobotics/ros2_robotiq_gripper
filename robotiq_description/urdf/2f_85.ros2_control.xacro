@@ -55,35 +55,30 @@
             <xacro:if value="${use_fake_hardware or sim_isaac or sim_gazebo}">
                 <joint name="${prefix}robotiq_85_right_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_left_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_right_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_left_finger_tip_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
                 <joint name="${prefix}robotiq_85_right_finger_tip_joint">
                     <xacro:unless value="${sim_gazebo}">
-                        <command_interface name="position"/>
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
