@@ -42,9 +42,6 @@
 #include <lifecycle_msgs/msg/state.hpp>
 #include <rclcpp_lifecycle/state.hpp>
 
-#include <ros2_control_test_assets/components_urdfs.hpp>
-#include <ros2_control_test_assets/descriptions.hpp>
-
 namespace robotiq_driver::test
 {
 
@@ -54,27 +51,38 @@ namespace robotiq_driver::test
  */
 TEST(TestRobotiqGripperHardwareInterface, load_urdf)
 {
-  std::string urdf_control_ =
+  std::string urdf =
       R"(
-         <ros2_control name="robotiq_driver_ros2_control" type="system">
-           <hardware>
-             <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-             <param name="gripper_speed_multiplier">1.0</param>
-             <param name="gripper_force_multiplier">0.5</param>
-             <param name="COM_port">/dev/ttyUSB0</param>
-             <param name="gripper_closed_position">0.7929</param>
-           </hardware>
-           <joint name="robotiq_85_left_knuckle_joint">
-             <command_interface name="position" />
-             <state_interface name="position">
-               <param name="initial_value">0.7929</param>
-             </state_interface>
-             <state_interface name="velocity"/>
-           </joint>
-         </ros2_control>
-       )";
+        <?xml version="1.0" encoding="utf-8"?>
+        <robot name="test_robot">
+          <link name="robotiq_85_base_link"/>
+          <link name="robotiq_85_left_knuckle_link"/>
+          <joint name="robotiq_85_left_knuckle_joint" type="revolute">
+            <parent link="robotiq_85_base_link" />
+            <child link="robotiq_85_left_knuckle_link" />
+            <axis xyz="0 -1 0" />
+            <origin xyz="0.03060114 0.0 0.05490452" rpy="0 0 0" />
+            <limit lower="0.0" upper="0.8" velocity="0.5" effort="50" />
+          </joint>
+          <ros2_control name="robotiq_driver_ros2_control" type="system">
+            <hardware>
+              <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
+              <param name="gripper_speed_multiplier">1.0</param>
+              <param name="gripper_force_multiplier">0.5</param>
+              <param name="COM_port">/dev/ttyUSB0</param>
+              <param name="gripper_closed_position">0.7929</param>
+            </hardware>
+            <joint name="robotiq_85_left_knuckle_joint">
+              <command_interface name="position" />
+              <state_interface name="position">
+                <param name="initial_value">0.7929</param>
+              </state_interface>
+              <state_interface name="velocity"/>
+            </joint>
+          </ros2_control>
+        </robot>
+        )";
 
-  auto urdf = ros2_control_test_assets::urdf_head + urdf_control_ + ros2_control_test_assets::urdf_tail;
   hardware_interface::ResourceManager rm(urdf);
 
   // Check interfaces
