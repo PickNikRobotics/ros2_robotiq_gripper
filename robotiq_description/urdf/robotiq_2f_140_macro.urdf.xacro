@@ -12,7 +12,12 @@
         use_fake_hardware:=false
         fake_sensor_commands:=false
         include_ros2_control:=true
-        com_port:=/dev/ttyUSB0">
+        com_port:=/dev/ttyUSB0
+        gripper_speed:=0.150
+        gripper_force:=235.0
+        gripper_max_speed:=0.150
+        gripper_max_force:=235.0
+        gripper_closed_position:=0.695">
 
         <!-- ros2 control include -->
         <xacro:include filename="$(find robotiq_description)/urdf/2f_140.ros2_control.xacro" />
@@ -26,7 +31,12 @@
                 isaac_joint_states="${isaac_joint_states}"
                 use_fake_hardware="${use_fake_hardware}"
                 fake_sensor_commands="${fake_sensor_commands}"
-                com_port="${com_port}"/>
+                com_port="${com_port}"
+                gripper_speed="${gripper_speed}"
+                gripper_force="${gripper_force}"
+                gripper_max_speed="${gripper_max_speed}"
+                gripper_max_force="${gripper_max_force}"
+                gripper_closed_position="${gripper_closed_position}"/>
         </xacro:if>
 
         <!-- this is a temporary link to rotate the 2f-140 gripper to match the 2f-85 -->

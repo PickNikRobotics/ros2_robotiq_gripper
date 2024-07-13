@@ -86,8 +86,8 @@ TEST(TestDefaultDriverFactory, create_with_given_parameters)
   hardware_interface::HardwareInfo info;
 
   info.hardware_parameters.emplace("slave_address", "1");
-  info.hardware_parameters.emplace("gripper_speed_multiplier", "0.5");
-  info.hardware_parameters.emplace("gripper_force_multiplier", "0.5");
+  info.hardware_parameters.emplace("gripper_speed", "0.5");
+  info.hardware_parameters.emplace("gripper_force", "0.5");
 
   auto driver = std::make_unique<MockDriver>();
 

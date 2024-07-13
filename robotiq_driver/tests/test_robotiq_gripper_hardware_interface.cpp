@@ -59,8 +59,8 @@ TEST(TestRobotiqGripperHardwareInterface, load_urdf)
          <ros2_control name="robotiq_driver_ros2_control" type="system">
            <hardware>
              <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-             <param name="gripper_speed_multiplier">1.0</param>
-             <param name="gripper_force_multiplier">0.5</param>
+             <param name="gripper_speed">1.0</param>
+             <param name="gripper_force">0.5</param>
              <param name="COM_port">/dev/ttyUSB0</param>
              <param name="gripper_closed_position">0.7929</param>
            </hardware>
