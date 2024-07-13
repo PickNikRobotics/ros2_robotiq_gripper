@@ -43,10 +43,10 @@ const auto kLogger = rclcpp::get_logger("DefaultDriverFactory");
 constexpr auto kSlaveAddressParamName = "slave_address";
 constexpr uint8_t kSlaveAddressParamDefault = 0x09;
 
-constexpr auto kGripperSpeedMultiplierParamName = "gripper_speed_multiplier";
+constexpr auto kGripperSpeedMultiplierParamName = "gripper_speed";
 constexpr double kGripperSpeedMultiplierParamDefault = 1.0;
 
-constexpr auto kGripperForceMultiplierParamName = "gripper_force_multiplier";
+constexpr auto kGripperForceMultiplierParamName = "gripper_force";
 constexpr double kGripperForceMultiplierParamDefault = 1.0;
 
 constexpr auto kUseDummyParamName = "use_dummy";
