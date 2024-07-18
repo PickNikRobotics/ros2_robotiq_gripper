@@ -26,22 +26,11 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <chrono>
-
-#include <robotiq_driver/default_driver_factory.hpp>
-#include <robotiq_driver/hardware_interface.hpp>
-
-#include <hardware_interface/loaned_command_interface.hpp>
-#include <hardware_interface/loaned_state_interface.hpp>
 #include <hardware_interface/resource_manager.hpp>
-#include <hardware_interface/types/lifecycle_state_names.hpp>
 
-#include <lifecycle_msgs/msg/state.hpp>
 #include <rclcpp/node.hpp>
-#include <rclcpp_lifecycle/state.hpp>
 
 namespace robotiq_driver::test
 {
