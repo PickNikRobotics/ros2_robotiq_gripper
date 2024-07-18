@@ -40,6 +40,7 @@
 #include <hardware_interface/types/lifecycle_state_names.hpp>
 
 #include <lifecycle_msgs/msg/state.hpp>
+#include <rclcpp/node.hpp>
 #include <rclcpp_lifecycle/state.hpp>
 
 namespace robotiq_driver::test
@@ -83,10 +84,20 @@ TEST(TestRobotiqGripperHardwareInterface, load_urdf)
         </robot>
         )";
 
-  hardware_interface::ResourceManager rm(urdf);
+  rclcpp::Node node{ "test_robotiq_gripper_hardware_interface" };
+
+  // Initialize the resource manager
+  hardware_interface::ResourceManager rm(urdf, node.get_node_clock_interface(), node.get_node_logging_interface());
 
   // Check interfaces
   EXPECT_EQ(1u, rm.system_components_size());
 }
 
 }  // namespace robotiq_driver::test
+
+int main(int argc, char** argv)
+{
+  rclcpp::init(argc, argv);
+  testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
+}
