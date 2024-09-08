@@ -46,7 +46,7 @@
         <visual>
           <origin xyz="0 0 0" rpy="0 0 0" />
           <geometry>
-            <mesh filename="file://$(find robotiq_description)/meshes/visual/2f_140/robotiq_2f_140_base_link.stl" />
+            <mesh filename="package://robotiq_description/meshes/visual/2f_140/robotiq_2f_140_base_link.stl" />
           </geometry>
           <material name="">
             <color rgba="0.1 0.1 0.1 1" />
@@ -55,7 +55,7 @@
         <collision>
           <origin xyz="0 0 0" rpy="0 0 0" />
           <geometry>
-            <mesh filename="file://$(find robotiq_description)/meshes/collision/2f_140/robotiq_2f_140_base_link.stl" />
+            <mesh filename="package://robotiq_description/meshes/collision/2f_140/robotiq_2f_140_base_link.stl" />
           </geometry>
         </collision>
       </link>
