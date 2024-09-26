@@ -44,7 +44,7 @@
 
             <!-- Joint interfaces -->
             <!-- With Gazebo or Hardware, they handle mimic joints, so we only need this command interface activated -->
-            <joint name="${prefix}robotiq_85_left_knuckle_joint">
+            <joint name="${prefix}left_knuckle_joint">
                 <command_interface name="position" />
                 <state_interface name="position">
                     <param name="initial_value">0.7929</param>
@@ -53,31 +53,31 @@
             </joint>
             <!-- When simulating we need to include the rest of the gripper joints -->
             <xacro:if value="${use_fake_hardware or sim_isaac or sim_gazebo}">
-                <joint name="${prefix}robotiq_85_right_knuckle_joint">
+                <joint name="${prefix}right_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
-                <joint name="${prefix}robotiq_85_left_inner_knuckle_joint">
+                <joint name="${prefix}left_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
-                <joint name="${prefix}robotiq_85_right_inner_knuckle_joint">
+                <joint name="${prefix}right_inner_knuckle_joint">
                     <xacro:unless value="${sim_gazebo}">
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
-                <joint name="${prefix}robotiq_85_left_finger_tip_joint">
+                <joint name="${prefix}left_finger_tip_joint">
                     <xacro:unless value="${sim_gazebo}">
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>
                     </xacro:unless>
                 </joint>
-                <joint name="${prefix}robotiq_85_right_finger_tip_joint">
+                <joint name="${prefix}right_finger_tip_joint">
                     <xacro:unless value="${sim_gazebo}">
                         <state_interface name="position"/>
                         <state_interface name="velocity"/>

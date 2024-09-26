@@ -11,7 +11,7 @@ controller_manager:
 robotiq_gripper_controller:
   ros__parameters:
     default: true
-    joint: robotiq_85_left_knuckle_joint
+    joint: left_knuckle_joint
     use_effort_interface: true
     use_speed_interface: true
 
