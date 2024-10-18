@@ -1,5 +1,0 @@
-repositories:
-  serial:
-    type: git
-    url: https://github.com/tylerjw/serial.git
-    version: ros2
