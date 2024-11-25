@@ -3,12 +3,11 @@
 
   <!-- Use this if parameters are set from the launch file, otherwise delete -->
   <xacro:arg name="prefix" default="" />
-
   <xacro:arg name="use_mock_hardware" default="false" />
   <xacro:arg name="mock_sensor_commands" default="false" />
 
-  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_hande_macro.urdf.xacro"/>
-  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_hande.ros2_control.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_hand_e_macro.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/hand_e.ros2_control.xacro"/>
 
   <!-- create link fixed to the "world" -->
   <link name="base_link" />

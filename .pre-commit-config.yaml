@@ -46,7 +46,7 @@ repos:
     rev: v2.2.5
     hooks:
       - id: codespell
-        args: ['--write-changes', '-L', 'atleast']  # Provide a comma-separated list of misspelled words that codespell should ignore (for example: '-L', 'word1,word2,word3').
+        args: ['--write-changes', '-L', 'atleast', 'hande']  # Provide a comma-separated list of misspelled words that codespell should ignore (for example: '-L', 'word1,word2,word3').
         exclude: \.(svg|pyc|stl|dae|lock)$
 
   - repo: https://github.com/pre-commit/mirrors-clang-format
