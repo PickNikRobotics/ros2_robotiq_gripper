@@ -102,7 +102,6 @@
         <mimic joint="${prefix}hande_finger_distance" multiplier="-0.5" offset="${gripper_maximal_stroke/2}"/>
       </joint>
 
-      <!-- TODO (Manuel) Remove this tmp tcp_link -->
       <link name="$(arg prefix)tcp_link"/>
       <joint name="$(arg prefix)tcp_link_joint" type="fixed">
         <origin xyz="0 0 0.125" rpy="0 0 ${-pi/2}"/>
@@ -110,20 +109,5 @@
         <child link="$(arg prefix)tcp_link"/>
       </joint>
 
-      <!-- TCP Link Tube -->
-      <link name="$(arg prefix)tcp_link_tube"/>
-      <joint name="$(arg prefix)tcp_joint_tube" type="fixed">
-        <origin xyz="0 0 0" rpy="${pi} 0 ${-pi/2}"/>
-        <parent link="$(arg prefix)tcp_link"/>
-        <child link="$(arg prefix)tcp_link_tube"/>
-      </joint>
-
-      <!-- TCP Link Rack -->
-      <link name="$(arg prefix)tcp_link_rack"/>
-      <joint name="$(arg prefix)tcp_joint_rack" type="fixed">
-        <origin xyz="0.035 0 0" rpy="${pi} 0 ${-pi/2}"/>
-        <parent link="$(arg prefix)tcp_link"/>
-        <child link="$(arg prefix)tcp_link_rack"/>
-      </joint>
     </xacro:macro>
 </robot>
