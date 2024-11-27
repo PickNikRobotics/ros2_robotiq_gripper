@@ -12,6 +12,10 @@
     <!-- Gripper macro hand-e -->
     <xacro:macro name="robotiq_hande" params="prefix parent *origin">
       <xacro:property name="gripper_maximal_stroke" value="0.050" />
+      <!-- TODO adapt mesh and collision of gripper and remove scaling -->
+      <xacro:property name="gripper_scale_x" value="1.0" />
+      <xacro:property name="gripper_scale_y" value="${8.5/6.2}" />
+      <xacro:property name="gripper_scale_z" value="${2.5/4.0}" />
 
       <link name="${prefix}hand_e_base_link">
           <inertial>
@@ -44,7 +48,7 @@
           <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/left_finger.dae" />
+              <mesh filename="package://robotiq_description/meshes/visual/hande/left_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
             <material name="gray">
               <color rgba="0.7 0.7 0.7 1.0"/>
@@ -53,7 +57,7 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/collision/hande/left_finger.stl" />
+              <mesh filename="package://robotiq_description/meshes/collision/hande/left_finger.stl" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
           </collision>
         </link>
@@ -61,7 +65,7 @@
           <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/right_finger.dae" />
+              <mesh filename="package://robotiq_description/meshes/visual/hande/right_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
             <material name="gray">
               <color rgba="0.7 0.7 0.7 1.0"/>
@@ -70,7 +74,7 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/collision/hande/right_finger.stl" />
+              <mesh filename="package://robotiq_description/meshes/collision/hande/right_finger.stl" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
           </collision>
       </link>
@@ -104,7 +108,7 @@
 
       <link name="$(arg prefix)tcp_link"/>
       <joint name="$(arg prefix)tcp_link_joint" type="fixed">
-        <origin xyz="0 0 0.125" rpy="0 0 ${-pi/2}"/>
+        <origin xyz="0 0 0.1125" rpy="0 0 ${-pi/2}"/>
         <parent link="$(arg prefix)hand_e_base_link"/>
         <child link="$(arg prefix)tcp_link"/>
       </joint>
