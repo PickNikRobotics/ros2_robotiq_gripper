@@ -57,7 +57,7 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/collision/hande/left_finger.stl" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <mesh filename="package://robotiq_description/meshes/visual/hande/left_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
           </collision>
         </link>
@@ -74,7 +74,7 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/collision/hande/right_finger.stl" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <mesh filename="package://robotiq_description/meshes/visual/hande/right_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
             </geometry>
           </collision>
       </link>
