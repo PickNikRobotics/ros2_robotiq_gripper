@@ -10,7 +10,10 @@
     </material>
 
     <!-- Gripper macro hand-e -->
-    <xacro:macro name="robotiq_hande" params="prefix parent *origin">
+    <xacro:macro name="robotiq_hande" params="prefix parent
+    right_finger:=default_right right_finger_coll:=default_right_coll left_finger:=default_left  left_finger_coll:=default_left_coll
+    *origin">
+      <xacro:property name="file_path" value="file://$(find robotiq_description)" />
       <xacro:property name="gripper_maximal_stroke" value="0.050" />
       <!-- TODO adapt mesh and collision of gripper and remove scaling -->
       <xacro:property name="gripper_scale_x" value="1.0" />
@@ -26,14 +29,14 @@
           <visual>
               <origin rpy="0 0 0" xyz="0 0 0"/>
               <geometry>
-                  <mesh filename="package://robotiq_description/meshes/visual/hande/hand-e.dae" scale="1.0 1.0 1.0"/>
+                  <mesh filename="${file_path}/meshes/visual/hande/hand-e.dae" scale="1.0 1.0 1.0"/>
               </geometry>
               <material name="dark" />
           </visual>
           <collision>
               <origin rpy="0 0 0" xyz="0 0 0"/>
               <geometry>
-                  <mesh filename="package://robotiq_description/meshes/collision/hande/hand-e.stl" scale="1.0 1.0 1.0"/>
+                  <mesh filename="${file_path}/meshes/collision/hande/hand-e.stl" scale="1.0 1.0 1.0"/>
               </geometry>
           </collision>
       </link>
@@ -48,7 +51,12 @@
           <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/left_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <xacro:if value="${left_finger == 'default_left'}">
+                  <mesh filename="${file_path}/meshes/visual/hande/left_finger.dae" />
+              </xacro:if>
+              <xacro:if value="${left_finger != 'default_left'}">
+                  <mesh filename="${left_finger}" />
+              </xacro:if>
             </geometry>
             <material name="gray">
               <color rgba="0.7 0.7 0.7 1.0"/>
@@ -57,7 +65,12 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/left_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <xacro:if value="${left_finger_coll == 'default_left_coll'}">
+                  <mesh filename="${file_path}/meshes/collision/hande/left_finger.stl" />
+              </xacro:if>
+              <xacro:if value="${left_finger_coll != 'default_left_coll'}">
+                  <mesh filename="${left_finger_coll}" />
+              </xacro:if>
             </geometry>
           </collision>
         </link>
@@ -65,7 +78,12 @@
           <visual>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/right_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <xacro:if value="${right_finger == 'default_right'}">
+                  <mesh filename="${file_path}/meshes/visual/hande/right_finger.dae" />
+              </xacro:if>
+              <xacro:if value="${right_finger != 'default_right'}">
+                  <mesh filename="${right_finger}" />
+              </xacro:if>
             </geometry>
             <material name="gray">
               <color rgba="0.7 0.7 0.7 1.0"/>
@@ -74,7 +92,12 @@
           <collision>
             <origin rpy="0 0 0" xyz="0 0 0"/>
             <geometry>
-              <mesh filename="package://robotiq_description/meshes/visual/hande/right_finger.dae" scale="${gripper_scale_x} ${gripper_scale_y} ${gripper_scale_z}"/>
+              <xacro:if value="${right_finger_coll == 'default_right_coll'}">
+                  <mesh filename="${file_path}/meshes/collision/hande/right_finger.stl" />
+              </xacro:if>
+              <xacro:if value="${right_finger_coll != 'default_right_coll'}">
+                  <mesh filename="${right_finger_coll}" />
+              </xacro:if>
             </geometry>
           </collision>
       </link>
