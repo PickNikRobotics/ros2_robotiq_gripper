@@ -12,8 +12,10 @@
     <!-- Gripper macro hand-e -->
     <xacro:macro name="robotiq_hande" params="
                  prefix parent *origin
-                 left_finger_visual:=default left_finger_collision:=default left_finger_scale:=default
-                 right_finger_visual:=default right_finger_collision:=default right_finger_scale:=default
+                 left_finger_visual:=default left_finger_collision:=default
+                 left_finger_scale:=default left_finger_collision_scale:=default
+                 right_finger_visual:=default right_finger_collision:=default
+                 right_finger_scale:=default right_finger_collision_scale:=default
                  tcp_z_offset:=0.1325
                  ">
       <xacro:property name="file_path" value="file://$(find robotiq_description)" />
@@ -29,14 +31,20 @@
       <xacro:if value="${left_finger_scale == 'default'}">
         <xacro:property name="left_finger_scale" value="1.0 1.0 1.0" />
       </xacro:if>
+      <xacro:if value="${left_finger_collision_scale == 'default'}">
+        <xacro:property name="left_finger_collision_scale" value="1.0 1.0 1.0" />
+      </xacro:if>
       <xacro:if value="${right_finger_visual == 'default'}">
         <xacro:property name="right_finger_visual" value="${file_path}/meshes/visual/hande/right_finger.dae" />
       </xacro:if>
       <xacro:if value="${right_finger_collision == 'default'}">
         <xacro:property name="right_finger_collision" value="${file_path}/meshes/collision/hande/right_finger.stl" />
       </xacro:if>
-      <xacro:if value="${right_finger_scale == 'default'}">
+      <xacro:if value="${right_finger_collision_scale == 'default'}">
         <xacro:property name="right_finger_scale" value="1.0 1.0 1.0" />
+      </xacro:if>
+      <xacro:if value="${right_finger_collision_scale == 'default'}">
+        <xacro:property name="right_finger_collision_scale" value="1.0 1.0 1.0" />
       </xacro:if>
 
       <link name="${prefix}hand_e_base_link">
@@ -77,9 +85,10 @@
             </material>
           </visual>
           <collision>
-            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <origin rpy="0 0 0" xyz="${-0.010} ${-0.075/2} ${0.028/2}"/>
             <geometry>
-              <mesh filename="${left_finger_collision}" scale="${left_finger_scale}" />
+<!--               <mesh filename="${left_finger_collision}" scale="1.0 1.0 1.0" /> -->
+              <box size="${left_finger_collision_scale}" />
             </geometry>
           </collision>
         </link>
@@ -94,9 +103,10 @@
             </material>
           </visual>
           <collision>
-            <origin rpy="0 0 0" xyz="0 0 0"/>
+            <origin rpy="0 0 0" xyz="${0.010} ${-0.075/2} ${0.028/2}"/>
             <geometry>
-              <mesh filename="${right_finger_collision}" scale="${right_finger_scale}" />
+              <box size="${right_finger_collision_scale}" />
+<!--               <mesh filename="${right_finger_collision}" scale="1.0 1.0 1.0" /> -->
             </geometry>
           </collision>
       </link>
