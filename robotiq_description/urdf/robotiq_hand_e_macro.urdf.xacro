@@ -64,6 +64,7 @@
               <origin rpy="0 0 0" xyz="0 0 0"/>
               <geometry>
                   <mesh filename="${file_path}/meshes/collision/hande/hand-e.stl" scale="1.0 1.0 1.0"/>
+                  <!--<mesh filename="${file_path}/meshes/collision/hande/hand-e_convex_hull.stl" scale="1.0 1.0 1.0"/>-->
               </geometry>
           </collision>
       </link>
