@@ -29,6 +29,7 @@
 #include <gtest/gtest.h>
 
 #include <hardware_interface/resource_manager.hpp>
+#include <hardware_interface/hardware_interface/version.h>
 
 #include <rclcpp/node.hpp>
 
@@ -75,8 +76,12 @@ TEST(TestRobotiqGripperHardwareInterface, load_urdf)
 
   rclcpp::Node node{ "test_robotiq_gripper_hardware_interface" };
 
+#if HARDWARE_INTERFACE_VERSION_GTE(4, 13, 0)
   // Initialize the resource manager
   hardware_interface::ResourceManager rm(urdf, node.get_node_clock_interface(), node.get_node_logging_interface());
+#else
+  hardware_interface::ResourceManager rm(urdf);
+#endif
 
   // Check interfaces
   EXPECT_EQ(1u, rm.system_components_size());
