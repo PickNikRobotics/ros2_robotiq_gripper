@@ -1,0 +1,14 @@
+<launch>
+  <let name="robot_description_content" value="$(command '$(find-exec xacro) $(find-pkg-share robotiq_description)/urdf/robotiq_hand_e_gripper.urdf.xacro')"/>
+
+  <!--robot_state_pub_node-->
+  <node pkg="robot_state_publisher" exec="robot_state_publisher" output="screen">
+    <param name="robot_description" value="$(var robot_description_content)"/>
+  </node>
+
+  <node pkg="joint_state_publisher_gui" exec="joint_state_publisher_gui" output="screen" />
+
+  <!--rviz_node-->
+  <node pkg="rviz2" exec="rviz2" output="log" args="-d $(find-pkg-share robotiq_description)/rviz/view_urdf.rviz"/>
+
+</launch>

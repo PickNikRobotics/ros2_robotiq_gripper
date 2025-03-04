@@ -10,24 +10,17 @@ controller_manager:
 
 robotiq_gripper_controller:
   ros__parameters:
-    default: true
-    joint: robotiq_85_left_knuckle_joint
-    use_effort_interface: true
-    use_speed_interface: true
-
-robotiq_gripper_controller:
-  ros__parameters:
 
     joint: hande_finger_distance
     state_interfaces: ["position", "velocity"]
 
     allow_stalling: true
 
-    max_effort_interface: robotiq_85_left_knuckle_joint/set_gripper_max_effort
-    max_effort: 20.0  #adjustable between 20-235 N (2F-85) and 10-125 N (2F-140)
+    max_effort_interface: hande_finger_distance/set_gripper_max_effort
+    max_effort: 20.0  #adjustable between 20 and 185 N
 
-    max_velocity_interface: robotiq_85_left_knuckle_joint/set_gripper_max_velocity
-    max_velocity: 0.15  # adjustable between 0.02-0.15 m/s (2F-85) and 0.3-0.250 m/s (2F-140)
+    max_velocity_interface: hande_finger_distance/set_gripper_max_velocity
+    max_velocity: 0.15  # adjustable between 0.02 and 0.15 m/s
 
 robotiq_activation_controller:
   ros__parameters:

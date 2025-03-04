@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="schunk_gripper">
+
+  <!-- Use this if parameters are set from the launch file, otherwise delete -->
+  <xacro:arg name="prefix" default="" />
+  <xacro:arg name="use_mock_hardware" default="false" />
+  <xacro:arg name="mock_sensor_commands" default="false" />
+
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_hand_e_macro.urdf.xacro"/>
+  <xacro:include filename="$(find robotiq_description)/urdf/hand_e.ros2_control.xacro"/>
+
+  <!-- create link fixed to the "world" -->
+  <link name="base_link" />
+
+  <!-- Load robot's macro with parameters -->
+  <!-- set prefix if multiple robots are used -->
+  <xacro:robotiq_hande prefix="$(arg prefix)" parent="base_link" >
+    <origin xyz="0 0 0" rpy="0 0 0" />          <!-- position robot in the world -->
+  </xacro:robotiq_hande>
+
+  <xacro:robotiq_hande_ros2_control
+    name="robotiq_hande"
+    prefix="$(arg prefix)"
+    use_mock_hardware="$(arg use_mock_hardware)" />
+
+</robot>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <xacro:macro name="robotiq_hande_ros2_control" params="
+               name
+               prefix
+               sim_gazebo:=false
+               sim_isaac:=false
+               isaac_joint_commands:=/isaac_joint_commands
+               isaac_joint_states:=/isaac_joint_states
+               use_mock_hardware:=^|true
+               mock_sensor_commands:=^|true
+               com_port:=/dev/ttyUSB0">
+
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <xacro:if value="${sim_isaac}">
+          <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+          <param name="joint_commands_topic">${isaac_joint_commands}</param>
+          <param name="joint_states_topic">${isaac_joint_states}</param>
+        </xacro:if>
+        <xacro:if value="${sim_gazebo}">
+          <plugin>gz_ros2_control/GzSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${use_mock_hardware}">
+          <plugin>mock_components/GenericSystem</plugin>
+          <param name="mock_sensor_commands">${mock_sensor_commands}</param>
+        </xacro:if>
+        <xacro:unless value="${use_mock_hardware}">
+          <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
+          <!-- default data from docs - https://blog.robotiq.com/hubfs/support-files/Hand-E_Adaptive_Gripper_ProductSheet_EN_2024-05_WEB.pdf -->
+          <param name="COM_port">${com_port}</param>
+          <param name="gripper_protocol_min_pos_value">0</param>
+          <param name="gripper_protocol_max_pos_value">255</param>
+          <param name="gripper_closed_position">0.05</param> <!-- usually the gripper's max stroke -->
+          <param name="max_speed">0.150</param>   <!-- m/s -->
+          <param name="speed_multiplier">1.0</param>
+          <param name="max_force">185.0</param>   <!-- N -->
+          <param name="force_multiplier">0.5</param>
+        </xacro:unless>
+      </hardware>
+      <joint name="${prefix}hande_finger_distance">
+        <command_interface name="position">
+          <param name="min">0.0</param>
+          <param name="max">0.050</param>
+        </command_interface>
+        <state_interface name="position">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <state_interface name="velocity">
+          <param name="initial_value">0.0</param>
+        </state_interface>
+        <command_interface name="set_gripper_max_velocity">
+          <param name="min">0.020</param>
+          <param name="max">0.150</param>
+        </command_interface>
+        <command_interface name="set_gripper_max_effort">
+          <param name="min">20</param>
+          <param name="max">185</param>
+        </command_interface>
+      </joint>
+
+      <!-- Only add this with real and mock hardware mode -->
+      <xacro:unless value="${sim_gazebo or sim_isaac}">
+        <gpio name="reactivate_gripper">
+          <command_interface name="reactivate_gripper_cmd" />
+          <command_interface name="reactivate_gripper_response" />
+        </gpio>
+      </xacro:unless>
+
+    </ros2_control>
+
+  </xacro:macro>
+</robot>

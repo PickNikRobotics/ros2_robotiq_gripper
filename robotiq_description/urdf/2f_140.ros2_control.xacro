@@ -30,10 +30,15 @@
                 </xacro:if>
                 <xacro:unless value="${use_fake_hardware or sim_gazebo or sim_isaac}">
                     <plugin>robotiq_driver/RobotiqGripperHardwareInterface</plugin>
-                    <param name="gripper_closed_position">0.695</param>
+                    <!-- default data from docs - https://blog.robotiq.com/hubfs/support-files/Product-sheet-2F-Adaptive-Gripper-EN-Tomahawk.pdf -->
                     <param name="COM_port">${com_port}</param>
-                    <param name="gripper_speed_multiplier">1.0</param>
-                    <param name="gripper_force_multiplier">0.5</param>
+                    <param name="gripper_protocol_min_pos_value">3</param> <!-- Docs 0x00 -->
+                    <param name="gripper_protocol_max_pos_value">230</param> <!-- Docs 0xFF -->
+                    <param name="gripper_closed_position">0.695</param>  <!-- Docs 0.140 -->
+                    <param name="max_speed">0.150</param>  <!-- m/s -->
+                    <param name="speed_multiplier">1.0</param>
+                    <param name="max_force">125.0</param>  <!-- N -->
+                    <param name="force_multiplier">0.5</param>
                 </xacro:unless>
             </hardware>
 
@@ -44,8 +49,18 @@
                 <state_interface name="position">
                     <param name="initial_value">0.695</param>
                 </state_interface>
-                <state_interface name="velocity"/>
+                <state_interface name="velocity">
+                    <param name="initial_value">0.0</param>
+                </state_interface>
             </joint>
+            <command_interface name="set_gripper_max_velocity">
+                <param name="min">0.030</param>
+                <param name="max">0.250</param>
+            </command_interface>
+            <command_interface name="set_gripper_max_effort">
+                <param name="min">10</param>
+                <param name="max">125</param>
+            </command_interface>
             <!-- When simulating we need to include the rest of the gripper joints -->
             <xacro:if value="${use_fake_hardware or sim_isaac or sim_gazebo}">
                 <joint name="${prefix}left_inner_knuckle_joint">
