@@ -69,6 +69,13 @@ def generate_launch_description():
             name="launch_rviz", default_value="false", description="Launch RViz?"
         )
     )
+    args.append(
+        launch.actions.DeclareLaunchArgument(
+            name="com_port",
+            default_value="/dev/ttyUSB0",
+            description="Port for communicating with Robotiq hardware",
+        )
+    )
 
     robot_description_content = Command(
         [
@@ -77,8 +84,12 @@ def generate_launch_description():
             LaunchConfiguration("model"),
             " ",
             "use_fake_hardware:=false",
+            " ",
+            "com_port:=",
+            LaunchConfiguration("com_port"),
         ]
     )
+
     robot_description_param = {
         "robot_description": launch_ros.parameter_descriptions.ParameterValue(
             robot_description_content, value_type=str
