@@ -29,7 +29,11 @@
 #include <gtest/gtest.h>
 
 #include <hardware_interface/resource_manager.hpp>
+#if __has_include(<hardware_interface/hardware_interface/version.h>)
 #include <hardware_interface/hardware_interface/version.h>
+#else
+#include <hardware_interface/version.h>
+#endif
 
 #include <rclcpp/node.hpp>
 
