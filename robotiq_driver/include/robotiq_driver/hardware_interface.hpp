@@ -141,6 +141,8 @@ protected:
   void background_task();
 
   double gripper_closed_pos_ = 0.0;
+  double gripper_max_speed_ = 0.0;
+  double gripper_max_force_ = 0.0;
 
   static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
 
