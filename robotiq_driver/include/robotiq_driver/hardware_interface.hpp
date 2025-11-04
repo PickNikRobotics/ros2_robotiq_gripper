@@ -77,7 +77,7 @@ public:
    * parsed or CallbackReturn::ERROR if any error happens or data are missing.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
+  CallbackReturn on_init(const hardware_interface::HardwareComponentInterfaceParams& params) override;
 
   /**
    * Connect to the hardware.
