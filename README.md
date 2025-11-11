@@ -66,7 +66,7 @@ mkdir -p ~/ws_robotiq/src
 cd ~/ws_robotiq/src
 
 # Clone this repository (jazzy branch)
-git clone -b jazzy https://github.com/YOUR_USERNAME/ros2_robotiq_gripper.git
+git clone -b jazzy https://github.com/bryceag11/ros2_robotiq_gripper.git
 
 # Import dependencies (gets the serial package)
 vcs import src < ros2_robotiq_gripper/ros2_robotiq_gripper.rolling.repos
