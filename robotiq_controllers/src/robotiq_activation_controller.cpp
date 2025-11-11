@@ -105,14 +105,33 @@ rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn Roboti
 bool RobotiqActivationController::reactivateGripper(std_srvs::srv::Trigger::Request::SharedPtr /*req*/,
                                                     std_srvs::srv::Trigger::Response::SharedPtr resp)
 {
-  command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].set_value(ASYNC_WAITING);
-  command_interfaces_[REACTIVATE_GRIPPER_CMD].set_value(1.0);
-
-  while (command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value() == ASYNC_WAITING)
+  // Set values and check for success (required due to nodiscard attribute)
+  if (!command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].set_value(ASYNC_WAITING))
   {
+    resp->success = false;
+    resp->message = "Failed to set gripper response interface";
+    return false;
+  }
+  if (!command_interfaces_[REACTIVATE_GRIPPER_CMD].set_value(1.0))
+  {
+    resp->success = false;
+    resp->message = "Failed to set gripper command interface";
+    return false;
+  }
+
+  // Use get_optional instead of deprecated get_value
+  while (true)
+  {
+    auto response_opt = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional<double>();
+    if (response_opt.has_value() && response_opt.value() != ASYNC_WAITING)
+    {
+      break;
+    }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  resp->success = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value();
+
+  auto final_response = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional<double>();
+  resp->success = final_response.has_value() && final_response.value() > 0.0;
 
   return resp->success;
 }

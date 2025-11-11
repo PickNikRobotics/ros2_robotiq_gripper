@@ -37,6 +37,7 @@
 
 #include <hardware_interface/actuator_interface.hpp>
 #include <hardware_interface/types/hardware_interface_type_values.hpp>
+#include <hardware_interface/types/hardware_component_interface_params.hpp>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -74,9 +75,18 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface(std::unique_ptr
 
 hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
 {
+  // Call the new on_init with params struct for backward compatibility
+  hardware_interface::HardwareComponentInterfaceParams params;
+  params.hardware_info = info;
+  return on_init(params);
+}
+
+hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
+  const hardware_interface::HardwareComponentInterfaceParams& params)
+{
   RCLCPP_DEBUG(kLogger, "on_init");
 
-  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(params) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
   }
@@ -107,8 +117,8 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
 
   if (joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
   {
-    RCLCPP_FATAL(kLogger, "Joint '%s' has %s command interfaces found. '%s' expected.", joint.name.c_str(),
-                 joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
+    RCLCPP_FATAL(kLogger, "Joint '%s' does not have expected '%s' interface.", joint.name.c_str(),
+                 hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
   }
 

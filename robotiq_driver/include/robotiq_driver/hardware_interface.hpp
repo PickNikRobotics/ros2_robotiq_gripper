@@ -71,13 +71,23 @@ public:
 
   /**
    * Initialization of the hardware interface from data parsed from the
-   * robot's URDF.
+   * robot's URDF (deprecated signature for backward compatibility).
    * @param hardware_info Structure with data from URDF.
    * @returns CallbackReturn::SUCCESS if required data are provided and can be
    * parsed or CallbackReturn::ERROR if any error happens or data are missing.
    */
   ROBOTIQ_DRIVER_PUBLIC
   CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
+
+  /**
+   * Initialization of the hardware interface from data parsed from the
+   * robot's URDF (new Jazzy signature).
+   * @param params Parameters including hardware_info and executor.
+   * @returns CallbackReturn::SUCCESS if required data are provided and can be
+   * parsed or CallbackReturn::ERROR if any error happens or data are missing.
+   */
+  ROBOTIQ_DRIVER_PUBLIC
+  CallbackReturn on_init(const hardware_interface::HardwareComponentInterfaceParams& params) override;
 
   /**
    * Connect to the hardware.
