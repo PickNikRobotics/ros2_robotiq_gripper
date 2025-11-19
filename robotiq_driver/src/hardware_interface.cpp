@@ -86,7 +86,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(
 {
   RCLCPP_DEBUG(kLogger, "on_init");
 
-  if (hardware_interface::SystemInterface::on_init(params) != CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(params.hardware_info) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
   }
@@ -166,11 +166,50 @@ RobotiqGripperHardwareInterface::on_configure(const rclcpp_lifecycle::State& pre
       return CallbackReturn::ERROR;
     }
 
-    // Open the serial port and handshake.
-    bool connected = driver_->connect();
+    // Open the serial port and handshake with retry logic
+    // This allows time for tool communication (socat) to create virtual serial port
+    const int max_retries = 10;
+    const auto retry_delay = std::chrono::milliseconds(500);
+    bool connected = false;
+
+    for (int attempt = 1; attempt <= max_retries && !connected; ++attempt)
+    {
+      try
+      {
+        RCLCPP_INFO(kLogger, "Attempting to connect to Robotiq gripper (attempt %d/%d)...", attempt, max_retries);
+        connected = driver_->connect();
+
+        if (!connected)
+        {
+          if (attempt < max_retries)
+          {
+            RCLCPP_WARN(kLogger, "Connection failed, retrying in %ld ms...", retry_delay.count());
+            std::this_thread::sleep_for(retry_delay);
+          }
+        }
+        else
+        {
+          RCLCPP_INFO(kLogger, "Successfully connected to Robotiq gripper");
+        }
+      }
+      catch (const std::exception& e)
+      {
+        if (attempt < max_retries)
+        {
+          RCLCPP_WARN(kLogger, "Connection attempt %d failed: %s. Retrying in %ld ms...",
+                      attempt, e.what(), retry_delay.count());
+          std::this_thread::sleep_for(retry_delay);
+        }
+        else
+        {
+          throw;  // Re-throw on last attempt
+        }
+      }
+    }
+
     if (!connected)
     {
-      RCLCPP_ERROR(kLogger, "Cannot connect to the Robotiq gripper");
+      RCLCPP_ERROR(kLogger, "Cannot connect to the Robotiq gripper after %d attempts", max_retries);
       return CallbackReturn::ERROR;
     }
   }
