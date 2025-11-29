@@ -61,9 +61,13 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
-ament_target_dependencies(
+target_link_libraries(
   robotiq_driver
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+  hardware_interface::hardware_interface
+  pluginlib::pluginlib
+  rclcpp::rclcpp
+  rclcpp_lifecycle::rclcpp_lifecycle
+  serial::serial
 )
 
 ###############################################################################

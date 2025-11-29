@@ -72,22 +72,23 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface(std::unique_ptr
 {
 }
 
-hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareInfo& info)
+hardware_interface::CallbackReturn
+RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params)
 {
   RCLCPP_DEBUG(kLogger, "on_init");
 
-  if (hardware_interface::SystemInterface::on_init(info) != CallbackReturn::SUCCESS)
+  if (hardware_interface::SystemInterface::on_init(params) != CallbackReturn::SUCCESS)
   {
     return CallbackReturn::ERROR;
   }
 
   // Read parameters.
-  gripper_closed_pos_ = stod(info_.hardware_parameters["gripper_closed_position"]);
+  gripper_closed_pos_ = stod(info_.hardware_parameters.at("gripper_closed_position"));
   gripper_max_speed_ = info_.hardware_parameters.count("gripper_max_speed") ?
-                           stod(info_.hardware_parameters["gripper_max_speed"]) :
+                           stod(info_.hardware_parameters.at("gripper_max_speed")) :
                            kGripperMaxSpeed;
   gripper_max_force_ = info_.hardware_parameters.count("gripper_max_force") ?
-                           stod(info_.hardware_parameters["gripper_max_force"]) :
+                           stod(info_.hardware_parameters.at("gripper_max_force")) :
                            kGripperMaxforce;
   gripper_position_ = std::numeric_limits<double>::quiet_NaN();
   gripper_velocity_ = std::numeric_limits<double>::quiet_NaN();
@@ -95,7 +96,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
   reactivate_gripper_cmd_ = NO_NEW_CMD_;
   reactivate_gripper_async_cmd_.store(false);
 
-  const hardware_interface::ComponentInfo& joint = info_.joints[0];
+  const hardware_interface::ComponentInfo& joint = info_.joints.at(0);
 
   // There is one command interface: position.
   if (joint.command_interfaces.size() != 1)
@@ -105,10 +106,10 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
     return CallbackReturn::ERROR;
   }
 
-  if (joint.command_interfaces[0].name != hardware_interface::HW_IF_POSITION)
+  if (joint.command_interfaces.at(0).name != hardware_interface::HW_IF_POSITION)
   {
     RCLCPP_FATAL(kLogger, "Joint '%s' has %s command interfaces found. '%s' expected.", joint.name.c_str(),
-                 joint.command_interfaces[0].name.c_str(), hardware_interface::HW_IF_POSITION);
+                 joint.command_interfaces.at(0).name.c_str(), hardware_interface::HW_IF_POSITION);
     return CallbackReturn::ERROR;
   }
 
@@ -126,7 +127,7 @@ hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(cons
           joint.state_interfaces[i].name == hardware_interface::HW_IF_VELOCITY))
     {
       RCLCPP_FATAL(kLogger, "Joint '%s' has %s state interface. Expected %s or %s.", joint.name.c_str(),
-                   joint.state_interfaces[i].name.c_str(), hardware_interface::HW_IF_POSITION,
+                   joint.state_interfaces.at(i).name.c_str(), hardware_interface::HW_IF_POSITION,
                    hardware_interface::HW_IF_VELOCITY);
       return CallbackReturn::ERROR;
     }

@@ -25,8 +25,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   include
 )
 
-ament_target_dependencies(${PROJECT_NAME}
-  ${THIS_PACKAGE_INCLUDE_DEPENDS}
+target_link_libraries(${PROJECT_NAME}
+  controller_interface::controller_interface
+  ${std_srvs_TARGETS}
 )
 
 pluginlib_export_plugin_description_file(controller_interface controller_plugins.xml)
