@@ -117,7 +117,9 @@ bool RobotiqActivationController::reactivateGripper(std_srvs::srv::Trigger::Requ
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  resp->success &= command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional().has_value();
+  // NOTE: This was previously using get_value() and implicitly casting to bool, so keeping the old behavior.
+  // However, note that the value of this result is actually a double, so this should be revised in the future.
+  resp->success &= static_cast<bool>(command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional().value_or(false));
 
   return resp->success;
 }
