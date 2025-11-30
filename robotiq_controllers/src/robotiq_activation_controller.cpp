@@ -111,10 +111,11 @@ bool RobotiqActivationController::reactivateGripper(std_srvs::srv::Trigger::Requ
   while (true)
   {
     const auto maybe_value = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional();
-    if (maybe_value && maybe_value.value() == ASYNC_WAITING)
+    if (maybe_value && maybe_value.value() != ASYNC_WAITING)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      break;
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
   resp->success &= command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional().has_value();
 
