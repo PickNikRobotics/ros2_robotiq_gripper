@@ -108,11 +108,11 @@ bool RobotiqActivationController::reactivateGripper(std_srvs::srv::Trigger::Requ
   command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].set_value(ASYNC_WAITING);
   command_interfaces_[REACTIVATE_GRIPPER_CMD].set_value(1.0);
 
-  while (command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value() == ASYNC_WAITING)
+  while (command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional().value() == ASYNC_WAITING)
   {
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
-  resp->success = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_value();
+  resp->success = command_interfaces_[REACTIVATE_GRIPPER_RESPONSE].get_optional().value();
 
   return resp->success;
 }
