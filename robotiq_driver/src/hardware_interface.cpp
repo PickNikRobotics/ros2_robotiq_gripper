@@ -72,7 +72,8 @@ RobotiqGripperHardwareInterface::RobotiqGripperHardwareInterface(std::unique_ptr
 {
 }
 
-hardware_interface::CallbackReturn RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params)
+hardware_interface::CallbackReturn
+RobotiqGripperHardwareInterface::on_init(const hardware_interface::HardwareComponentInterfaceParams& params)
 {
   RCLCPP_DEBUG(kLogger, "on_init");
 
