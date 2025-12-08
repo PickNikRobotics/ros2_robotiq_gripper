@@ -69,7 +69,7 @@ cd ~/ws_robotiq/src
 git clone -b jazzy https://github.com/bryceag11/ros2_robotiq_gripper.git
 
 # Import dependencies (gets the serial package)
-vcs import src < ros2_robotiq_gripper/ros2_robotiq_gripper.rolling.repos
+vcs import . < ros2_robotiq_gripper/ros2_robotiq_gripper.rolling.repos
 
 # Build
 cd ~/ws_robotiq
