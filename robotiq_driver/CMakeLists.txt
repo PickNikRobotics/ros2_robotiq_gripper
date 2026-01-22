@@ -62,9 +62,8 @@ target_include_directories(
   $<INSTALL_INTERFACE:include>
 )
 
-target_link_libraries(robotiq_driver
-
-
+target_link_libraries(
+  robotiq_driver
   hardware_interface::hardware_interface
   pluginlib::pluginlib
   rclcpp::rclcpp
