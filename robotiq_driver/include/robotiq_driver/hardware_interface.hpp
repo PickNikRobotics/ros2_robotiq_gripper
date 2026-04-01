@@ -72,12 +72,12 @@ public:
   /**
    * Initialization of the hardware interface from data parsed from the
    * robot's URDF.
-   * @param params Structure with parameters for initializing this hardware component.
+   * @param hardware_info Structure with data from URDF.
    * @returns CallbackReturn::SUCCESS if required data are provided and can be
    * parsed or CallbackReturn::ERROR if any error happens or data are missing.
    */
   ROBOTIQ_DRIVER_PUBLIC
-  CallbackReturn on_init(const hardware_interface::HardwareComponentInterfaceParams& params) override;
+  CallbackReturn on_init(const hardware_interface::HardwareInfo& info) override;
 
   /**
    * Connect to the hardware.
@@ -148,12 +148,16 @@ protected:
 
   double gripper_position_ = 0.0;
   double gripper_velocity_ = 0.0;
+  double gripper_current_ = 0.0;
   double gripper_position_command_ = 0.0;
+
+  double last_gripper_position_ = 0.0;
 
   std::atomic<uint8_t> write_command_;
   std::atomic<uint8_t> write_force_;
   std::atomic<uint8_t> write_speed_;
   std::atomic<uint8_t> gripper_current_state_;
+  std::atomic<uint8_t> gripper_current_raw_;
 
   double reactivate_gripper_cmd_ = 0.0;
   std::atomic<bool> reactivate_gripper_async_cmd_;
@@ -161,6 +165,9 @@ protected:
   double gripper_force_ = 0.0;
   double gripper_speed_ = 0.0;
   std::atomic<std::optional<bool>> reactivate_gripper_async_response_;
+
+  std::atomic<uint8_t> object_detection_status_raw_;
+  double object_detection_state_ = 0.0;
 };
 
 }  // namespace robotiq_driver
