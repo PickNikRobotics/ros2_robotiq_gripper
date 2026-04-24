@@ -1,6 +1,6 @@
 # See https://docs.ros.org/en/humble/How-To-Guides/Ament-CMake-Documentation.html
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 project(robotiq_driver LANGUAGES CXX)
 
 # This module provides installation directories as per the GNU coding standards.
