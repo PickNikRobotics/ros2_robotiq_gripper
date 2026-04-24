@@ -12,6 +12,7 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>controller_interface</depend>
+  <depend>rosidl_typesupport_c</depend>
   <depend>std_srvs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
