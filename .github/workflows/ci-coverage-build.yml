@@ -11,16 +11,20 @@ jobs:
   coverage:
     name: coverage build
     runs-on: ubuntu-24.04
+    container: ghcr.io/ros-tooling/setup-ros-docker/ubuntu-noble-ros-rolling-ros-base:latest
     strategy:
       fail-fast: false
     env:
       ROS_DISTRO: rolling
     steps:
-      - uses: ros-tooling/setup-ros@v0.7
-        with:
-          required-ros-distributions: ${{ env.ROS_DISTRO }}
-      - name: Install missing ROS dependencies
-        run: sudo apt-get install -y ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp ros-${{ env.ROS_DISTRO }}-ament-package ros-${{ env.ROS_DISTRO }}-joint-limits
+      - name: Install ros2_control packages not preinstalled in ros-base
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ros-${{ env.ROS_DISTRO }}-controller-interface \
+            ros-${{ env.ROS_DISTRO }}-hardware-interface \
+            ros-${{ env.ROS_DISTRO }}-joint-limits \
+            ros-${{ env.ROS_DISTRO }}-parallel-gripper-controller
       - uses: actions/checkout@v4
       - uses: ros-tooling/action-ros-ci@v0.4
         with:
