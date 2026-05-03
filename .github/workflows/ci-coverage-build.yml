@@ -20,7 +20,7 @@ jobs:
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
       - name: Install missing ROS dependencies
-        run: sudo apt-get install -y ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp ros-${{ env.ROS_DISTRO }}-ament-package
+        run: sudo apt-get install -y ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp ros-${{ env.ROS_DISTRO }}-ament-package ros-${{ env.ROS_DISTRO }}-joint-limits
       - uses: actions/checkout@v4
       - uses: ros-tooling/action-ros-ci@v0.4
         with:
