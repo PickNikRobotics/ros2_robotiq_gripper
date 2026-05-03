@@ -41,6 +41,22 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+      - name: Debug runtime library resolution
+        if: always()
+        run: |
+          echo "=== LD_LIBRARY_PATH ==="
+          echo "${LD_LIBRARY_PATH:-(unset)}"
+          echo
+          echo "=== /opt/ros/${ROS_DISTRO}/lib (filtered) ==="
+          ls /opt/ros/${ROS_DISTRO}/lib | grep -E "hardware_interface|joint_(saturation_)?limit" || true
+          echo
+          echo "=== Test binary RPATHs ==="
+          for bin in ros_ws/build/robotiq_driver/tests/test_*; do
+            if [ -x "$bin" ]; then
+              echo "--- $bin ---"
+              readelf -d "$bin" | grep -E "RPATH|RUNPATH|NEEDED" || true
+            fi
+          done
       - uses: codecov/codecov-action@v4
         with:
           file: ros_ws/lcov/total_coverage.info

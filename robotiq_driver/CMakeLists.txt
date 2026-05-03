@@ -6,6 +6,12 @@ project(robotiq_driver LANGUAGES CXX)
 # This module provides installation directories as per the GNU coding standards.
 include(GNUInstallDirs)
 
+# Add directories of linked libraries (including transitive ones) to install
+# RPATH. Without this, executables that link to robotiq_driver get only the
+# workspace install dir in their RPATH, and the dynamic loader fails to find
+# transitively-needed libs like libhardware_interface.so from /opt/ros/$distro.
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
