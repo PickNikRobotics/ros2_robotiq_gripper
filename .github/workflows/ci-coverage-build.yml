@@ -11,7 +11,7 @@ jobs:
   coverage:
     name: coverage build
     runs-on: ubuntu-24.04
-    container: rostooling/setup-ros-docker:ubuntu-noble-ros-rolling-ros-base-latest
+    container: ros:rolling-ros-base
     strategy:
       fail-fast: false
     env:
