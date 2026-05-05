@@ -15,23 +15,26 @@ jobs:
       fail-fast: false
     env:
       ROS_DISTRO: rolling
+      # Rolling officially moved to target Ubuntu 26.04 (resolute) on
+      # 2026-04-28, so rosdep against ros/rosdistro master no longer resolves
+      # rolling keys on noble. Pin to the last snapshot that supports noble,
+      # mirroring the same workaround industrial_ci uses for the binary builds
+      # (https://github.com/ros-industrial/industrial_ci/pull/933).
+      ROSDISTRO_INDEX_VERSION: rolling/2026-04-28
     steps:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
-      - name: Install missing ROS dependencies
-        # Bypass rosdep for keys it cannot resolve against ros/rosdistro master
-        # (controller_interface, hardware_interface, etc.) and for transitive
-        # runtime deps not declared in upstream debs (joint_limits, the
-        # rosidl_typesupport_fastrtps implementations).
+      - name: Install ROS deps with upstream packaging gaps
+        # joint_limits is a runtime dep of hardware_interface that is not
+        # declared in ros-rolling-hardware-interface's debian Depends.
+        # rosidl-typesupport-fastrtps-{c,cpp} are typesupport implementations
+        # that ros-rolling-rosidl-typesupport-c (the dispatch package) does not
+        # pull in.
         run: sudo apt-get install -y \
           ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c \
           ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp \
-          ros-${{ env.ROS_DISTRO }}-ament-package \
-          ros-${{ env.ROS_DISTRO }}-joint-limits \
-          ros-${{ env.ROS_DISTRO }}-controller-interface \
-          ros-${{ env.ROS_DISTRO }}-hardware-interface \
-          ros-${{ env.ROS_DISTRO }}-parallel-gripper-controller
+          ros-${{ env.ROS_DISTRO }}-joint-limits
       - uses: actions/checkout@v4
       - uses: ros-tooling/action-ros-ci@v0.4
         with:
