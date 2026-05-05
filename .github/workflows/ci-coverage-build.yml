@@ -20,7 +20,12 @@ jobs:
       # rolling keys on noble. Pin to the last snapshot that supports noble,
       # mirroring the same workaround industrial_ci uses for the binary builds
       # (https://github.com/ros-industrial/industrial_ci/pull/933).
-      ROSDISTRO_INDEX_VERSION: rolling/2026-04-28
+      # The rosdistro Python library reads ROSDISTRO_INDEX_URL; we set both
+      # the URL and the apt sources list (in a later step) for the same reason
+      # industrial_ci does: rosdep update fetches the rosdep yaml files via
+      # the sources.list.d entries, but resolves ROS package keys through the
+      # rosdistro index whose URL comes from ROSDISTRO_INDEX_URL.
+      ROSDISTRO_INDEX_URL: https://raw.githubusercontent.com/ros/rosdistro/rolling/2026-04-28/index-v4.yaml
     steps:
       - uses: ros-tooling/setup-ros@v0.7
         with:
