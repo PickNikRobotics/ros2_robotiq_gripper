@@ -46,6 +46,8 @@ public:
   MOCK_METHOD(void, set_slave_address, (uint8_t slave_address), (override));
   MOCK_METHOD(void, set_gripper_position, (uint8_t position), (override));
   MOCK_METHOD(uint8_t, get_gripper_position, (), (override));
+  MOCK_METHOD(uint8_t, get_gripper_current, (), (override));
+  MOCK_METHOD(uint8_t, get_object_detection_status, (), (override));
   MOCK_METHOD(bool, gripper_is_moving, (), (override));
   MOCK_METHOD(void, set_speed, (uint8_t speed), (override));
   MOCK_METHOD(void, set_force, (uint8_t force), (override));

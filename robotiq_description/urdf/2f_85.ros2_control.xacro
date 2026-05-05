@@ -51,12 +51,15 @@
 
             <!-- Joint interfaces -->
             <!-- With Gazebo or Hardware, they handle mimic joints, so we only need this command interface activated -->
+            <!-- We publish joint states: position, velocity, effort and object_detection_status -->
             <joint name="${prefix}robotiq_85_left_knuckle_joint">
                 <command_interface name="position" />
                 <state_interface name="position">
                     <param name="initial_value">${gripper_closed_position}</param>
                 </state_interface>
                 <state_interface name="velocity"/>
+                <state_interface name="effort"/>
+                <state_interface name="object_detection_status"/>
             </joint>
             <!-- When simulating we need to include the rest of the gripper joints -->
             <xacro:if value="${use_fake_hardware or sim_isaac or sim_gazebo}">
