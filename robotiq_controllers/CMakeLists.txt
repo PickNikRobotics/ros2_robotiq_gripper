@@ -7,13 +7,11 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rosidl_typesupport_c REQUIRED)
 find_package(controller_interface REQUIRED)
 find_package(std_srvs REQUIRED)
 
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   controller_interface
-  rosidl_typesupport_c
   std_srvs
 )
 

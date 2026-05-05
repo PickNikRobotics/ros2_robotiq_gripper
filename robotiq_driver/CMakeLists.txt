@@ -17,7 +17,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
-find_package(rosidl_typesupport_c REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp REQUIRED)
@@ -27,7 +26,6 @@ find_package(serial REQUIRED)
 set(THIS_PACKAGE_INCLUDE_DEPENDS
   ament_cmake
   hardware_interface
-  rosidl_typesupport_c
   pluginlib
   rclcpp
   rclcpp_lifecycle
