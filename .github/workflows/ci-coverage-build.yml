@@ -25,6 +25,16 @@ jobs:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
+      - name: Pin rosdep sources to noble-supporting snapshot
+        # setup-ros wrote 20-default.list pointing at master; rewrite it to
+        # the rolling/2026-04-28 snapshot so the action-ros-ci rosdep update
+        # that follows reads from that snapshot. Same approach industrial_ci
+        # uses (https://github.com/ros-industrial/industrial_ci/pull/933).
+        run: |
+          sudo sed -E -i \
+            's;(https://raw.githubusercontent.com/ros/rosdistro/)master;\1rolling/2026-04-28;g' \
+            /etc/ros/rosdep/sources.list.d/20-default.list
+          cat /etc/ros/rosdep/sources.list.d/20-default.list
       - name: Install ROS deps with upstream packaging gaps
         # joint_limits is a runtime dep of hardware_interface that is not
         # declared in ros-rolling-hardware-interface's debian Depends.
