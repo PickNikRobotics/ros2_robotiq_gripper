@@ -31,10 +31,11 @@ jobs:
         # rosidl-typesupport-fastrtps-{c,cpp} are typesupport implementations
         # that ros-rolling-rosidl-typesupport-c (the dispatch package) does not
         # pull in.
-        run: sudo apt-get install -y \
-          ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c \
-          ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp \
-          ros-${{ env.ROS_DISTRO }}-joint-limits
+        run: |
+          sudo apt-get install -y \
+            ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c \
+            ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp \
+            ros-${{ env.ROS_DISTRO }}-joint-limits
       - uses: actions/checkout@v4
       - uses: ros-tooling/action-ros-ci@v0.4
         with:
