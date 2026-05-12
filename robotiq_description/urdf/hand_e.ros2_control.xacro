@@ -10,7 +10,8 @@
                isaac_joint_states:=/isaac_joint_states
                use_mock_hardware:=^|true
                mock_sensor_commands:=^|true
-               com_port:=/dev/ttyUSB0">
+               com_port:=/dev/ttyUSB0
+               timeout:=0.5">
 
     <ros2_control name="${name}" type="system">
       <hardware>
@@ -37,6 +38,7 @@
           <param name="speed_multiplier">1.0</param>
           <param name="max_force">185.0</param>   <!-- N -->
           <param name="force_multiplier">0.5</param>
+          <param name="timeout">${timeout}</param>
         </xacro:unless>
       </hardware>
       <joint name="${prefix}hande_finger_distance">

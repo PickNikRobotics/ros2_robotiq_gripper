@@ -17,7 +17,8 @@
         gripper_force_multiplier:=0.5
         gripper_max_speed:=0.150
         gripper_max_force:=235.0
-        gripper_closed_position:=0.7929">
+        gripper_closed_position:=0.7929
+        timeout:=0.5">
 
 
         <!-- ros2 control include -->
@@ -37,7 +38,8 @@
                 gripper_force_multiplier="${gripper_force_multiplier}"
                 gripper_max_speed="${gripper_max_speed}"
                 gripper_max_force="${gripper_max_force}"
-                gripper_closed_position="${gripper_closed_position}"/>
+                gripper_closed_position="${gripper_closed_position}"
+                timeout="${timeout}"/>
         </xacro:if>
 
         <link name="${prefix}robotiq_85_base_link">
