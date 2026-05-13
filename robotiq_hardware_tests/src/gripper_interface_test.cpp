@@ -49,16 +49,13 @@ int main(int argc, char* argv[])
   CommandLineUtility cli;
 
   std::string port = kComPort;
-  cli.registerHandler(
-      "--port", [&port](const char* value) { port = value; }, false);
+  cli.registerHandler("--port", [&port](const char* value) { port = value; }, false);
 
   int baudrate = kBaudRate;
-  cli.registerHandler(
-      "--baudrate", [&baudrate](const char* value) { baudrate = std::stoi(value); }, false);
+  cli.registerHandler("--baudrate", [&baudrate](const char* value) { baudrate = std::stoi(value); }, false);
 
   double timeout = kTimeout;
-  cli.registerHandler(
-      "--timeout", [&timeout](const char* value) { timeout = std::stod(value); }, false);
+  cli.registerHandler("--timeout", [&timeout](const char* value) { timeout = std::stod(value); }, false);
 
   int slave_address = kSlaveAddress;
   cli.registerHandler(
