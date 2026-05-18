@@ -15,10 +15,42 @@ jobs:
       fail-fast: false
     env:
       ROS_DISTRO: rolling
+      # Rolling officially moved to target Ubuntu 26.04 (resolute) on
+      # 2026-04-28, so rosdep against ros/rosdistro master no longer resolves
+      # rolling keys on noble. Pin to the last snapshot that supports noble,
+      # mirroring the same workaround industrial_ci uses for the binary builds
+      # (https://github.com/ros-industrial/industrial_ci/pull/933).
+      # The rosdistro Python library reads ROSDISTRO_INDEX_URL; we set both
+      # the URL and the apt sources list (in a later step) for the same reason
+      # industrial_ci does: rosdep update fetches the rosdep yaml files via
+      # the sources.list.d entries, but resolves ROS package keys through the
+      # rosdistro index whose URL comes from ROSDISTRO_INDEX_URL.
+      ROSDISTRO_INDEX_URL: https://raw.githubusercontent.com/ros/rosdistro/rolling/2026-04-28/index-v4.yaml
     steps:
       - uses: ros-tooling/setup-ros@v0.7
         with:
           required-ros-distributions: ${{ env.ROS_DISTRO }}
+      - name: Pin rosdep sources to noble-supporting snapshot
+        # setup-ros wrote 20-default.list pointing at master; rewrite it to
+        # the rolling/2026-04-28 snapshot so the action-ros-ci rosdep update
+        # that follows reads from that snapshot. Same approach industrial_ci
+        # uses (https://github.com/ros-industrial/industrial_ci/pull/933).
+        run: |
+          sudo sed -E -i \
+            's;(https://raw.githubusercontent.com/ros/rosdistro/)master;\1rolling/2026-04-28;g' \
+            /etc/ros/rosdep/sources.list.d/20-default.list
+          cat /etc/ros/rosdep/sources.list.d/20-default.list
+      - name: Install ROS deps with upstream packaging gaps
+        # joint_limits is a runtime dep of hardware_interface that is not
+        # declared in ros-rolling-hardware-interface's debian Depends.
+        # rosidl-typesupport-fastrtps-{c,cpp} are typesupport implementations
+        # that ros-rolling-rosidl-typesupport-c (the dispatch package) does not
+        # pull in.
+        run: |
+          sudo apt-get install -y \
+            ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-c \
+            ros-${{ env.ROS_DISTRO }}-rosidl-typesupport-fastrtps-cpp \
+            ros-${{ env.ROS_DISTRO }}-joint-limits
       - uses: actions/checkout@v4
       - uses: ros-tooling/action-ros-ci@v0.4
         with:
@@ -39,6 +71,22 @@ jobs:
               }
             }
           colcon-mixin-repository: https://raw.githubusercontent.com/colcon/colcon-mixin-repository/master/index.yaml
+      - name: Debug runtime library resolution
+        if: always()
+        run: |
+          echo "=== LD_LIBRARY_PATH ==="
+          echo "${LD_LIBRARY_PATH:-(unset)}"
+          echo
+          echo "=== /opt/ros/${ROS_DISTRO}/lib (filtered) ==="
+          ls /opt/ros/${ROS_DISTRO}/lib | grep -E "hardware_interface|joint_(saturation_)?limit" || true
+          echo
+          echo "=== Test binary RPATHs ==="
+          for bin in ros_ws/build/robotiq_driver/tests/test_*; do
+            if [ -x "$bin" ]; then
+              echo "--- $bin ---"
+              readelf -d "$bin" | grep -E "RPATH|RUNPATH|NEEDED" || true
+            fi
+          done
       - uses: codecov/codecov-action@v4
         with:
           file: ros_ws/lcov/total_coverage.info
