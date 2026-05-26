@@ -22,7 +22,7 @@ robotiq_gripper_controller:
     max_velocity: 0.5    # TODO tune
 
     # Optional (recommended)
-    state_interfaces: ["position", "velocity"]
+    state_interfaces: ["position", "velocity", "effort"]
     allow_stalling: true
     stall_timeout: 0.05
     goal_tolerance: 0.02
