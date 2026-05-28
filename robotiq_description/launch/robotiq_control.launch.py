@@ -66,7 +66,7 @@ def generate_launch_description():
     )
     args.append(
         launch.actions.DeclareLaunchArgument(
-            name="launch_rviz", default_value="true", description="Launch RViz?"
+            name="launch_rviz", default_value="false", description="Launch RViz?"
         )
     )
     args.append(
@@ -83,9 +83,7 @@ def generate_launch_description():
             " ",
             LaunchConfiguration("model"),
             " ",
-            "sim_gazebo:=true",
-            " ",
-            "use_fake_hardware:=true",
+            "use_fake_hardware:=false",
             " ",
             "com_port:=",
             LaunchConfiguration("com_port"),

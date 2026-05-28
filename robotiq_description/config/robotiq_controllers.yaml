@@ -14,15 +14,15 @@ robotiq_gripper_controller:
     joint: robotiq_85_left_knuckle_joint
 
     # Enable effort control (replacement for use_effort_interface)
-    max_effort_interface: "robotiq_85_left_knuckle_joint/effort"
-    max_effort: 50.0   # TODO tune
+    # max_effort_interface: "robotiq_85_left_knuckle_joint/effort"
+    # max_effort: 50.0   # TODO tune
 
     # Enable velocity/speed control (replacement for use_speed_interface)
-    max_velocity_interface: "robotiq_85_left_knuckle_joint/velocity"
-    max_velocity: 0.5    # TODO tune
+    # max_velocity_interface: "robotiq_85_left_knuckle_joint/velocity"
+    # max_velocity: 0.5    # TODO tune
 
     # Optional (recommended)
-    state_interfaces: ["position", "velocity", "effort"]
+    state_interfaces: ["position", "velocity"]
     allow_stalling: true
     stall_timeout: 0.05
     goal_tolerance: 0.02
