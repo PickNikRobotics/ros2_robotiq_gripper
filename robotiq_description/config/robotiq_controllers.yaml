@@ -12,13 +12,14 @@ controller_manager:
 robotiq_gripper_controller:
   ros__parameters:
     joint: robotiq_85_left_knuckle_joint
+    use_effort_interface: false
 
     # Enable effort control (replacement for use_effort_interface)
-    max_effort_interface: "robotiq_85_left_knuckle_joint/effort"
+    max_effort_interface: "robotiq_85_left_knuckle_joint/set_gripper_max_effort"
     max_effort: 50.0   # TODO tune
 
     # Enable velocity/speed control (replacement for use_speed_interface)
-    max_velocity_interface: "robotiq_85_left_knuckle_joint/velocity"
+    max_velocity_interface: "robotiq_85_left_knuckle_joint/set_gripper_max_velocity"
     max_velocity: 0.5    # TODO tune
 
     # Optional (recommended)
