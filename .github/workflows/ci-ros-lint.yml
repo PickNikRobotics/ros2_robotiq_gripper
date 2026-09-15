@@ -1,41 +1,52 @@
 name: ROS Lint
+
 on:
+  workflow_dispatch:
   pull_request:
+    branches:
+      - main
 
 jobs:
   ament_lint:
     name: ament_${{ matrix.linter }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    # Pinned to lyrical: it is the newest distro whose build job in
+    # build_and_test.yaml is BLOCKING, so the linters match the toolchain that
+    # actually gates merges. rolling is newer, but its `main`-apt job is
+    # non-blocking while Rolling finishes the Resolute transition, and linting
+    # against a distro we do not gate on would put lint failures on a job nobody
+    # is obliged to fix.
+    #
+    # Runs in a container rather than on the runner because lyrical is Ubuntu
+    # Resolute and GitHub has no 26.04 runner yet. ros-tooling/setup-ros on a
+    # noble runner cannot install lyrical -- the same mismatch that has kept
+    # ci-coverage-build.yml red since the Resolute transition.
+    container: ros:lyrical-ros-base
     strategy:
       fail-fast: false
       matrix:
-        linter: [copyright, lint_cmake]
+        include:
+          - linter: copyright
+            apt: ament-copyright
+            args: ""
+          - linter: lint_cmake
+            apt: ament-lint-cmake
+            args: ""
+          # Line length stays at 121 to match this repo's existing convention.
+          - linter: cpplint
+            apt: ament-cpplint
+            args: "--linelength=121 --filter=-whitespace/newline"
     steps:
-      - uses: actions/checkout@v7
-      - uses: ros-tooling/setup-ros@v0.7
-      - uses: ros-tooling/action-ros-lint@v0.1
-        with:
-          distribution: rolling
-          linter: ${{ matrix.linter }}
-          package-name: robotiq_driver
-            robotiq_controllers
-            robotiq_description
-
-  ament_lint_121:
-    name: ament_${{ matrix.linter }}
-    runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        linter: [cpplint]
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ros-tooling/setup-ros@v0.7
-      - uses: ros-tooling/action-ros-lint@v0.1
-        with:
-          distribution: rolling
-          linter: cpplint
-          arguments: "--linelength=121 --filter=-whitespace/newline"
-          package-name: robotiq_driver
-            robotiq_controllers
-            robotiq_description
+      - uses: actions/checkout@v4
+      - name: install ament_${{ matrix.linter }}
+        run: |
+          apt-get update -qq
+          apt-get install -y -qq ros-lyrical-${{ matrix.apt }}
+      # Same three packages the previous config listed. robotiq_hardware_tests is
+      # excluded, as before.
+      - name: ament_${{ matrix.linter }}
+        shell: bash
+        run: |
+          source /opt/ros/lyrical/setup.bash
+          ament_${{ matrix.linter }} ${{ matrix.args }} \
+            robotiq_driver robotiq_controllers robotiq_description

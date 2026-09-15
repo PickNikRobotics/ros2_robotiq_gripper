@@ -1,0 +1,189 @@
+# This config uses industrial_ci (https://github.com/ros-industrial/industrial_ci.git).
+# For troubleshooting, see readme (https://github.com/ros-industrial/industrial_ci/blob/master/README.rst)
+#
+# Replaces the four rolling binary/semi-binary workflow files and the
+# reusable-industrial-ci-with-cache.yml they called. The binary and semi-binary
+# tiers are preserved as-is -- this only widens distro coverage.
+#
+# This repo is released to humble, jazzy, kilted, lyrical and rolling, but CI
+# only ever built rolling. jazzy, kilted and lyrical shipped untested, and
+# lyrical is the one that matters right now: it is Ubuntu Resolute AND released,
+# and robotiq_controllers is currently red on its buildfarm.
+#
+# The source-build tier keeps its own workflow (rolling-source-build.yml); it
+# uses ros-tooling/action-ros-ci rather than industrial_ci.
+
+name: Build and Test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+  schedule:
+    # Preserves the nightly cadence of the workflows this file replaces. Unlike
+    # picknik_controllers -- where cron-triggered workflows were silently
+    # auto-disabled after 60 days of repo inactivity, taking PR coverage with
+    # them -- these nightly runs are live and are currently the only working
+    # Resolute signal we have, so they are kept.
+    #
+    # The auto-disable risk is real but no longer silent: with these job names in
+    # the branch's required status checks, a disabled workflow makes PRs
+    # unmergeable rather than quietly unchecked.
+    - cron: '03 1 * * *'
+
+jobs:
+  industrial_ci:
+    strategy:
+      # Without this, one failing job cancels its siblings before they report.
+      fail-fast: false
+      matrix:
+        env:
+          # =============================================================
+          # binary -- our packages from source, everything else from debs.
+          # "Can a user build this today?"
+          # =============================================================
+          #
+          # humble is NOT built here. humble's hardware_interface has no
+          # get_optional(), which `main` requires; humble is served by the
+          # `humble` branch. Once `main` carries source-level distro guards per
+          # moveit2#3751, humble returns as one more entry in this list.
+          - ROS_DISTRO: jazzy
+            ROS_REPO: main
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.jazzy.repos
+          - ROS_DISTRO: kilted
+            ROS_REPO: main
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.kilted.repos
+          # lyrical is Ubuntu Resolute AND released, so its `main` apt is
+          # populated -- ros2_control 6.8.0 is there. This is the blocking
+          # Resolute gate, and the job that covers the distro whose buildfarm is
+          # currently failing.
+          - ROS_DISTRO: lyrical
+            ROS_REPO: main
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.lyrical.repos
+          # Rolling's `main` apt has no Resolute packages yet, so this stays
+          # non-blocking -- the state #129 established. It will go green on its
+          # own once those packages promote from ros2-testing to main.
+          - ROS_DISTRO: rolling
+            ROS_REPO: main
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.rolling.repos
+            NONBLOCKING: true
+
+          # binary against `testing` apt -- "what breaks at the next sync?"
+          # Non-blocking for the released distros: an upstream regression staged
+          # for release is something to see, not something that should block an
+          # unrelated PR. rolling-testing stays BLOCKING because it is green
+          # today and is this repo's established Resolute gate.
+          - ROS_DISTRO: jazzy
+            ROS_REPO: testing
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.jazzy.repos
+            NONBLOCKING: true
+          - ROS_DISTRO: kilted
+            ROS_REPO: testing
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.kilted.repos
+            NONBLOCKING: true
+          - ROS_DISTRO: lyrical
+            ROS_REPO: testing
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.lyrical.repos
+            NONBLOCKING: true
+          - ROS_DISTRO: rolling
+            ROS_REPO: testing
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper-not-released.rolling.repos
+
+          # =============================================================
+          # semi-binary -- as before, rolling only. Core ROS from debs, but our
+          # immediate dependencies built from their development branches.
+          # "Is an upstream dep about to break us?"
+          #
+          # Both of these are non-blocking. They were blocking before, but only
+          # because the tier was inert: ros2_robotiq_gripper.rolling.repos was
+          # byte-identical to the -not-released one, so semi-binary was a
+          # duplicate of binary. Now that it genuinely tracks ros2_control's
+          # development branch it can go red on upstream's schedule rather than
+          # ours, which is not something that should block a PR here.
+          # =============================================================
+          - ROS_DISTRO: rolling
+            ROS_REPO: main
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper.rolling.repos
+            SEMI_BINARY: true
+            NONBLOCKING: true
+          - ROS_DISTRO: rolling
+            ROS_REPO: testing
+            OS_CODE_NAME: resolute
+            UPSTREAM_WORKSPACE: ros2_robotiq_gripper.rolling.repos
+            SEMI_BINARY: true
+            NONBLOCKING: true
+
+    env:
+      # upstream_ws is restored from cache with different ownership than the
+      # container user, so vcs trips git's dubious-ownership check. Written
+      # directly because git is not installed yet at AFTER_INIT on a bare OS
+      # image (moveit_visual_tools#157 hit both halves of this).
+      AFTER_INIT: printf '[safe]\n\tdirectory = *\n' >> ~/.gitconfig
+      # Refresh the cached upstream checkout. For the semi-binary jobs drift is
+      # the point -- tracking upstream development branches is what the tier is
+      # for.
+      AFTER_SETUP_UPSTREAM_WORKSPACE: vcs pull $BASEDIR/upstream_ws/src
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      BASEDIR: ${{ github.workspace }}/.work
+      CACHE_PREFIX: ${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}${{ matrix.env.SEMI_BINARY && '-semi' || '' }}
+
+    name: "${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}${{ matrix.env.SEMI_BINARY && ' + upstream-source' || '' }}"
+    runs-on: ubuntu-latest
+    # Valid here because this is a step-based job. At the caller level of a
+    # `uses:` job it is silently ignored and invalidates the whole workflow --
+    # the trap #129 had to work around by plumbing it through as an input.
+    continue-on-error: ${{ matrix.env.NONBLOCKING || false }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: cache upstream_ws
+        uses: actions/cache@v4
+        with:
+          save-always: true
+          path: ${{ env.BASEDIR }}/upstream_ws
+          key: upstream_ws-${{ env.CACHE_PREFIX }}-${{ hashFiles(matrix.env.UPSTREAM_WORKSPACE) }}-${{ github.run_id }}
+          restore-keys: |
+            upstream_ws-${{ env.CACHE_PREFIX }}-${{ hashFiles(matrix.env.UPSTREAM_WORKSPACE) }}
+      # The target directory cache doesn't include the source directory because
+      # that comes from the checkout. See "prepare target_ws for cache" below.
+      - name: cache target_ws
+        uses: actions/cache@v4
+        with:
+          save-always: true
+          path: ${{ env.BASEDIR }}/target_ws
+          key: target_ws-${{ env.CACHE_PREFIX }}-${{ hashFiles('**/CMakeLists.txt', '**/package.xml') }}-${{ github.run_id }}
+          restore-keys: |
+            target_ws-${{ env.CACHE_PREFIX }}-${{ hashFiles('**/CMakeLists.txt', '**/package.xml') }}
+      - name: cache ccache
+        uses: actions/cache@v4
+        with:
+          save-always: true
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ env.CACHE_PREFIX }}-${{ github.sha }}-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ env.CACHE_PREFIX }}-${{ github.sha }}
+            ccache-${{ env.CACHE_PREFIX }}
+      - name: industrial_ci
+        uses: ros-industrial/industrial_ci@master
+        env: ${{ matrix.env }}
+      - name: upload test artifacts (on failure)
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results-${{ matrix.env.ROS_DISTRO }}-${{ matrix.env.ROS_REPO }}${{ matrix.env.SEMI_BINARY && '-semi' || '' }}
+          path: ${{ env.BASEDIR }}/target_ws/**/test_results/**/*.xml
+      - name: prepare target_ws for cache
+        if: ${{ always() }}
+        run: |
+          du -sh ${{ env.BASEDIR }}/target_ws
+          sudo find ${{ env.BASEDIR }}/target_ws -wholename '*/test_results/*' -delete
+          sudo rm -rf ${{ env.BASEDIR }}/target_ws/src
+          du -sh ${{ env.BASEDIR }}/target_ws

@@ -1,5 +1,25 @@
+# Sources for the "semi-binary" CI tier: core ROS still comes from debs, but our
+# immediate dependencies are built from their development branches. A failure
+# here means an upstream change is going to break us at the next sync.
+#
+# Until now this file was byte-identical to
+# ros2_robotiq_gripper-not-released.rolling.repos, which made the semi-binary
+# jobs exact duplicates of the binary jobs -- the tier reported green without
+# testing anything beyond what binary already covered. That happened because
+# `serial` is unreleased and so has to appear in both files, and no *released*
+# dependency was ever added here.
+#
+# ros2_control is the one that matters: it is released, so the binary tier gets
+# it from apt while this tier builds it from master. That difference is the
+# entire point of the tier. It is what would have caught
+# LoanedCommandInterface::get_value() being removed -- which instead surfaced as
+# a buildfarm release failure (issue #109).
 repositories:
   serial:
     type: git
     url: https://github.com/tylerjw/serial.git
     version: ros2
+  ros2_control:
+    type: git
+    url: https://github.com/ros-controls/ros2_control.git
+    version: master

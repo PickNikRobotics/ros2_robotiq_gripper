@@ -1,72 +1,64 @@
+# CI overview
 
-ROS2 Distro | Branch | Build status | Documentation | Released packages
-:---------: | :----: | :----------: | :-----------: | :---------------:
-**Rolling** | [`rolling`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/rolling) | [![Rolling Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml?branch=main) <br /> [![Rolling Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-testing.yml?branch=main) <br /> [![Rolling Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml?branch=main) <br /> [![Rolling Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-testing.yml?branch=main) <br /> [![Rolling Source Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-source-build.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-source-build.yml?branch=main) | [![Doxygen Doc Deployment](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml/badge.svg)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml) <br /> [Generated Doc](https://PickNikRobotics.github.io/ros2_robotiq_gripper_Documentation/rolling/html/index.html) | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/#rolling)
+| Workflow | Trigger | Blocking | What it covers |
+|---|---|---|---|
+| [`build_and_test.yaml`](build_and_test.yaml) | PR to `main`, push, nightly, manual | see below | binary + semi-binary tiers across every distro `main` serves |
+| [`rolling-source-build.yml`](rolling-source-build.yml) | push, nightly, manual | no | source tier — core ROS from source |
+| [`ci-format.yml`](ci-format.yml) | PR, manual | yes | `pre-commit` across all files |
+| [`ci-ros-lint.yml`](ci-ros-lint.yml) | PR to `main`, manual | yes | `ament_copyright`, `ament_lint_cmake`, `ament_cpplint` on **lyrical** |
+| [`ci-coverage-build.yml`](ci-coverage-build.yml) | PR to `main`, manual | no | coverage — currently broken, see below |
+| [`prerelease-check.yml`](prerelease-check.yml) | manual | n/a | `industrial_ci` `PRERELEASE: true` — buildfarm dry-run before tagging |
 
-## Build status
+## The tiers
 
+Two knobs, not one ladder.
 
-### Explanation of different build types
+**How much is built from source:**
 
-**NOTE**: There are three build stages checking current and future compatibility of the package.
+| Tier | Core ROS | Our immediate deps | `.repos` used |
+|---|---|---|---|
+| binary | deb | **deb** | `ros2_robotiq_gripper-not-released.<distro>.repos` |
+| semi-binary | deb | **source** (dev branches) | `ros2_robotiq_gripper.rolling.repos` |
+| source | **source** | source | `ros2.repos` + the above |
 
-[Detailed build status](.github/workflows/README.md)
+**Which apt repo the debs come from:** `main` (what users install today) or `testing` (staged for the next sync).
 
-1. Binary builds - against released packages (main and testing) in ROS distributions. Shows that direct local build is possible.
+Both `.repos` files carry `serial`, because [wjwwood/serial was never ported to ROS 2](https://github.com/PickNikRobotics/ros2_robotiq_gripper/issues/21) — there is no rosdep key, so it has to be a source checkout even in the binary tier. That is also why `robotiq_driver` is not in the released package set; only `robotiq_controllers` and `robotiq_description` are released as debs.
 
-   Uses repos file: `$NAME$-not-released.<ros-distro>.repos`
+## Matrix
 
-1. Semi-binary builds - against released core ROS packages (main and testing), but the immediate dependencies are pulled from source.
-   Shows that local build with dependencies is possible and if fails there we can expect that after the next package sync we will not be able to build.
+| Job | apt | Base OS | Blocking |
+|---|---|---|---|
+| `jazzy-main` | main | noble | ✅ |
+| `kilted-main` | main | noble | ✅ |
+| **`lyrical-main`** | main | **resolute** | **✅** |
+| `rolling-main` | main | resolute | ❌ |
+| `jazzy-testing` | testing | noble | ❌ |
+| `kilted-testing` | testing | noble | ❌ |
+| `lyrical-testing` | testing | resolute | ❌ |
+| `rolling-testing` | testing | resolute | ✅ |
+| `rolling-main + upstream-source` | main | resolute | ❌ |
+| `rolling-testing + upstream-source` | testing | resolute | ❌ |
 
-   Uses repos file: `$NAME$.repos`
+**lyrical is the Resolute gate.** It is Ubuntu Resolute *and* released, so its `main` apt is populated (`ros2_control` 6.8.0). This repo is released to five distros but CI only ever built rolling — jazzy, kilted and lyrical all shipped untested, and lyrical is the one whose buildfarm is currently failing.
 
-1. Source build - also core ROS packages are build from source. It shows potential issues in the mid future.
+`rolling-main` is non-blocking because Rolling's `main` apt has no Resolute packages yet — the state [#129](https://github.com/PickNikRobotics/ros2_robotiq_gripper/pull/129) established. It will go green on its own once those promote out of `ros2-testing`.
 
-ROS2 Distro | Branch | Build status | Documentation | Released packages
-:---------: | :----: | :----------: | :-----------: | :---------------:
-**Humble** | [`humble`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/humble) | [![Humble Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-main.yml?branch=main) <br /> [![Humble Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-testing.yml?branch=main) <br /> [![Humble Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-main.yml?branch=main) <br /> [![Humble Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-testing.yml?branch=main) <br /> [![Humble Source Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-source-build.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-source-build.yml?branch=main) | [![Doxygen Doc Deployment](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml/badge.svg)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml) <br /> [Generated Doc](https://PickNikRobotics.github.io/ros2_robotiq_gripper_Documentation/humble/html/index.html) | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/#humble)
+`rolling-testing` stays blocking: it is green today and has been this repo's de-facto Resolute gate.
 
-## Build status
+humble is absent because humble's `hardware_interface` has no `get_optional()`, which `main` requires. humble is served by the [`humble`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/humble) branch. Once `main` carries source-level distro guards per [moveit2#3751](https://github.com/moveit/moveit2/pull/3751), humble returns as one more matrix entry.
 
+## Why the semi-binary jobs are now non-blocking
 
-### Explanation of different build types
+They used to be blocking, but only because the tier was inert: `ros2_robotiq_gripper.rolling.repos` was byte-identical to the `-not-released` one, so semi-binary was an exact duplicate of binary and could never fail independently.
 
-**NOTE**: There are three build stages checking current and future compatibility of the package.
+It now builds `ros2_control` from `master`, which is the difference the tier exists for — `ros2_control` is released, so binary gets it from apt while semi-binary gets the development branch. That means it can go red on upstream's schedule rather than ours, which should not block a PR here.
 
-[Detailed build status](.github/workflows/README.md)
+This is the tier that would have caught `LoanedCommandInterface::get_value()` being removed, instead of it surfacing as a buildfarm release failure ([#109](https://github.com/PickNikRobotics/ros2_robotiq_gripper/issues/109)).
 
-1. Binary builds - against released packages (main and testing) in ROS distributions. Shows that direct local build is possible.
+## Known-broken, tracked separately
 
-   Uses repos file: `$NAME$-not-released.<ros-distro>.repos`
+- **`ci-coverage-build.yml`** runs `ros-tooling/action-ros-ci` directly on a noble runner, outside a container, and has failed since Rolling moved to Resolute. Its own comment proposes the fix: move it inside `industrial_ci` with `OS_CODE_NAME: resolute`.
+- **`rolling-source-build.yml`** fetches its `.repos` with the deprecated `?token=` URL syntax and gets an HTTP 404 on every run, so the source tier has never actually executed. One-line fix (drop the token — this is a public repo).
 
-1. Semi-binary builds - against released core ROS packages (main and testing), but the immediate dependencies are pulled from source.
-   Shows that local build with dependencies is possible and if fails there we can expect that after the next package sync we will not be able to build.
-
-   Uses repos file: `$NAME$.repos`
-
-1. Source build - also core ROS packages are build from source. It shows potential issues in the mid future.
-
-ROS2 Distro | Branch | Build status | Documentation | Released packages
-:---------: | :----: | :----------: | :-----------: | :---------------:
-**Iron** | [`iron`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/iron) | [![Iron Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-main.yml?branch=main) <br /> [![Iron Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-testing.yml?branch=main) <br /> [![Iron Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-main.yml?branch=main) <br /> [![Iron Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-testing.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-testing.yml?branch=main) <br /> [![Iron Source Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-source-build.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-source-build.yml?branch=main) | [![Doxygen Doc Deployment](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml/badge.svg)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/doxygen-deploy.yml) <br /> [Generated Doc](https://PickNikRobotics.github.io/ros2_robotiq_gripper_Documentation/iron/html/index.html) | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/#iron)
-
-## Build status
-
-
-### Explanation of different build types
-
-**NOTE**: There are three build stages checking current and future compatibility of the package.
-
-[Detailed build status](.github/workflows/README.md)
-
-1. Binary builds - against released packages (main and testing) in ROS distributions. Shows that direct local build is possible.
-
-   Uses repos file: `$NAME$-not-released.<ros-distro>.repos`
-
-1. Semi-binary builds - against released core ROS packages (main and testing), but the immediate dependencies are pulled from source.
-   Shows that local build with dependencies is possible and if fails there we can expect that after the next package sync we will not be able to build.
-
-   Uses repos file: `$NAME$.repos`
-
-1. Source build - also core ROS packages are build from source. It shows potential issues in the mid future.
+Both are left alone here to keep this change scoped to distro coverage.
