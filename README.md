@@ -1,5 +1,9 @@
 # ros2_robotiq_gripper
 
+This repository is no longer maintained - we recommend migrating to the official Robotiq ROS 2 drivers using their migration instructions [here](https://github.com/robotiq/ros).
+
+## Historical context
+
 This repository contains the ROS 2 driver, controller and description packages for working with a Robotiq Gripper.
 
 The goal is to support multiple Robotiq Grippers.
