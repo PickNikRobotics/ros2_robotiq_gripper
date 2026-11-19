@@ -70,6 +70,7 @@ constexpr int kWriteResponseSize = 8;
 constexpr size_t kResponseHeaderSize = 3;
 constexpr size_t kGripperStatusIndex = 0;
 constexpr size_t kPositionIndex = 4;
+constexpr size_t kCurrentIndex = 5;
 
 // If the gripper connection is not stable we may want to try sending the command again.
 constexpr auto kMaxRetries = 5;
@@ -186,6 +187,16 @@ uint8_t DefaultDriver::get_gripper_position()
   return gripper_position_;
 }
 
+uint8_t DefaultDriver::get_gripper_current()
+{
+  return gripper_current_;
+}
+
+uint8_t DefaultDriver::get_object_detection_status()
+{
+  return static_cast<uint8_t>(object_detection_status_);
+}
+
 bool DefaultDriver::gripper_is_moving()
 {
   update_status();
@@ -292,5 +303,7 @@ void DefaultDriver::update_status()
 
   // Read the current gripper position.
   gripper_position_ = response[kResponseHeaderSize + kPositionIndex];
+  // Read the current gripper current.
+  gripper_current_ = response[kResponseHeaderSize + kCurrentIndex];
 }
 }  // namespace robotiq_driver

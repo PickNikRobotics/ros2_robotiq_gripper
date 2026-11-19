@@ -101,6 +101,22 @@ public:
   virtual uint8_t get_gripper_position() = 0;
 
   /**
+   * @brief Return the current current of the gripper.
+   *
+   * @throw serial::IOException on failure to successfully communicate with gripper port
+   *
+   * @return uint8_t A value representing the current (approximate effort).
+   */
+  virtual uint8_t get_gripper_current() = 0;
+
+  /**
+   * @brief Returns the object detection status.
+   *
+   * @return uint8_t A value representing the object detection status.
+   */
+  virtual uint8_t get_object_detection_status() = 0;
+
+  /**
    * @brief Returns true if the gripper is currently moving, false otherwise.
    */
   virtual bool gripper_is_moving() = 0;

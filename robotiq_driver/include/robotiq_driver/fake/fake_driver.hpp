@@ -53,6 +53,8 @@ public:
   void deactivate() override;
   void set_gripper_position(uint8_t position) override;
   uint8_t get_gripper_position() override;
+  uint8_t get_gripper_current() override;
+  uint8_t get_object_detection_status() override;
   bool gripper_is_moving() override;
   void set_speed(uint8_t speed) override;
   void set_force(uint8_t force) override;

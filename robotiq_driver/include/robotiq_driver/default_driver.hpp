@@ -72,6 +72,19 @@ public:
   uint8_t get_gripper_position() override;
 
   /**
+   * @brief Return the current current of the gripper.
+   * @throw serial::IOException on failure to successfully communicate with gripper port
+   * @return uint8_t A value representing the current (approximate effort).
+   */
+  uint8_t get_gripper_current() override;
+
+  /**
+   * @brief Returns the object detection status.
+   * @return uint8_t A value representing the object detection status.
+   */
+  uint8_t get_object_detection_status() override;
+
+  /**
    * @brief Returns true if the gripper is currently moving, false otherwise.
    *
    */
@@ -119,6 +132,7 @@ private:
   ObjectDetectionStatus object_detection_status_;
 
   uint8_t gripper_position_;
+  uint8_t gripper_current_;
   uint8_t commanded_gripper_speed_;
   uint8_t commanded_gripper_force_;
 };
