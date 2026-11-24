@@ -32,7 +32,7 @@ repos:
       - id: fix-byte-order-marker
 
   - repo: https://github.com/psf/black
-    rev: 25.10.1
+    rev: 26.10.1
     hooks:
       - id: black
 
