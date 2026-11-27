@@ -1,0 +1,12 @@
+# Dependencies that are not released as debs on any distro, so they must be
+# built from source even for the "binary" CI tier.
+#
+# wjwwood/serial was never released to ROS 2 (see issue #21), so there is no
+# rosdep key for it. robotiq_driver depends on it directly. This is also why
+# robotiq_driver is absent from the released package set -- only
+# robotiq_controllers and robotiq_description are bloomed.
+repositories:
+  serial:
+    type: git
+    url: https://github.com/tylerjw/serial.git
+    version: ros2
