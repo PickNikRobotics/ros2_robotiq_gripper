@@ -10,24 +10,16 @@ Initially this repo supported only the 2f-85 however we want to also support the
 
 ## Build status
 
-Currently the `main` branch is used for all current releases: Humble, Iron and Rolling.
+Currently the `main` branch is used for current releases after Humble: Kilted, Jazzy, and Rolling.
 As this is not a core ROS 2 package API/ABI breakage is not guaranteed, it is done as best effort and takes into account maintenance costs.
 This is not sponsored or maintained by Robotiq we try to keep everything on main to reduce maintenance overhead.
 
-
 ROS2 Distro | Branch | Build status | Documentation | Released packages
 :---------: | :----: | :----------: | :-----------: | :---------------:
-**Rolling** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) | [![Rolling Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml?branch=main) <br /> [![Rolling Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml?branch=main) | | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/github-PickNikRobotics-ros2_robotiq_grippper/#rolling)
-
-
-ROS2 Distro | Branch | Build status | Documentation | Released packages
-:---------: | :----: | :----------: | :-----------: | :---------------:
-**Humble** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) | [![Humble Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-binary-build-main.yml?branch=main) <br /> [![Humble Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/humble-semi-binary-build-main.yml?branch=main) | | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/github-PickNikRobotics-ros2_robotiq_grippper/#humble)
-
-
-ROS2 Distro | Branch | Build status | Documentation | Released packages
-:---------: | :----: | :----------: | :-----------: | :---------------:
-**Iron** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) | [![Iron Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-binary-build-main.yml?branch=main) <br /> [![Iron Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/iron-semi-binary-build-main.yml?branch=main) | | [ros2_robotiq_gripper](https://index.ros.org/p/ros2_robotiq_gripper/github-PickNikRobotics-ros2_robotiq_grippper/#iron)
+**Rolling** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) | [![Rolling Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-binary-build-main.yml?branch=main) <br> [![Rolling Semi-Binary Build](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml/badge.svg?branch=main)](https://github.com/PickNikRobotics/ros2_robotiq_gripper/actions/workflows/rolling-semi-binary-build-main.yml?branch=main) <br> [![build.ros2.org](https://build.ros2.org/buildStatus/icon?job=Rdev__ros2_robotiq_gripper__ubuntu_noble_amd64&subject=build.ros2.org)](https://build.ros2.org/job/Rdev__ros2_robotiq_gripper__ubuntu_noble_amd64/) | | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Rbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary)](https://build.ros2.org/job/Rbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary/)
+**Kilted** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) |  | | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Kbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary)](https://build.ros2.org/job/Kbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary/)
+**Jazzy** | [`main`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/main) |  | | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Jbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary)](https://build.ros2.org/job/Jbin_uN64__ros2_robotiq_gripper__ubuntu_noble_amd64__binary/)
+**Humble** | [`humble`](https://github.com/PickNikRobotics/ros2_robotiq_gripper/tree/humble) |  | | [![Build Status](https://build.ros2.org/buildStatus/icon?job=Hbin_uJ64__ros2_robotiq_gripper__ubuntu_jammy_amd64__binary)](https://build.ros2.org/job/Hbin_uJ64__ros2_robotiq_gripper__ubuntu_jammy_amd64__binary/)
 
 ### Explanation of different build types
 
