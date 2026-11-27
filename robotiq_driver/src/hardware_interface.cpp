@@ -325,9 +325,9 @@ void RobotiqGripperHardwareInterface::background_task()
       }
 
       // Write the latest command to the gripper.
-      this->driver_->set_gripper_position(write_command_.load());
       this->driver_->set_speed(write_speed_.load());
       this->driver_->set_force(write_force_.load());
+      this->driver_->set_gripper_position(write_command_.load());
 
       // Read the state of the gripper.
       gripper_current_state_.store(this->driver_->get_gripper_position());
